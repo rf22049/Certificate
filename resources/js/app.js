@@ -71,15 +71,6 @@ replaceInput?.addEventListener('change', () => {
 	}
 });
 
-const continueButton = document.querySelector('[data-next-step]');
-const nextStepNotice = document.querySelector('[data-next-step-notice]');
-
-continueButton?.addEventListener('click', () => {
-	if (nextStepNotice) {
-		nextStepNotice.hidden = false;
-	}
-});
-
 const manualForm = document.querySelector('[data-manual-form]');
 const manualRows = document.querySelector('[data-manual-rows]');
 const addRecipientButton = document.querySelector('[data-add-recipient]');

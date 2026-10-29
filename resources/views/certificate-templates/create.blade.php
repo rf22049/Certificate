@@ -86,13 +86,12 @@
                         </section>
 
                         <div class="continue-area">
-                            <button class="primary-button" type="button" data-next-step>
+                            <a class="primary-button" href="{{ route('recipients.index') }}">
                                 Lanjut
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                     <path d="M5 12h14M13 6l6 6-6 6" />
                                 </svg>
-                            </button>
-                            <p class="toast" role="status" data-next-step-notice hidden>Langkah berikutnya belum tersedia.</p>
+                            </a>
                         </div>
                     </aside>
                 </div>

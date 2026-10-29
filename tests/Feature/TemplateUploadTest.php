@@ -31,6 +31,7 @@ class TemplateUploadTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertSee('Template berhasil diunggah!')
+            ->assertSee(route('recipients.index'), false)
             ->assertDontSee('Admin Prodi');
 
         $path = session('template.path');
