@@ -12,23 +12,7 @@
 </head>
 <body>
     <div class="app-shell">
-        <header class="topbar">
-            <a class="brand" href="{{ route('home') }}" aria-label="ProCert, beranda">
-                <img class="brand-logo" src="{{ asset('images/procert logo (1).jpeg') }}" alt="ProCert">
-            </a>
-        </header>
-
-        <nav class="steps" aria-label="Tahapan pembuatan sertifikat">
-            <ol class="steps-list">
-                <li class="step is-active" aria-current="step">
-                    <span class="step-number">1</span><span class="step-label">Upload Template</span>
-                </li>
-                <li class="step"><span class="step-number">2</span><span class="step-label">Upload Data</span></li>
-                <li class="step"><span class="step-number">3</span><span class="step-label">Nomor Sertifikat</span></li>
-                <li class="step"><span class="step-number">4</span><span class="step-label">Edit Sertifikat</span></li>
-                <li class="step"><span class="step-number">5</span><span class="step-label">Review</span></li>
-            </ol>
-        </nav>
+        @include('partials.wizard-header', ['currentStep' => 1])
 
         <main class="page-content {{ $template ? 'page-content--success' : 'page-content--upload' }}">
             @if ($template)
