@@ -1174,3 +1174,281 @@ a:focus-visible {
         transition-duration: .01ms !important;
     }
 }
+
+
+/* =========================================
+   ProCert — Balanced Animated Wizard
+   ========================================= */
+
+.steps {
+    width: min(100% - 96px, 1280px);
+    margin: 28px auto 0;
+    overflow: visible;
+}
+
+.steps-list {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.step {
+    position: relative;
+    display: flex;
+    flex: 0 0 auto;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    color: #b6b8bd;
+    white-space: nowrap;
+}
+
+.step:not(:last-child)::after {
+    display: none;
+}
+
+.step-number {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    place-items: center;
+    border-radius: 50%;
+    background: #f1f2f4;
+    color: #a4a7ad;
+    font-size: 17px;
+    font-weight: 700;
+    transition: background-color 300ms ease, color 300ms ease;
+}
+
+.step-number svg {
+    width: 22px;
+    height: 22px;
+}
+
+.step-label {
+    display: block;
+    padding: 0;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    transition: color 300ms ease;
+}
+
+.step.is-complete,
+.step.is-active {
+    color: var(--blue);
+}
+
+.step.is-complete .step-number,
+.step.is-active .step-number {
+    background: var(--blue);
+    color: #fff;
+}
+
+.step-connector {
+    position: relative;
+    display: block;
+    flex: 1 1 0;
+    min-width: 22px;
+    height: 2px;
+    margin: 0 12px;
+    overflow: hidden;
+    background: #e0e1e4;
+}
+
+.step-connector span {
+    position: absolute;
+    inset: 0;
+    width: 0;
+    background: var(--blue);
+    transition: width 550ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.step-connector.is-complete span {
+    width: 100%;
+}
+
+@media (max-width: 1000px) {
+    .steps {
+        width: calc(100% - 40px);
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .steps-list {
+        min-width: 760px;
+    }
+
+    .step-connector {
+        min-width: 18px;
+        margin: 0 8px;
+    }
+}
+
+@media (max-width: 600px) {
+    .steps {
+        width: calc(100% - 28px);
+    }
+
+    .steps-list {
+        min-width: 720px;
+    }
+
+    .step {
+        gap: 6px;
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        font-size: 14px;
+    }
+
+    .step-number svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .step-label {
+        font-size: 12px;
+    }
+
+    .step-connector {
+        min-width: 14px;
+        margin: 0 6px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .step-number,
+    .step-label,
+    .step-connector span {
+        transition: none !important;
+    }
+}
+
+
+/* =========================================
+   ProCert — Animated Wizard Progress
+   ========================================= */
+
+/* Step aktif: efek muncul yang lembut. */
+.steps-list > .step.is-active .step-number {
+    animation: active-step-appear 450ms ease-out both;
+}
+
+@keyframes active-step-appear {
+    0% {
+        transform: scale(.88);
+        box-shadow: 0 0 0 0 rgba(36, 84, 255, 0);
+    }
+
+    65% {
+        transform: scale(1.06);
+        box-shadow: 0 0 0 5px rgba(36, 84, 255, .10);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(36, 84, 255, 0);
+    }
+}
+
+/* Garis yang sudah selesai tetap biru dan statis. */
+.steps-list > .step-connector.is-complete span {
+    width: 100%;
+    animation: none;
+}
+
+/* Hanya garis yang baru dilewati yang dianimasikan. */
+.steps-list > .step-connector.just-completed span {
+    width: 0;
+    animation: progress-line-fill 600ms
+        cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+@keyframes progress-line-fill {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}
+
+/* Hanya centang step yang baru selesai yang dianimasikan. */
+.steps-list > .step.animate-check .step-number svg path {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: checkmark-draw 350ms ease-out forwards;
+}
+
+@keyframes checkmark-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Hormati pengaturan reduced motion pengguna. */
+@media (prefers-reduced-motion: reduce) {
+    .steps-list > .step-connector.is-complete span,
+    .steps-list > .step-connector.just-completed span {
+        animation: none !important;
+        width: 100%;
+    }
+
+    .steps-list > .step.is-active .step-number {
+        animation: none !important;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .steps-list > .step.animate-check .step-number svg path {
+        animation: none !important;
+        stroke-dashoffset: 0;
+    }
+}
+
+/* FIX: Wizard progress layout */
+.steps-list {
+    display: flex !important;
+    flex-flow: row nowrap;
+    width: 100%;
+    align-items: center;
+}
+
+.step {
+    flex: 0 0 auto;
+}
+
+.step-connector {
+    flex: 1 1 0;
+    min-width: 22px;
+}
+
+/* FIX: Newly completed connector animation */
+.steps-list > .step-connector.just-completed span {
+    width: 0;
+    animation: progress-line-fill 600ms
+        cubic-bezier(.22, 1, .36, 1) forwards !important;
+}
+
+@keyframes progress-line-fill {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
+}

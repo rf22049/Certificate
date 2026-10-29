@@ -2,374 +2,313 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProCert — Penomoran Sertifikat</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>Pengaturan Nomor Sertifikat | ProCert</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        :root {
-            --blue: #2864e8;
-            --blue-dark: #1748b5;
-            --blue-light: #edf4ff;
-            --text: #172b4d;
-            --muted: #77849a;
-            --border: #e2e8f0;
-            --background: #f6f8fc;
+        .number-page {
+            width: 100%;
+            margin: 43px auto 0;
+            padding-bottom: 20px;
+            color: #17191f;
+            animation: arrive 420ms ease both;
         }
 
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            background: var(--background);
-            color: var(--text);
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        button, input, select {
-            font: inherit;
-        }
-
-        button {
-            cursor: pointer;
-        }
-
-        .topbar {
-            height: 76px;
-            background: white;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 6%;
-        }
-
-        .brand {
-            font-size: 25px;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        .brand span {
-            color: var(--blue);
-        }
-
-        .admin {
-            color: #52627a;
-            font-size: 13px;
-        }
-
-        .container {
-            max-width: 1120px;
-            margin: 38px auto;
-            padding: 0 24px 40px;
-        }
-
-        .steps {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 36px;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .step {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .step-number {
-            width: 30px;
-            height: 30px;
-            display: grid;
-            place-items: center;
-            border-radius: 50%;
-            background: #e8edf5;
-            font-weight: 700;
-        }
-
-        .step.active {
-            color: var(--blue);
-            font-weight: 700;
-        }
-
-        .step.active .step-number,
-        .step.done .step-number {
-            background: var(--blue);
-            color: white;
-        }
-
-        .step-line {
-            width: 38px;
-            height: 1px;
-            background: #d7deea;
-        }
-
-        .heading {
+        .number-heading {
             margin-bottom: 28px;
         }
 
-        .heading h1 {
-            margin: 0 0 10px;
-            font-size: clamp(25px, 4vw, 32px);
-            letter-spacing: -0.8px;
-        }
-
-        .heading p {
+        .number-heading h1 {
             margin: 0;
-            color: var(--muted);
-            line-height: 1.6;
-            font-size: 14px;
+            color: #0e1014;
+            font-size: 29px;
+            font-weight: 800;
+            line-height: 1.25;
         }
 
-        .card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px;
+        .number-heading p {
+            margin: 8px 0 0;
+            color: #8c9099;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .number-card {
             margin-bottom: 22px;
-            box-shadow: 0 4px 18px rgba(31, 57, 94, 0.035);
+            padding: 28px;
+            border: 1px solid #dedfe3;
+            border-radius: 9px;
+            background: #fff;
+            box-shadow: 0 3px 4px #17191f08;
         }
 
-        .card-title {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 6px;
+        .number-card-title {
+            margin: 0;
+            color: #17191f;
+            font-size: 19px;
+            font-weight: 800;
         }
 
-        .card-description {
-            color: var(--muted);
-            font-size: 13px;
+        .number-card-description {
+            margin: 8px 0 25px;
+            color: #8c9099;
+            font-size: 14px;
             line-height: 1.6;
-            margin-bottom: 24px;
         }
 
-        .form-grid {
+        .number-form-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 20px;
+            gap: 22px 24px;
         }
 
-        .field label {
+        .number-field {
+            min-width: 0;
+        }
+
+        .number-field label {
             display: block;
-            font-size: 13px;
-            font-weight: 700;
             margin-bottom: 9px;
+            color: #17191f;
+            font-size: 14px;
+            font-weight: 700;
         }
 
-        .field input,
-        .field select {
-            width: 100%;
-            height: 46px;
-            border: 1px solid #dce3ed;
-            border-radius: 9px;
-            padding: 0 13px;
-            background: white;
-            color: var(--text);
-            outline: none;
-        }
-
-        .field input:focus,
-        .field select:focus {
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(40, 100, 232, 0.1);
-        }
-
-        .field input:disabled {
-            color: #f4f7fb;
-            background: #34445d;
-            border-color: #34445d;
-            opacity: 1;
-            -webkit-text-fill-color: #f4f7fb;
-        }
-
-        .field small {
+        .number-field input,
+        .number-field select {
             display: block;
-            color: var(--muted);
+            width: 100%;
+            min-width: 0;
+            height: 48px;
+            padding: 0 14px;
+            border: 1px solid #dfe2e8;
+            border-radius: 8px;
+            background: #fff;
+            color: #17191f;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 160ms ease, box-shadow 160ms ease;
+        }
+
+        .number-field input:focus,
+        .number-field select:focus {
+            border-color: #2454ff;
+            box-shadow: 0 0 0 3px #2454ff18;
+        }
+
+        .number-field input:disabled {
+            border-color: #34445d;
+            background: #34445d;
+            color: #fff;
+            opacity: 1;
+            -webkit-text-fill-color: #fff;
+        }
+
+        .number-field small {
+            display: block;
             margin-top: 8px;
-            font-size: 11px;
+            color: #8c9099;
+            font-size: 12px;
             line-height: 1.5;
         }
 
-        .preview-card {
-            border-radius: 16px;
-            padding: 30px;
-            background: linear-gradient(135deg, #2158cf, #3b82f6);
-            color: white;
+        .number-preview {
             margin-bottom: 22px;
-            overflow: hidden;
+            padding: 25px 28px;
+            border: 1px solid #dfe5f0;
+            border-radius: 9px;
+            background: #f8faff;
         }
 
-        .preview-label {
+        .number-preview-label {
+            margin: 0 0 18px;
+            color: #737e91;
             font-size: 12px;
-            letter-spacing: 1.3px;
-            font-weight: 700;
-            opacity: 0.8;
+            font-weight: 800;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        .preview-code {
-            margin: 22px 0;
-            padding: 22px 18px;
-            border: 1px solid rgba(255,255,255,.25);
-            border-radius: 12px;
-            background: rgba(255,255,255,.12);
-            font-size: clamp(14px, 2.2vw, 23px);
-            font-weight: 700;
-            line-height: 1.8;
-            overflow-wrap: anywhere;
+        .number-preview-code {
+            margin: 0;
+            color: #2454ff;
+            font-size: clamp(15px, 2vw, 23px);
+            font-weight: 800;
+            line-height: 1.7;
             text-align: center;
+            overflow-wrap: anywhere;
         }
 
-        .preview-note {
-            font-size: 12px;
-            opacity: .85;
-            line-height: 1.6;
+        .number-preview-next {
+            margin: 8px 0 0;
+            color: #8c9099;
+            font-size: 13px;
+            line-height: 1.7;
+            text-align: center;
+            overflow-wrap: anywhere;
         }
 
-        .reminder {
+        .number-reminder {
             display: flex;
             align-items: flex-start;
             gap: 15px;
-            padding: 20px;
-            background: #eff6ff;
-            border: 1px solid #d8e7ff;
-            border-radius: 13px;
             margin-bottom: 22px;
+            padding: 20px 22px;
+            border: 1px solid #d9e5ff;
+            border-radius: 9px;
+            background: #f5f8ff;
         }
 
-        .reminder-icon {
+        .number-reminder-icon {
+            display: grid;
             width: 42px;
             height: 42px;
-            flex-shrink: 0;
-            display: grid;
+            flex: 0 0 42px;
             place-items: center;
-            border-radius: 12px;
-            background: white;
-            color: var(--blue);
-            font-size: 20px;
+            border-radius: 50%;
+            background: #e5edff;
+            color: #2454ff;
+            font-size: 21px;
+            font-weight: 800;
         }
 
-        .reminder h3 {
-            margin: 1px 0 8px;
-            font-size: 14px;
+        .number-reminder h2 {
+            margin: 2px 0 7px;
+            color: #17191f;
+            font-size: 15px;
+            font-weight: 800;
         }
 
-        .reminder p {
+        .number-reminder p {
             margin: 0;
+            color: #68758a;
             font-size: 13px;
-            color: #536782;
             line-height: 1.7;
         }
 
-        .reminder strong {
-            color: #1748b5;
+        .number-reminder strong {
+            color: #2454ff;
         }
 
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 30px;
-        }
-
-        .btn {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            border-radius: 9px;
-            border: 1px solid var(--border);
-            background: white;
-            color: var(--text);
-            font-size: 13px;
-            font-weight: 700;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--blue);
-            color: white;
-            border-color: var(--blue);
-        }
-
-        .btn-primary:hover {
-            background: var(--blue-dark);
-        }
-
-        .btn:focus-visible {
-            outline: 3px solid #a9c6ff;
-            outline-offset: 2px;
-        }
-
-        .notice {
+        .number-notice {
             display: none;
-            padding: 12px 15px;
-            border-radius: 9px;
+            margin-bottom: 20px;
+            padding: 13px 16px;
+            border: 1px solid #dfe5f0;
+            border-radius: 8px;
+            background: #f8faff;
+            color: #34445d;
             font-size: 13px;
             line-height: 1.6;
-            margin-top: 18px;
         }
 
-        .notice.error {
+        .number-notice.is-visible {
             display: block;
-            color: #9f2525;
-            background: #fff1f1;
-            border: 1px solid #ffd3d3;
         }
 
-        .notice.info {
-            display: block;
-            color: #1748b5;
-            background: #eff6ff;
-            border: 1px solid #d8e7ff;
+        .number-notice.is-error {
+            border-color: #fecaca;
+            background: #fff7f7;
+            color: #b42318;
         }
 
-        @media (max-width: 700px) {
-            .topbar {
-                padding: 0 20px;
+        .number-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-top: 26px;
+        }
+
+        .number-button {
+            display: inline-flex;
+            min-height: 48px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 24px;
+            border: 1px solid #dfe2e8;
+            border-radius: 8px;
+            background: #fff;
+            color: #2454ff;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 160ms ease, border-color 160ms ease;
+        }
+
+        .number-button:hover {
+            background: #f6f8ff;
+            border-color: #2454ff;
+        }
+
+        .number-button-primary {
+            min-width: 210px;
+            border-color: #2454ff;
+            background: #2454ff;
+            color: #fff;
+        }
+
+        .number-button-primary:hover {
+            border-color: #1745ed;
+            background: #1745ed;
+        }
+
+        .number-button svg {
+            width: 18px;
+            height: 18px;
+            flex: 0 0 18px;
+        }
+
+        @media (max-width: 850px) {
+            .number-form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .container {
-                margin-top: 24px;
-                padding: 0 16px 30px;
+            .number-page {
+                margin-top: 32px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .number-page {
+                margin-top: 28px;
             }
 
-            .steps {
-                gap: 6px;
-                overflow-x: auto;
-                padding-bottom: 5px;
+            .number-heading h1 {
+                font-size: 24px;
             }
 
-            .step span:last-child {
-                display: none;
-            }
-
-            .step-line {
-                width: 24px;
-                flex-shrink: 0;
-            }
-
-            .card,
-            .preview-card {
+            .number-card {
                 padding: 20px;
             }
 
-            .form-grid {
+            .number-form-grid {
                 grid-template-columns: 1fr;
-                gap: 18px;
+                gap: 19px;
             }
 
-            .actions {
+            .number-preview {
+                padding: 20px;
+            }
+
+            .number-actions {
                 flex-direction: column-reverse;
+                align-items: stretch;
             }
 
-            .actions .btn {
+            .number-button,
+            .number-button-primary {
                 width: 100%;
             }
         }
@@ -377,158 +316,192 @@
 </head>
 
 <body>
-    <header class="topbar">
-        <div class="brand">Pro<span>C</span>ert</div>
-        <div class="admin">Admin Prodi</div>
-    </header>
+    <div class="app-shell">
 
-    <main class="container">
-        <nav class="steps" aria-label="Tahapan pembuatan sertifikat">
-            <div class="step done">
-                <span class="step-number">✓</span>
-                <span>Upload Template</span>
-            </div>
-            <span class="step-line"></span>
-            <div class="step done">
-                <span class="step-number">✓</span>
-                <span>Data Penerima</span>
-            </div>
-            <span class="step-line"></span>
-            <div class="step active" aria-current="step">
-                <span class="step-number">3</span>
-                <span>Penomoran</span>
-            </div>
-            <span class="step-line"></span>
-            <div class="step">
-                <span class="step-number">4</span>
-                <span>Edit Sertifikat</span>
-            </div>
-        </nav>
+        {{-- Header dan progress bar bersama dengan Step 1 dan Step 2. --}}
+        @include('partials.wizard-header', ['currentStep' => 3])
 
-        <section class="heading">
-            <h1>Pengaturan Nomor Sertifikat</h1>
-            <p>
-                Atur penomoran sertifikat sesuai ketentuan program studi.
-                Preview akan diperbarui secara otomatis.
-            </p>
-        </section>
+        <main class="number-page">
 
-        <section class="card">
-            <div class="card-title">Format Nomor Sertifikat</div>
-            <div class="card-description">
-                Kode berwarna gelap merupakan ketentuan tetap dari program
-                studi dan tidak perlu diisi ulang.
-            </div>
-
-            <div class="form-grid">
-                <div class="field">
-                    <label for="faculty">Kode Fakultas</label>
-                    <input id="faculty" value="UP-DKN2.2" disabled>
-                    <small>Kode tetap dari program studi.</small>
-                </div>
-
-                <div class="field">
-                    <label for="document">Jenis Dokumen</label>
-                    <input id="document" value="SERTIFIKAT" disabled>
-                    <small>Jenis dokumen tetap.</small>
-                </div>
-
-                <div class="field">
-                    <label for="studyProgram">Kode Program Studi</label>
-                    <input id="studyProgram" value="PP05" disabled>
-                    <small>Kode tetap dari program studi.</small>
-                </div>
-
-                <div class="field">
-                    <label for="startNumber">Nomor Awal</label>
-                    <input
-                        id="startNumber"
-                        type="number"
-                        min="1"
-                        step="1"
-                        value="58"
-                        inputmode="numeric"
-                        required
-                    >
-                    <small>Contoh: 1 menjadi 001, 52 menjadi 052.</small>
-                </div>
-
-                <div class="field">
-                    <label for="month">Bulan Sertifikat</label>
-                    <select id="month">
-                        <option value="1">Januari (I)</option>
-                        <option value="2">Februari (II)</option>
-                        <option value="3">Maret (III)</option>
-                        <option value="4">April (IV)</option>
-                        <option value="5">Mei (V)</option>
-                        <option value="6">Juni (VI)</option>
-                        <option value="7">Juli (VII)</option>
-                        <option value="8">Agustus (VIII)</option>
-                        <option value="9">September (IX)</option>
-                        <option value="10" selected>Oktober (X)</option>
-                        <option value="11">November (XI)</option>
-                        <option value="12">Desember (XII)</option>
-                    </select>
-                    <small>Bulan dikonversi menjadi angka Romawi.</small>
-                </div>
-
-                <div class="field">
-                    <label for="year">Tahun Sertifikat</label>
-                    <input
-                        id="year"
-                        type="number"
-                        min="2000"
-                        max="2100"
-                        value="2026"
-                        required
-                    >
-                    <small>Penomoran dimulai kembali setiap tahun.</small>
-                </div>
-            </div>
-        </section>
-
-        <section class="preview-card">
-            <div class="preview-label">Preview Nomor Sertifikat</div>
-            <div class="preview-code" id="previewCode" aria-live="polite">
-                058/UP-DKN2.2/SERTIFIKAT/PP05/X/2026
-            </div>
-            <div class="preview-note">
-                Ini adalah preview format nomor. Ketersediaan nomor harus
-                diverifikasi sebelum sertifikat diterbitkan.
-            </div>
-        </section>
-
-        <section class="reminder">
-            <div class="reminder-icon" aria-hidden="true">↻</div>
-            <div>
-                <h3>Pengingat Penomoran</h3>
-                <p id="reminderText">
-                    Data contoh: nomor terakhir yang digunakan adalah
-                    <strong>057</strong>. Nomor berikutnya yang disarankan
-                    adalah <strong>058</strong>.
+            <header class="number-heading">
+                <h1>Pengaturan Nomor Sertifikat</h1>
+                <p>
+                    Atur penomoran sertifikat sesuai ketentuan program studi.
+                    Preview akan diperbarui secara otomatis.
                 </p>
-                <p style="margin-top: 7px">
-                    Pengingat ini masih berupa data contoh dan belum terhubung
-                    ke database.
-                </p>
-            </div>
-        </section>
+            </header>
 
-        <div id="notice" class="notice" role="status" aria-live="polite"></div>
+            <form
+                id="certificateNumberForm"
+                method="POST"
+                action="{{ route('certificate-number.store') }}"
+            > @csrf
 
-        <div class="actions">
-            <button class="btn" type="button" id="backButton">
-                ← Kembali
-            </button>
+                <section class="number-card">
+                    <h2 class="number-card-title">Format Nomor Sertifikat</h2>
 
-            <button class="btn btn-primary" type="button" id="continueButton">
-                Lanjut ke Edit Sertifikat →
-            </button>
-        </div>
-    </main>
+                    <p class="number-card-description">
+                        Kode tetap dari program studi sudah tersedia dan tidak perlu diisi ulang.
+                    </p>
+
+                    <div class="number-form-grid">
+
+                        <div class="number-field">
+                            <label for="faculty">Kode Fakultas</label>
+                            <input id="faculty" value="UP-DKN2.2" disabled>
+                            <small>Kode tetap program studi.</small>
+                        </div>
+
+                        <div class="number-field">
+                            <label for="document">Jenis Dokumen</label>
+                            <input id="document" value="SERTIFIKAT" disabled>
+                            <small>Jenis dokumen tetap.</small>
+                        </div>
+
+                        <div class="number-field">
+                            <label for="studyProgram">Kode Program Studi</label>
+                            <input id="studyProgram" value="PP05" disabled>
+                            <small>Kode tetap program studi.</small>
+                        </div>
+
+                        <div class="number-field">
+                            <label for="startNumber">Nomor Awal</label>
+                            <input
+                                id="startNumber"
+                                type="number"
+                                min="1"
+                                step="1"
+                                value="{{ $nextNumber }}"
+                                inputmode="numeric"
+                                readonly
+                            >
+                            <small>Contoh: 1 menjadi 001, 52 menjadi 052.</small>
+                        </div>
+
+                        <div class="number-field">
+                            <label for="month">Bulan Sertifikat</label>
+                            <select id="month" name="month" required>
+                                <option value="1" {{ $selectedMonth == 1 ? 'selected' : '' }}>
+                                    Januari (I)
+                                </option>
+                                <option value="2" {{ $selectedMonth == 2 ? 'selected' : '' }}>
+                                    Februari (II)
+                                </option>
+                                <option value="3" {{ $selectedMonth == 3 ? 'selected' : '' }}>
+                                    Maret (III)
+                                </option>
+                                <option value="4" {{ $selectedMonth == 4 ? 'selected' : '' }}>
+                                    April (IV)
+                                </option>
+                                <option value="5" {{ $selectedMonth == 5 ? 'selected' : '' }}>
+                                    Mei (V)
+                                </option>
+                                <option value="6" {{ $selectedMonth == 6 ? 'selected' : '' }}>
+                                    Juni (VI)
+                                </option>
+                                <option value="7" {{ $selectedMonth == 7 ? 'selected' : '' }}>
+                                    Juli (VII)
+                                </option>
+                                <option value="8" {{ $selectedMonth == 8 ? 'selected' : '' }}>
+                                    Agustus (VIII)
+                                </option>
+                                <option value="9" {{ $selectedMonth == 9 ? 'selected' : '' }}>
+                                    September (IX)
+                                </option>
+                                <option value="10" {{ $selectedMonth == 10 ? 'selected' : '' }}>
+                                    Oktober (X)
+                                </option>
+                                <option value="11" {{ $selectedMonth == 11 ? 'selected' : '' }}>
+                                    November (XI)
+                                </option>
+                                <option value="12" {{ $selectedMonth == 12 ? 'selected' : '' }}>
+                                    Desember (XII)
+                                </option>
+                            </select>
+                            <small>Bulan akan dikonversi menjadi angka Romawi.</small>
+                        </div>
+
+                        <div class="number-field">
+                            <label for="year">Tahun Sertifikat</label>
+                            <input
+                                id="year"
+                                type="number"
+                                min="2000"
+                                max="2100"
+                                value="{{ $selectedYear }}"
+                                required
+                            >
+                            <small>Nomor urut dimulai kembali setiap tahun.</small>
+                        </div>
+
+                    </div>
+                </section>
+
+                <section class="number-preview" aria-label="Preview nomor sertifikat">
+                    <p class="number-preview-label">Preview Nomor Sertifikat</p>
+
+                    <p class="number-preview-code" id="previewCode"></p>
+                    <p class="number-preview-next" id="previewNext"></p>
+                </section>
+
+                <section class="number-reminder">
+                    <div class="number-reminder-icon" aria-hidden="true">↻</div>
+
+                    <div>
+                        <h2>Pengingat Nomor Sertifikat</h2>
+                        <p id="reminderText">
+                            @if ($lastNumber === 0)
+                                Belum ada sertifikat yang diterbitkan pada tahun {{ $selectedYear }}.
+                                Nomor berikutnya yang disarankan adalah
+                                <strong>{{ str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT) }}</strong>.
+                            @else
+                                Nomor terakhir yang digunakan pada tahun {{ $selectedYear }} adalah
+                                <strong>{{ str_pad((string) $lastNumber, 3, '0', STR_PAD_LEFT) }}</strong>.
+                                Nomor berikutnya yang disarankan adalah
+                                <strong>{{ str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT) }}</strong>.
+                            @endif
+                        </p> 
+                    </div>
+                </section>
+
+                <div
+                    id="numberNotice"
+                    class="number-notice {{ session('status') ? 'is-visible' : '' }}"
+                    role="status"
+                    aria-live="polite"
+                >
+                    {{ session('status') }}
+                </div>
+
+                <footer class="number-actions">
+                    <a class="number-button" href="{{ route('recipients.index') }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            aria-hidden="true">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Kembali
+                    </a>
+
+                    <button
+                        class="number-button number-button-primary"
+                        id="continueButton"
+                        type="submit"
+                    >
+                        Lanjut
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            aria-hidden="true">
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                    </button>
+                </footer>
+            </form>
+        </main>
+    </div>
 
     <script>
-        const monthRoman = {
+        const romanMonths = {
             1: 'I',
             2: 'II',
             3: 'III',
@@ -543,77 +516,66 @@
             12: 'XII'
         };
 
-        const startNumber = document.getElementById('startNumber');
-        const month = document.getElementById('month');
-        const year = document.getElementById('year');
-        const previewCode = document.getElementById('previewCode');
-        const notice = document.getElementById('notice');
+        const startNumberInput = document.getElementById('startNumber');
+        const monthInput = document.getElementById('month');
+        const yearInput = document.getElementById('year');
 
-        function formatNumber(value) {
-            return String(value).padStart(3, '0');
+        const previewCode = document.getElementById('previewCode');
+        const previewNext = document.getElementById('previewNext');
+        const notice = document.getElementById('numberNotice');
+
+        function formatNumber(number) {
+            return String(number).padStart(3, '0');
         }
 
-        function updatePreview() {
-            const number = Number(startNumber.value);
-            const selectedMonth = Number(month.value);
-            const selectedYear = Number(year.value);
-
-            if (
-                startNumber.value.trim() === '' ||
-                !Number.isInteger(number) ||
-                number < 1 ||
-                !Number.isInteger(selectedYear) ||
-                selectedYear < 2000 ||
-                selectedYear > 2100
-            ) {
-                previewCode.textContent = 'Lengkapi input yang valid';
-                return;
-            }
-
-            previewCode.textContent = [
+        function buildCertificateNumber(number) {
+            return [
                 formatNumber(number),
                 document.getElementById('faculty').value,
                 document.getElementById('document').value,
                 document.getElementById('studyProgram').value,
-                monthRoman[selectedMonth],
-                selectedYear
+                romanMonths[Number(monthInput.value)],
+                yearInput.value
             ].join('/');
         }
 
-        [startNumber, month, year].forEach((element) => {
-            element.addEventListener('input', updatePreview);
-            element.addEventListener('change', updatePreview);
-        });
+        function isValidInput() {
+            const number = Number(startNumberInput.value);
+            const year = Number(yearInput.value);
 
-        document.getElementById('continueButton').addEventListener('click', () => {
-            const number = Number(startNumber.value);
-            const selectedYear = Number(year.value);
+            return (
+                startNumberInput.value.trim() !== '' &&
+                Number.isSafeInteger(number) &&
+                number >= 1 &&
+                Number.isSafeInteger(year) &&
+                year >= 2000 &&
+                year <= 2100
+            );
+        }
 
-            if (
-                startNumber.value.trim() === '' ||
-                !Number.isInteger(number) ||
-                number < 1 ||
-                !Number.isInteger(selectedYear) ||
-                selectedYear < 2000 ||
-                selectedYear > 2100
-            ) {
-                notice.className = 'notice error';
-                notice.textContent =
-                    'Masukkan nomor awal dan tahun yang valid terlebih dahulu.';
-                startNumber.focus();
+        function updatePreview() {
+            if (!isValidInput()) {
+                previewCode.textContent = 'Masukkan nomor awal dan tahun yang valid';
+                previewNext.textContent = '';
                 return;
             }
 
-            notice.className = 'notice info';
-            notice.textContent =
-                'Preview berhasil dibuat. Validasi nomor dengan database dan ' +
-                'navigasi ke Step 4 akan dihubungkan pada tahap backend.';
-        });
+            const number = Number(startNumberInput.value);
 
-        document.getElementById('backButton').addEventListener('click', () => {
-            notice.className = 'notice info';
-            notice.textContent =
-                'Navigasi kembali ke Step 2 akan dihubungkan setelah rute Step 2 tersedia.';
+            previewCode.textContent = buildCertificateNumber(number);
+            previewNext.textContent = 'Nomor berikutnya: ' +
+                buildCertificateNumber(number + 1);
+        }
+
+        function showNotice(message, isError = false) {
+            notice.textContent = message;
+            notice.className = 'number-notice is-visible' +
+                (isError ? ' is-error' : '');
+        }
+
+        [startNumberInput, monthInput, yearInput].forEach((input) => {
+            input.addEventListener('input', updatePreview);
+            input.addEventListener('change', updatePreview);
         });
 
         updatePreview();

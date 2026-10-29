@@ -131,10 +131,12 @@ class RecipientController extends Controller
         $request->session()->put('recipients', $recipients);
         $request->session()->put('recipient_mode', 'manual');
 
-        return redirect()->route('recipients.index', ['mode' => 'manual'])
-            ->with('status', 'Data penerima berhasil disimpan.');
+        $request->session()->flash('previous_wizard_step', 2);
+
+        return redirect()->route('certificate-number.index')->with('status', 'Data penerima berhasil disimpan.');
     }
 
+    
     public function next(Request $request): RedirectResponse
     {
         if (! $this->hasTemplate($request)) {
@@ -142,10 +144,12 @@ class RecipientController extends Controller
         }
 
         if ($request->session()->get('recipients', []) === []) {
-            return back()->withErrors(['recipients' => 'Tambahkan atau unggah minimal satu penerima.']);
+            return back()->withErrors([
+                'recipients' => 'Tambahkan atau unggah minimal satu penerima.',
+            ]);
         }
-
-        return back()->with('status', 'Data penerima siap. Langkah berikutnya belum tersedia.');
+        $request->session()->flash('previous_wizard_step', 2);
+        return redirect()->route('certificate-number.index');
     }
 
     private function hasTemplate(Request $request): bool
