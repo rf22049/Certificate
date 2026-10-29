@@ -14,7 +14,7 @@
     <div class="app-shell">
         <header class="topbar">
             <a class="brand" href="{{ route('home') }}" aria-label="ProCert, beranda">
-                <span>Pro</span><span class="brand-mark">C</span><span>ert</span>
+                <img class="brand-logo" src="{{ asset('images/procert logo (1).jpeg') }}" alt="ProCert">
             </a>
         </header>
 
@@ -136,7 +136,7 @@
                         <input class="visually-hidden" id="template-file" name="template" type="file" accept="image/png,image/jpeg,application/pdf" data-template-input>
                         <button class="file-picker" type="button" data-file-picker>Pilih File</button>
                         <p class="format-copy">Format: PNG, JPG, atau PDF<br>Ukuran maks. 10 MB</p>
-                        <div class="selected-file" data-selected-file hidden>
+                        <div class="selected-file" data-selected-file aria-live="polite" hidden>
                             <span class="selected-file-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M13.5 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9.5L13.5 3Z" />
@@ -145,10 +145,9 @@
                             </span>
                             <span class="selected-file-copy">
                                 <strong data-file-name></strong>
-                                <span data-file-size></span>
+                                <span><span data-file-size></span> &middot; <span data-file-status></span></span>
                             </span>
                         </div>
-                        <button class="upload-submit" type="submit" data-upload-submit hidden disabled>Unggah Template</button>
                     </div>
                 </form>
             @endif
