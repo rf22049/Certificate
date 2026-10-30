@@ -86,7 +86,7 @@ class CertificateNumberController extends Controller
         ]);
 
         return redirect()
-            ->route('certificate-number.index')
-            ->with('status', 'Pengaturan nomor sertifikat berhasil disimpan ke session.');
+            ->route('certificate-edit.index')
+            ->with('status', 'Pengaturan nomor sertifikat berhasil disimpan.');
     }
 }

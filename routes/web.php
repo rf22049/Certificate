@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RecipientController;
 use App\Http\Controllers\TemplateUploadController;
+use App\Http\Controllers\CertificateEditController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CertificateNumberController;
 
@@ -22,3 +23,9 @@ Route::post('/recipients/continue', [RecipientController::class, 'next'])->name(
 Route::get('/certificate-number', [CertificateNumberController::class, 'index'])->name('certificate-number.index');
 Route::post('/certificate-number/continue', [CertificateNumberController::class, 'store'])
     ->name('certificate-number.store');
+
+Route::get('/certificate-edit', [CertificateEditController::class, 'index'])
+    ->name('certificate-edit.index');
+
+Route::post('/certificate-edit/save', [CertificateEditController::class, 'save'])
+    ->name('certificate-edit.save');
