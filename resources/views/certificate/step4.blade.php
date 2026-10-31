@@ -465,21 +465,6 @@
             color: #17191f;
         }
 
-        @media (max-width: 950px) {
-            .editor-layout { grid-template-columns: 1fr; }
-            .preview-panel {
-                border-right: 0;
-                border-bottom: 1px solid #dedfe3;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .app-shell { padding: 0 4%; }
-            .edit-page { margin-top: 28px; }
-            .preview-panel, .editor-panel { padding: 15px; }
-            .preview-canvas { min-height: 280px; padding: 10px; }
-        }
-
         .editor-empty {
             padding: 22px 14px;
             border: 1px dashed #dfe2e8;
@@ -494,6 +479,82 @@
         .element-tab:disabled {
             opacity: .5;
             cursor: not-allowed;
+        }
+
+        .editor-navigation {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            align-items: stretch;
+            gap: 12px;
+            width: 100%;
+            margin-top: 24px;
+        }
+
+        .editor-navigation .action-button {
+            display: flex;
+            width: 100%;
+            min-width: 0;
+            min-height: 52px;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 0 12px;
+            border: 1px solid #dfe2e8;
+            border-radius: 8px;
+            background: #fff;
+            color: #2454ff;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .editor-navigation .action-button:hover {
+            border-color: #2454ff;
+            background: #f6f8ff;
+        }
+
+        .editor-navigation .action-button.primary-button {
+            border-color: #2454ff;
+            background: #2454ff;
+            color: #fff;
+        }
+
+        .editor-navigation .action-button.primary-button:hover {
+            border-color: #1745ed;
+            background: #1745ed;
+        }
+
+        .editor-navigation .action-button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 600px) {
+            .editor-navigation {
+                gap: 8px;
+            }
+
+            .editor-navigation .action-button {
+                min-height: 48px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 950px) {
+            .editor-layout { grid-template-columns: 1fr; }
+            .preview-panel {
+                border-right: 0;
+                border-bottom: 1px solid #dedfe3;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .app-shell { padding: 0 4%; }
+            .edit-page { margin-top: 28px; }
+            .preview-panel, .editor-panel { padding: 15px; }
+            .preview-canvas { min-height: 280px; padding: 10px; }
         }
     </style>
 </head>
@@ -706,18 +767,18 @@
                     </button>
                 </div>
 
-                <div class="editor-actions">
+                <div class="editor-actions editor-navigation">
                     <a href="{{ route('certificate-number.index') }}"
-                    class="action-button"
-                    style="display:flex; align-items:center; justify-content:center; text-decoration:none; flex:1;">
-                        ←  Kembali
+                    class="action-button">
+                        <span>←</span>
+                        Kembali
                     </a>
 
                     <button type="button"
-                        class="action-button primary-button"
-                        id="saveButton"
-                        style="flex:1;">
-                        Lanjut  →
+                            class="action-button primary-button"
+                            id="saveButton">
+                        Lanjut
+                        <span>→</span>
                     </button>
                 </div>
 

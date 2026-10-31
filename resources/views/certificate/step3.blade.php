@@ -225,7 +225,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             margin-top: 26px;
         }
 
@@ -245,6 +245,15 @@
             text-decoration: none;
             cursor: pointer;
             transition: background 160ms ease, border-color 160ms ease;
+        }
+
+        .number-actions .number-button {
+            box-sizing: border-box;
+            width: 210px;
+            min-width: 210px;
+            height: 58px;
+            min-height: 58px;
+            flex: 0 0 210px;
         }
 
         .number-button:hover {
@@ -268,6 +277,14 @@
             width: 18px;
             height: 18px;
             flex: 0 0 18px;
+        }
+
+        @media (max-width: 600px) {
+            .number-actions .number-button {
+                width: 100%;
+                min-width: 0;
+                flex: 1 1 auto;
+            }
         }
 
         @media (max-width: 850px) {
