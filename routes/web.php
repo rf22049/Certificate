@@ -5,6 +5,7 @@ use App\Http\Controllers\TemplateUploadController;
 use App\Http\Controllers\CertificateEditController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CertificateNumberController;
+use App\Http\Controllers\CertificateReview;
 
 Route::get('/', [TemplateUploadController::class, 'index'])->name('home');
 Route::post('/templates', [TemplateUploadController::class, 'store'])
@@ -30,7 +31,5 @@ Route::get('/certificate-edit', [CertificateEditController::class, 'index'])
 Route::post('/certificate-edit/save', [CertificateEditController::class, 'save'])
     ->name('certificate-edit.save');
 
-// STEP 5 - HALAMAN SEMENTARA
-Route::get('/certificate-review', function () {
-    return response('', 200);
-})->name('certificate-review.index');
+Route::get('/certificate-review', [CertificateReview::class, 'index'])
+    ->name('certificate-review.index');
