@@ -74,70 +74,130 @@ replaceInput?.addEventListener('change', () => {
 const manualForm = document.querySelector('[data-manual-form]');
 const manualRows = document.querySelector('[data-manual-rows]');
 const addRecipientButton = document.querySelector('[data-add-recipient]');
-const deleteRecipientButton = document.querySelector('[data-delete-recipient]');
 
 const createRecipientRow = (index) => {
-	const row = document.createElement('tr');
-	row.dataset.recipientRow = '';
+    const row = document.createElement('tr');
+    row.dataset.recipientRow = '';
 
-	const numberCell = document.createElement('td');
-	numberCell.className = 'recipient-number';
-	const selector = document.createElement('input');
-	selector.type = 'checkbox';
-	selector.setAttribute('aria-label', `Pilih baris ${index + 1}`);
-	selector.dataset.rowSelect = '';
-	const number = document.createElement('span');
-	number.dataset.rowNumber = '';
-	numberCell.append(selector, number);
-	row.append(numberCell);
+    // Nomor baris
+    const numberCell = document.createElement('td');
+    numberCell.className = 'recipient-number';
 
-	[['name', 'Nama penerima'], ['note', 'Keterangan']].forEach(([field, label]) => {
-		const cell = document.createElement('td');
-		const input = document.createElement('input');
-		input.name = `recipients[${index}][${field}]`;
-		input.maxLength = 255;
-		input.setAttribute('aria-label', `${label} baris ${index + 1}`);
-		input.dataset[field === 'name' ? 'recipientName' : 'recipientNote'] = '';
-		cell.append(input);
-		row.append(cell);
-	});
+    const number = document.createElement('span');
+    number.dataset.rowNumber = '';
+    numberCell.append(number);
 
-	return row;
+    row.append(numberCell);
+
+    // Nama penerima
+    const nameCell = document.createElement('td');
+    const nameInput = document.createElement('input');
+
+    nameInput.name = `recipients[${index}][name]`;
+    nameInput.maxLength = 255;
+    nameInput.dataset.recipientName = '';
+    nameInput.setAttribute('aria-label', `Nama penerima baris ${index + 1}`);
+
+    nameCell.append(nameInput);
+    row.append(nameCell);
+
+    // Keterangan dan tombol hapus
+    const noteCell = document.createElement('td');
+    const noteWrapper = document.createElement('div');
+    noteWrapper.className = 'recipient-note-cell';
+
+    const noteInput = document.createElement('input');
+    noteInput.name = `recipients[${index}][note]`;
+    noteInput.maxLength = 255;
+    noteInput.dataset.recipientNote = '';
+    noteInput.setAttribute('aria-label', `Keterangan baris ${index + 1}`);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'delete-row-button';
+    deleteButton.dataset.deleteRow = '';
+    deleteButton.setAttribute('aria-label', `Hapus baris ${index + 1}`);
+    deleteButton.title = 'Hapus baris';
+
+    deleteButton.innerHTML = `
+        <svg viewBox="0 0 20 20" fill="none"
+            stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round"
+            aria-hidden="true">
+            <path d="M3 5h14M7 5V3h6v2m-8 0 1 12h8l1-12M8 8v6m4-6v6"/>
+        </svg>
+    `;
+
+    noteWrapper.append(noteInput, deleteButton);
+    noteCell.append(noteWrapper);
+    row.append(noteCell);
+
+    return row;
 };
 
+
+// Mengatur ulang nomor dan name input
 const renumberRecipientRows = () => {
-	manualRows?.querySelectorAll('[data-recipient-row]').forEach((row, index) => {
-		row.querySelector('[data-row-number]').textContent = String(index + 1);
-		row.querySelector('[data-row-select]').setAttribute('aria-label', `Pilih baris ${index + 1}`);
-		row.querySelector('[data-recipient-name]').setAttribute('aria-label', `Nama penerima baris ${index + 1}`);
-		row.querySelector('[data-recipient-note]').setAttribute('aria-label', `Keterangan baris ${index + 1}`);
-		row.querySelector('[data-recipient-name]').name = `recipients[${index}][name]`;
-		row.querySelector('[data-recipient-note]').name = `recipients[${index}][note]`;
-	});
+    const rows = manualRows?.querySelectorAll('[data-recipient-row]');
+    rows?.forEach((row, index) => {
+        const number = index + 1;
+
+        row.querySelector('[data-row-number]').textContent = number;
+
+        const nameInput = row.querySelector('[data-recipient-name]');
+        const noteInput = row.querySelector('[data-recipient-note]');
+        const deleteButton = row.querySelector('[data-delete-row]');
+
+        nameInput.name = `recipients[${index}][name]`;
+        nameInput.setAttribute('aria-label', `Nama penerima baris ${number}`);
+
+        noteInput.name = `recipients[${index}][note]`;
+        noteInput.setAttribute('aria-label', `Keterangan baris ${number}`);
+
+        deleteButton.setAttribute('aria-label', `Hapus baris ${number}`);
+    });
 };
 
-addRecipientButton?.addEventListener('click', () => {
-	if (manualRows.querySelectorAll('[data-recipient-row]').length >= 1000) {
-		return;
-	}
 
-	manualRows.append(createRecipientRow(manualRows.querySelectorAll('[data-recipient-row]').length));
-	renumberRecipientRows();
-	manualRows.lastElementChild.querySelector('[data-recipient-name]').focus();
+// Tambah satu baris kosong
+addRecipientButton?.addEventListener('click', () => {
+    const rowCount = manualRows.querySelectorAll('[data-recipient-row]').length;
+
+    if (rowCount >= 1000) {
+        return;
+    }
+
+    const newRow = createRecipientRow(rowCount);
+
+    manualRows.append(newRow);
+    renumberRecipientRows();
+
+    newRow.querySelector('[data-recipient-name]').focus();
 });
 
-deleteRecipientButton?.addEventListener('click', () => {
-	const rows = [...manualRows.querySelectorAll('[data-recipient-row]')];
-	const selectedRows = rows.filter((row) => row.querySelector('[data-row-select]').checked);
-	const rowsToDelete = selectedRows.length > 0 ? selectedRows : rows.slice(-1);
 
-	rowsToDelete.forEach((row) => row.remove());
+// Hapus baris berdasarkan ikon sampah yang ditekan
+manualRows?.addEventListener('click', (event) => {
+    const deleteButton = event.target.closest('[data-delete-row]');
 
-	if (manualRows.querySelectorAll('[data-recipient-row]').length === 0) {
-		manualRows.append(createRecipientRow(0));
-	}
+    if (!deleteButton) {
+        return;
+    }
 
-	renumberRecipientRows();
+    const row = deleteButton.closest('[data-recipient-row]');
+
+    if (!row) {
+        return;
+    }
+
+    row.remove();
+
+    // Pastikan selalu tersedia minimal satu baris kosong
+    if (manualRows.querySelectorAll('[data-recipient-row]').length === 0) {
+        manualRows.append(createRecipientRow(0));
+    }
+
+    renumberRecipientRows();
 });
 
 const importForm = document.querySelector('[data-recipient-import-form]');

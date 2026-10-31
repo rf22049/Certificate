@@ -3,6 +3,10 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/* =========================================
+   1. THEME & GLOBAL
+========================================= */
+
 @theme {
     --font-sans: 'Manrope', ui-sans-serif, sans-serif;
 }
@@ -13,6 +17,7 @@
     background: #fff;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
+
     --blue: #2454ff;
     --blue-dark: #1745ed;
     --ink: #17191f;
@@ -52,6 +57,10 @@ a:focus-visible {
     display: none !important;
 }
 
+/* =========================================
+   2. APP LAYOUT & BRAND
+========================================= */
+
 .app-shell {
     width: min(100% - 96px, 1280px);
     margin: 0 auto;
@@ -60,9 +69,9 @@ a:focus-visible {
 
 .topbar {
     display: flex;
+    min-height: 96px;
     align-items: center;
     justify-content: flex-start;
-    min-height: 96px;
 }
 
 .brand {
@@ -83,14 +92,22 @@ a:focus-visible {
     transform: scale(1.65);
 }
 
+/* =========================================
+   3. WIZARD STEPS
+========================================= */
+
 .steps {
-    width: min(100%, 990px);
+    width: min(100% - 96px, 1280px);
     margin: 28px auto 0;
+    overflow: visible;
 }
 
 .steps-list {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    display: flex;
+    width: 100%;
+    align-items: center;
+    flex-flow: row nowrap;
+    gap: 0;
     padding: 0;
     margin: 0;
     list-style: none;
@@ -99,6 +116,7 @@ a:focus-visible {
 .step {
     position: relative;
     display: flex;
+    flex: 0 0 auto;
     min-width: 0;
     align-items: center;
     gap: 8px;
@@ -106,17 +124,8 @@ a:focus-visible {
     white-space: nowrap;
 }
 
-.step:not(:last-child)::after {
-    position: absolute;
-    top: 21px;
-    right: 7px;
-    left: 47px;
-    height: 1px;
-    background: #e0e1e4;
-    content: '';
-}
-
 .step-number {
+    position: relative;
     z-index: 1;
     display: grid;
     width: 42px;
@@ -128,24 +137,106 @@ a:focus-visible {
     color: #a4a7ad;
     font-size: 17px;
     font-weight: 700;
+    transition: background-color 300ms ease, color 300ms ease;
+}
+
+.step-number svg {
+    width: 22px;
+    height: 22px;
 }
 
 .step-label {
-    z-index: 1;
-    padding-right: 8px;
-    background: #fff;
+    display: block;
+    padding: 0;
+    background: transparent;
     font-size: 14px;
     font-weight: 600;
+    line-height: 1.4;
+    transition: color 300ms ease;
 }
 
-.step.is-active {
+.step.is-active,
+.step.is-complete {
     color: var(--blue);
 }
 
-.step.is-active .step-number {
+.step.is-active .step-number,
+.step.is-complete .step-number {
     background: var(--blue);
     color: #fff;
 }
+
+.step-connector {
+    position: relative;
+    display: block;
+    flex: 1 1 0;
+    min-width: 22px;
+    height: 2px;
+    margin: 0 12px;
+    overflow: hidden;
+    background: #e0e1e4;
+}
+
+.step-connector span {
+    position: absolute;
+    inset: 0;
+    width: 0;
+    background: var(--blue);
+    transition: width 550ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.step-connector.is-complete span {
+    width: 100%;
+}
+
+.step-connector.just-completed span {
+    width: 0;
+    animation: progress-line-fill 600ms cubic-bezier(.22, 1, .36, 1) forwards !important;
+}
+
+.step.is-complete::after {
+    background: var(--blue);
+}
+
+.step.is-active .step-number {
+    animation: active-step-appear 450ms ease-out both;
+}
+
+.step.animate-check .step-number svg path {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: checkmark-draw 350ms ease-out forwards;
+}
+
+@keyframes active-step-appear {
+    0% {
+        transform: scale(.88);
+        box-shadow: 0 0 0 0 rgba(36, 84, 255, 0);
+    }
+
+    65% {
+        transform: scale(1.06);
+        box-shadow: 0 0 0 5px rgba(36, 84, 255, .10);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(36, 84, 255, 0);
+    }
+}
+
+@keyframes progress-line-fill {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes checkmark-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+/* =========================================
+   4. PAGE CONTENT & HEADINGS
+========================================= */
 
 .page-content {
     width: 100%;
@@ -187,11 +278,27 @@ a:focus-visible {
     color: var(--blue);
 }
 
+@keyframes arrive {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================
+   5. TEMPLATE UPLOAD
+========================================= */
+
 .upload-card {
     width: min(100%, 696px);
     min-height: 394px;
-    margin: 0 auto;
     padding: 16px;
+    margin: 0 auto;
     border: 1px solid #dedfe3;
     border-radius: 9px;
     background: #fff;
@@ -212,7 +319,8 @@ a:focus-visible {
     transition: border-color 160ms ease, background 160ms ease;
 }
 
-.dropzone.is-dragging {
+.dropzone.is-dragging,
+.recipient-dropzone.is-dragging {
     border-color: var(--blue);
     background: #f5f7ff;
 }
@@ -327,10 +435,14 @@ a:focus-visible {
     font-size: 11px;
 }
 
+/* =========================================
+   6. FORM ERRORS
+========================================= */
+
 .form-error {
     width: min(100%, 696px);
-    margin: 0 auto 12px;
     padding: 12px 14px;
+    margin: 0 auto 12px;
     border: 1px solid #f1c8c5;
     border-radius: 6px;
     background: #fff8f7;
@@ -338,12 +450,16 @@ a:focus-visible {
     font-size: 13px;
 }
 
+/* =========================================
+   7. TEMPLATE SUCCESS & PREVIEW
+========================================= */
+
 .success-layout {
     display: grid;
+    width: min(100%, 1180px);
     grid-template-columns: minmax(0, 2fr) minmax(270px, 1fr);
     align-items: start;
     gap: 36px;
-    width: min(100%, 1180px);
     margin: 0 auto;
 }
 
@@ -486,6 +602,10 @@ a:focus-visible {
     height: 20px;
 }
 
+/* =========================================
+   8. BUTTONS & NAVIGATION
+========================================= */
+
 .primary-button {
     display: flex;
     width: 100%;
@@ -505,6 +625,27 @@ a:focus-visible {
 .primary-button svg {
     width: 19px;
     height: 19px;
+}
+
+.secondary-button {
+    display: flex;
+    min-height: 58px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 22px;
+    border: 1px solid #d4d6db;
+    border-radius: 7px;
+    background: #fff;
+    color: var(--blue);
+    font-size: 17px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 150ms ease, border-color 150ms ease;
+}
+
+.secondary-button:hover {
+    background: #f6f7fa;
 }
 
 .continue-area {
@@ -528,149 +669,9 @@ a:focus-visible {
     clip-path: inset(50%);
 }
 
-@keyframes arrive {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@media (max-width: 900px) {
-    .app-shell {
-        width: min(100% - 40px, 760px);
-    }
-
-    .success-layout {
-        grid-template-columns: minmax(0, 1.7fr) minmax(250px, 1fr);
-        gap: 22px;
-    }
-
-    .file-panel-body {
-        padding: 18px 15px 15px;
-    }
-}
-
-@media (max-width: 700px) {
-    .app-shell {
-        width: min(100% - 32px, 560px);
-        padding-bottom: 28px;
-    }
-
-    .topbar {
-        min-height: 76px;
-    }
-
-    .brand {
-        width: 128px;
-        height: 33px;
-    }
-
-    .steps {
-        width: calc(100vw - 32px);
-        margin-top: 17px;
-        overflow-x: auto;
-        scrollbar-width: thin;
-    }
-
-    .steps-list {
-        width: 800px;
-        padding-bottom: 8px;
-    }
-
-    .step-label {
-        font-size: 13px;
-    }
-
-    .page-content {
-        margin-top: 31px;
-    }
-
-    .page-intro {
-        margin-bottom: 22px;
-    }
-
-    .page-intro h1 {
-        font-size: 24px;
-    }
-
-    .page-intro p {
-        font-size: 14px;
-    }
-
-    .page-intro--hero h1 {
-        font-size: 38px;
-    }
-
-    .upload-card {
-        min-height: 350px;
-        padding: 11px;
-    }
-
-    .dropzone {
-        min-height: 326px;
-        padding: 22px 14px;
-    }
-
-    .upload-symbol {
-        width: 88px;
-        height: 88px;
-    }
-
-    .upload-symbol svg {
-        width: 45px;
-        height: 45px;
-    }
-
-    .dropzone h2 {
-        font-size: 17px;
-    }
-
-    .success-layout {
-        width: 100%;
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .file-panel {
-        order: 2;
-    }
-
-    .certificate-preview {
-        order: 1;
-    }
-
-    .continue-area {
-        order: 3;
-        margin-top: 0;
-    }
-
-    .primary-button {
-        min-height: 54px;
-    }
-}
-
-.step.is-complete {
-    color: var(--blue);
-}
-
-.step.is-complete .step-number {
-    background: var(--blue);
-    color: #fff;
-}
-
-.step.is-complete .step-number svg {
-    width: 23px;
-    height: 23px;
-}
-
-.step.is-complete::after {
-    background: var(--blue);
-}
+/* =========================================
+   9. RECIPIENT PAGE HEADER
+========================================= */
 
 .recipient-page {
     margin-top: 30px;
@@ -742,6 +743,9 @@ a:focus-visible {
     font-size: 13px;
 }
 
+/* =========================================
+   10. RECIPIENT WORKSPACE
+========================================= */
 .recipient-workspace {
     min-height: 474px;
     padding: 20px 34px;
@@ -750,25 +754,55 @@ a:focus-visible {
     background: #fff;
 }
 
-.recipient-manual-form,
-.recipient-workspace--import {
-    display: grid;
-    grid-template-columns: minmax(0, 2.1fr) minmax(270px, 1fr);
-    align-items: center;
-    gap: 22px;
-    min-height: 432px;
-}
-
 .recipient-workspace[hidden] {
     display: none;
 }
 
+.recipient-workspace--import {
+    align-items: start;
+}
+
+/* =========================================
+   11. MANUAL INPUT FORM
+========================================= */
+
+/* Form uses vertical layout:
+   Add button -> Table -> Bottom navigation */
+.recipient-manual-form {
+    display: flex;
+    width: 100%;
+    min-height: 432px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+}
+
+/* Add row button - top left */
+.recipient-table-toolbar {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    align-self: stretch;
+}
+
+.recipient-table-toolbar .outline-action {
+    min-height: 40px;
+    padding: 0 14px;
+    margin: 0;
+}
+
+/* =========================================
+   12. RECIPIENT TABLE
+========================================= */
 .recipient-table-wrap {
     width: 100%;
-    height: 432px;
-    align-self: stretch;
+    max-height: 460px;
     overflow: auto;
-    border: 1px solid #c9cbd0;
+    border: 1px solid #d4d6dc;
+    border-radius: 7px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
 }
 
 .recipient-table {
@@ -778,148 +812,153 @@ a:focus-visible {
 }
 
 .recipient-table th {
-    height: 62px;
-    padding: 10px;
-    border-right: 1px solid #c9cbd0;
-    background: #f1f1f2;
+    height: 54px;
+    padding: 12px;
+    border: 1px solid #dfe1e6;
+    background: #f3f4f6;
     color: var(--blue);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 800;
     text-align: center;
+    vertical-align: middle;
 }
 
 .recipient-table th:first-child {
-    width: 26%;
+    width: 14%;
 }
 
 .recipient-table th:nth-child(2) {
-    width: 47%;
+    width: 56%;
 }
 
 .recipient-table th:last-child {
-    width: 27%;
-    border-right: 0;
+    width: 30%;
 }
 
 .recipient-table td {
-    height: 52px;
-    padding: 4px 10px;
-    border-top: 1px solid #e8e9ec;
-    border-right: 1px solid #d4d5d9;
+    height: 58px;
+    padding: 6px 12px;
+    border: 1px solid #e1e3e8;
+    background: #fff;
     color: var(--ink);
-    font-size: 13px;
-    overflow-wrap: anywhere;
+    font-size: 14px;
+    text-align: center;
+    vertical-align: middle;
 }
 
-.recipient-table td:last-child {
-    border-right: 0;
+.recipient-table tbody tr:hover td {
+    background: #f9faff;
 }
 
-.recipient-table--manual tbody tr:has([data-row-select]:checked) {
-    background: #f5f7ff;
+/* Row number */
+.recipient-table--manual .recipient-number {
+    color: #555b66;
+    font-size: 14px;
+    text-align: center;
+    vertical-align: middle;
 }
 
-.recipient-table--manual td input:not([type='checkbox']) {
+/* Name and note input */
+.recipient-table--manual td input {
     width: 100%;
+    min-width: 0;
     min-height: 38px;
-    padding: 5px;
+    padding: 6px 10px;
     border: 1px solid transparent;
-    border-radius: 3px;
+    border-radius: 5px;
     background: transparent;
     color: var(--ink);
-    font-size: 13px;
+    font-family: inherit;
+    font-size: 14px;
+    text-align: center;
+    transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
 }
 
-.recipient-table--manual td input:not([type='checkbox']):focus {
+.recipient-table--manual td input:focus {
     border-color: #a9baff;
     background: #fff;
     outline: none;
+    box-shadow: 0 0 0 3px rgba(45, 83, 255, 0.07);
 }
 
-.recipient-number {
+/* Note input and delete icon */
+.recipient-note-cell {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: #777b83;
 }
 
-.recipient-number input {
-    width: 14px;
-    height: 14px;
-    margin: 0;
-    accent-color: var(--blue);
+.recipient-note-cell input {
+    flex: 1;
 }
 
-.recipient-actions,
-.import-actions {
-    display: grid;
-    align-content: center;
-    gap: 8px;
-}
-
-.row-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px;
-    margin-bottom: 1px;
-}
-
-.outline-action,
-.quiet-action,
-.secondary-button {
-    display: flex;
-    min-height: 43px;
+/* Red delete button */
+.delete-row-button {
+    display: inline-flex;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    border: 1px solid #d4d6db;
-    border-radius: 7px;
-    background: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #e5484d;
+    cursor: pointer;
     transition: background 150ms ease, border-color 150ms ease;
 }
 
-.outline-action {
-    border-color: var(--blue);
-    color: var(--blue);
+.delete-row-button svg {
+    width: 18px;
+    height: 18px;
 }
 
-.quiet-action {
-    color: #858991;
+.delete-row-button:hover {
+    border-color: #ffd0d0;
+    background: #fff0f0;
 }
 
-.outline-action:hover,
-.quiet-action:hover,
-.secondary-button:hover {
-    background: #f6f7fa;
+/* =========================================
+   13. MANUAL FORM BOTTOM NAVIGATION
+========================================= */
+.recipient-form-footer {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+    gap: 12px;
+    margin-top: 8px;
 }
 
-.outline-action svg,
-.quiet-action svg {
-    width: 20px;
-    height: 20px;
+.recipient-form-footer .secondary-button {
+    min-width: 145px;
+    min-height: 48px;
+    margin-right: auto;
 }
 
-.recipient-actions .primary-button,
-.import-actions .primary-button {
-    min-height: 58px;
-}
-
-.secondary-button {
-    min-height: 58px;
-    color: var(--blue);
-    font-size: 17px;
+.recipient-form-footer .primary-button {
+    width: auto;
+    min-width: 145px;
+    min-height: 48px;
+    padding: 0 22px;
+    margin-left: auto;
 }
 
 .recipient-error {
     width: auto;
 }
 
+/* =========================================
+   14. EXCEL / CSV IMPORT WORKSPACE
+========================================= */
 .recipient-workspace--import {
+    display: grid;
+    min-height: 432px;
     grid-template-columns: minmax(0, 2.1fr) minmax(270px, 1fr);
+    align-items: center;
+    gap: 22px;
 }
 
 .recipient-import-form {
@@ -939,11 +978,6 @@ a:focus-visible {
     background: #fcfcfd;
     text-align: center;
     transition: border-color 160ms ease, background 160ms ease;
-}
-
-.recipient-dropzone.is-dragging {
-    border-color: var(--blue);
-    background: #f5f7ff;
 }
 
 .spreadsheet-symbol {
@@ -985,14 +1019,21 @@ a:focus-visible {
     font-size: 12px;
 }
 
+/* =========================================
+   15. IMPORT PREVIEW TABLE
+========================================= */
 .recipient-import-preview {
     min-width: 0;
+    align-self: start;
+    width: 100%;
+    margin-top: 0;
 }
 
 .recipient-import-preview > h2 {
-    margin: 0 0 10px;
     font-size: 14px;
     font-weight: 700;
+    text-align: left;
+    margin: 0 0 12px;
 }
 
 .recipient-import-preview > h2 span {
@@ -1006,33 +1047,42 @@ a:focus-visible {
     border: 1px solid #d4d5d9;
 }
 
+.recipient-table--preview {
+    width: 100%;
+    table-layout: fixed;
+}
+
 .recipient-table--preview th {
     position: sticky;
-    top: 0;
     z-index: 1;
+    top: 0;
     height: 37px;
     padding: 6px;
     background: #e6e6e7;
     color: #5e626a;
     font-size: 11px;
+    text-align: center;
 }
 
 .recipient-table--preview th:first-child {
-    width: 24%;
+    width: 18%;
 }
 
 .recipient-table--preview th:nth-child(2) {
-    width: 45%;
+    width: 52%;
 }
 
 .recipient-table--preview th:last-child {
-    width: 31%;
+    width: 30%;
 }
 
 .recipient-table--preview td {
     height: 36px;
     padding: 5px 7px;
     font-size: 11px;
+    text-align: center;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
 }
 
 .recipient-table--preview .preview-empty td {
@@ -1064,23 +1114,80 @@ a:focus-visible {
     transform: rotate(180deg);
 }
 
+/* =========================================
+   16. IMPORT & OTHER ACTIONS
+========================================= */
 .import-actions {
-    margin-top: 8px;
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    margin-top: 12px;
 }
 
+.import-actions .primary-button {
+    min-height: 58px;
+}
+
+.outline-action,
+.quiet-action {
+    display: flex;
+    min-height: 43px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid #d4d6db;
+    border-radius: 7px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 150ms ease, border-color 150ms ease;
+}
+
+.outline-action {
+    border-color: var(--blue);
+    color: var(--blue);
+}
+
+.quiet-action {
+    color: #858991;
+}
+
+.outline-action:hover,
+.quiet-action:hover {
+    background: #f6f7fa;
+}
+
+.outline-action svg,
+.quiet-action svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* =========================================
+   17. RESPONSIVE — TABLET
+========================================= */
 @media (max-width: 900px) {
+    .app-shell {
+        width: min(100% - 40px, 760px);
+    }
+
+    .success-layout {
+        grid-template-columns: minmax(0, 1.7fr) minmax(250px, 1fr);
+        gap: 22px;
+    }
+
+    .file-panel-body {
+        padding: 18px 15px 15px;
+    }
+
     .recipient-workspace {
         padding: 18px;
     }
 
-    .recipient-manual-form,
     .recipient-workspace--import {
         grid-template-columns: minmax(0, 1.7fr) minmax(235px, 1fr);
         gap: 16px;
-    }
-
-    .row-actions {
-        grid-template-columns: 1fr;
     }
 
     .recipient-table th {
@@ -1088,7 +1195,128 @@ a:focus-visible {
     }
 }
 
+/* =========================================
+   18. RESPONSIVE — MOBILE
+========================================= */
 @media (max-width: 700px) {
+    .app-shell {
+        width: min(100% - 32px, 560px);
+        padding-bottom: 28px;
+    }
+
+    .topbar {
+        min-height: 76px;
+    }
+
+    .brand {
+        width: 128px;
+        height: 33px;
+    }
+
+    .steps {
+        width: calc(100vw - 32px);
+        margin-top: 17px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .steps-list {
+        min-width: 760px;
+    }
+
+    .step {
+        gap: 6px;
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        font-size: 14px;
+    }
+
+    .step-number svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .step-label {
+        font-size: 12px;
+    }
+
+    .step-connector {
+        min-width: 14px;
+        margin: 0 6px;
+    }
+
+    .page-content {
+        margin-top: 31px;
+    }
+
+    .page-intro {
+        margin-bottom: 22px;
+    }
+
+    .page-intro h1 {
+        font-size: 24px;
+    }
+
+    .page-intro p {
+        font-size: 14px;
+    }
+
+    .page-intro--hero h1 {
+        font-size: 38px;
+    }
+
+    .upload-card {
+        min-height: 350px;
+        padding: 11px;
+    }
+
+    .dropzone {
+        min-height: 326px;
+        padding: 22px 14px;
+    }
+
+    .upload-symbol {
+        width: 88px;
+        height: 88px;
+    }
+
+    .upload-symbol svg {
+        width: 45px;
+        height: 45px;
+    }
+
+    .dropzone h2 {
+        font-size: 17px;
+    }
+
+    .success-layout {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .file-panel {
+        order: 2;
+    }
+
+    .certificate-preview {
+        order: 1;
+    }
+
+    .continue-area {
+        order: 3;
+        margin-top: 0;
+    }
+
+    .primary-button {
+        min-height: 54px;
+    }
+
+    /* Recipient page */
     .recipient-page {
         margin-top: 24px;
     }
@@ -1118,15 +1346,13 @@ a:focus-visible {
         padding: 12px;
     }
 
-    .recipient-manual-form,
-    .recipient-workspace--import {
-        grid-template-columns: 1fr;
-        gap: 15px;
+    .recipient-manual-form {
         min-height: 0;
+        gap: 12px;
     }
 
     .recipient-table-wrap {
-        height: 360px;
+        max-height: 420px;
     }
 
     .recipient-table th {
@@ -1136,16 +1362,30 @@ a:focus-visible {
     }
 
     .recipient-table td {
-        padding: 3px;
+        padding: 5px;
     }
 
-    .recipient-number {
-        gap: 4px;
-        font-size: 11px;
+    .recipient-table--manual td input {
+        font-size: 12px;
     }
 
-    .row-actions {
-        grid-template-columns: 1fr 1fr;
+    .delete-row-button {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+    }
+
+    .recipient-form-footer .secondary-button,
+    .recipient-form-footer .primary-button {
+        min-width: 0;
+        flex: 1;
+    }
+
+    /* Import page */
+    .recipient-workspace--import {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        min-height: 0;
     }
 
     .recipient-dropzone {
@@ -1163,6 +1403,9 @@ a:focus-visible {
     }
 }
 
+/* =========================================
+   19. REDUCED MOTION
+========================================= */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -1172,282 +1415,27 @@ a:focus-visible {
         animation-iteration-count: 1 !important;
         transition-duration: .01ms !important;
     }
-}
 
-
-/* =========================================
-   ProCert — Balanced Animated Wizard
-   ========================================= */
-
-.steps {
-    width: min(100% - 96px, 1280px);
-    margin: 28px auto 0;
-    overflow: visible;
-}
-
-.steps-list {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    gap: 0;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-}
-
-.step {
-    position: relative;
-    display: flex;
-    flex: 0 0 auto;
-    min-width: 0;
-    align-items: center;
-    gap: 8px;
-    color: #b6b8bd;
-    white-space: nowrap;
-}
-
-.step:not(:last-child)::after {
-    display: none;
-}
-
-.step-number {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    width: 42px;
-    height: 42px;
-    flex: 0 0 42px;
-    place-items: center;
-    border-radius: 50%;
-    background: #f1f2f4;
-    color: #a4a7ad;
-    font-size: 17px;
-    font-weight: 700;
-    transition: background-color 300ms ease, color 300ms ease;
-}
-
-.step-number svg {
-    width: 22px;
-    height: 22px;
-}
-
-.step-label {
-    display: block;
-    padding: 0;
-    background: transparent;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.4;
-    transition: color 300ms ease;
-}
-
-.step.is-complete,
-.step.is-active {
-    color: var(--blue);
-}
-
-.step.is-complete .step-number,
-.step.is-active .step-number {
-    background: var(--blue);
-    color: #fff;
-}
-
-.step-connector {
-    position: relative;
-    display: block;
-    flex: 1 1 0;
-    min-width: 22px;
-    height: 2px;
-    margin: 0 12px;
-    overflow: hidden;
-    background: #e0e1e4;
-}
-
-.step-connector span {
-    position: absolute;
-    inset: 0;
-    width: 0;
-    background: var(--blue);
-    transition: width 550ms cubic-bezier(.22, 1, .36, 1);
-}
-
-.step-connector.is-complete span {
-    width: 100%;
-}
-
-@media (max-width: 1000px) {
-    .steps {
-        width: calc(100% - 40px);
-        overflow-x: auto;
-        padding-bottom: 8px;
-    }
-
-    .steps-list {
-        min-width: 760px;
-    }
-
-    .step-connector {
-        min-width: 18px;
-        margin: 0 8px;
-    }
-}
-
-@media (max-width: 600px) {
-    .steps {
-        width: calc(100% - 28px);
-    }
-
-    .steps-list {
-        min-width: 720px;
-    }
-
-    .step {
-        gap: 6px;
-    }
-
-    .step-number {
-        width: 36px;
-        height: 36px;
-        flex-basis: 36px;
-        font-size: 14px;
-    }
-
-    .step-number svg {
-        width: 19px;
-        height: 19px;
-    }
-
-    .step-label {
-        font-size: 12px;
-    }
-
-    .step-connector {
-        min-width: 14px;
-        margin: 0 6px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
     .step-number,
     .step-label,
     .step-connector span {
         transition: none !important;
     }
-}
 
-
-/* =========================================
-   ProCert — Animated Wizard Progress
-   ========================================= */
-
-/* Step aktif: efek muncul yang lembut. */
-.steps-list > .step.is-active .step-number {
-    animation: active-step-appear 450ms ease-out both;
-}
-
-@keyframes active-step-appear {
-    0% {
-        transform: scale(.88);
-        box-shadow: 0 0 0 0 rgba(36, 84, 255, 0);
-    }
-
-    65% {
-        transform: scale(1.06);
-        box-shadow: 0 0 0 5px rgba(36, 84, 255, .10);
-    }
-
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(36, 84, 255, 0);
-    }
-}
-
-/* Garis yang sudah selesai tetap biru dan statis. */
-.steps-list > .step-connector.is-complete span {
-    width: 100%;
-    animation: none;
-}
-
-/* Hanya garis yang baru dilewati yang dianimasikan. */
-.steps-list > .step-connector.just-completed span {
-    width: 0;
-    animation: progress-line-fill 600ms
-        cubic-bezier(.22, 1, .36, 1) forwards;
-}
-
-@keyframes progress-line-fill {
-    from {
-        width: 0;
-    }
-
-    to {
-        width: 100%;
-    }
-}
-
-/* Hanya centang step yang baru selesai yang dianimasikan. */
-.steps-list > .step.animate-check .step-number svg path {
-    stroke-dasharray: 24;
-    stroke-dashoffset: 24;
-    animation: checkmark-draw 350ms ease-out forwards;
-}
-
-@keyframes checkmark-draw {
-    to {
-        stroke-dashoffset: 0;
-    }
-}
-
-/* Hormati pengaturan reduced motion pengguna. */
-@media (prefers-reduced-motion: reduce) {
-    .steps-list > .step-connector.is-complete span,
-    .steps-list > .step-connector.just-completed span {
+    .step-connector.is-complete span,
+    .step-connector.just-completed span {
         animation: none !important;
         width: 100%;
     }
 
-    .steps-list > .step.is-active .step-number {
+    .step.is-active .step-number {
         animation: none !important;
         transform: none;
         box-shadow: none;
     }
 
-    .steps-list > .step.animate-check .step-number svg path {
+    .step.animate-check .step-number svg path {
         animation: none !important;
         stroke-dashoffset: 0;
-    }
-}
-
-/* FIX: Wizard progress layout */
-.steps-list {
-    display: flex !important;
-    flex-flow: row nowrap;
-    width: 100%;
-    align-items: center;
-}
-
-.step {
-    flex: 0 0 auto;
-}
-
-.step-connector {
-    flex: 1 1 0;
-    min-width: 22px;
-}
-
-/* FIX: Newly completed connector animation */
-.steps-list > .step-connector.just-completed span {
-    width: 0;
-    animation: progress-line-fill 600ms
-        cubic-bezier(.22, 1, .36, 1) forwards !important;
-}
-
-@keyframes progress-line-fill {
-    from {
-        width: 0;
-    }
-
-    to {
-        width: 100%;
     }
 }

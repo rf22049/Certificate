@@ -44,13 +44,29 @@
             @endif
 
             <section class="recipient-workspace recipient-workspace--manual" data-recipient-panel="manual" @if ($mode !== 'manual') hidden @endif>
-                <form class="recipient-manual-form" method="POST" action="{{ route('recipients.store') }}" data-manual-form>
+                <form class="recipient-manual-form" method="POST"
+                    action="{{ route('recipients.store') }}" data-manual-form>
                     @csrf
+
                     @php($manualRecipients = old('recipients', $recipients))
+
+                    <div class="recipient-table-toolbar">
+                        <button class="outline-action" type="button" data-add-recipient>
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                <path d="M10 3v14M3 10h14" />
+                            </svg>
+                            Tambah Baris
+                        </button>
+                    </div>
+
                     <div class="recipient-table-wrap">
                         @error('recipients')
-                            <p class="form-error recipient-error" role="alert">{{ $message }}</p>
+                            <p class="form-error recipient-error" role="alert">
+                                {{ $message }}
+                            </p>
                         @enderror
+
                         <table class="recipient-table recipient-table--manual">
                             <thead>
                                 <tr>
@@ -59,53 +75,106 @@
                                     <th scope="col">Ket</th>
                                 </tr>
                             </thead>
+
                             <tbody data-manual-rows>
                                 @forelse ($manualRecipients as $index => $recipient)
                                     <tr data-recipient-row>
                                         <td class="recipient-number">
-                                            <input type="checkbox" aria-label="Pilih baris {{ $index + 1 }}" data-row-select>
                                             <span data-row-number>{{ $index + 1 }}</span>
                                         </td>
-                                        <td><input name="recipients[{{ $index }}][name]" value="{{ $recipient['name'] ?? '' }}" maxlength="255" aria-label="Nama penerima baris {{ $index + 1 }}" data-recipient-name></td>
-                                        <td><input name="recipients[{{ $index }}][note]" value="{{ $recipient['note'] ?? '' }}" maxlength="255" aria-label="Keterangan baris {{ $index + 1 }}" data-recipient-note></td>
+
+                                        <td>
+                                            <input
+                                                name="recipients[{{ $index }}][name]"
+                                                value="{{ $recipient['name'] ?? '' }}"
+                                                maxlength="255"
+                                                aria-label="Nama penerima baris {{ $index + 1 }}"
+                                                data-recipient-name
+                                            >
+                                        </td>
+
+                                        <td>
+                                            <div class="recipient-note-cell">
+                                                <input
+                                                    name="recipients[{{ $index }}][note]"
+                                                    value="{{ $recipient['note'] ?? '' }}"
+                                                    maxlength="255"
+                                                    aria-label="Keterangan baris {{ $index + 1 }}"
+                                                    data-recipient-note
+                                                >
+
+                                                <button class="delete-row-button"
+                                                    type="button"
+                                                    data-delete-row
+                                                    aria-label="Hapus baris {{ $index + 1 }}"
+                                                    title="Hapus baris">
+                                                    <svg viewBox="0 0 20 20" fill="none"
+                                                        stroke="currentColor" stroke-width="1.8"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        aria-hidden="true">
+                                                        <path d="M3 5h14M7 5V3h6v2m-8 0 1 12h8l1-12M8 8v6m4-6v6"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr data-recipient-row>
                                         <td class="recipient-number">
-                                            <input type="checkbox" aria-label="Pilih baris 1" data-row-select>
                                             <span data-row-number>1</span>
                                         </td>
-                                        <td><input name="recipients[0][name]" maxlength="255" aria-label="Nama penerima baris 1" data-recipient-name></td>
-                                        <td><input name="recipients[0][note]" maxlength="255" aria-label="Keterangan baris 1" data-recipient-note></td>
+
+                                        <td>
+                                            <input name="recipients[0][name]"
+                                                maxlength="255"
+                                                aria-label="Nama penerima baris 1"
+                                                data-recipient-name>
+                                        </td>
+
+                                        <td>
+                                            <div class="recipient-note-cell">
+                                                <input name="recipients[0][note]"
+                                                    maxlength="255"
+                                                    aria-label="Keterangan baris 1"
+                                                    data-recipient-note>
+
+                                                <button class="delete-row-button"
+                                                    type="button"
+                                                    data-delete-row
+                                                    aria-label="Hapus baris 1"
+                                                    title="Hapus baris">
+                                                    <svg viewBox="0 0 20 20" fill="none"
+                                                        stroke="currentColor" stroke-width="1.8"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        aria-hidden="true">
+                                                        <path d="M3 5h14M7 5V3h6v2m-8 0 1 12h8l1-12M8 8v6m4-6v6"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
 
-                    <aside class="recipient-actions">
-                        <div class="row-actions">
-                            <button class="outline-action" type="button" data-add-recipient>
-                                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                                    <path d="M10 3v14M3 10h14" />
-                                </svg>
-                                Tambah Baris
-                            </button>
-                            <button class="quiet-action" type="button" data-delete-recipient>
-                                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M3 5h14M7 5V3h6v2m-8 0 1 12h8l1-12M8 8v6m4-6v6" />
-                                </svg>
-                                Hapus Baris
-                            </button>
-                        </div>
+                    <div class="recipient-form-footer">
+                        <a class="secondary-button" href="{{ route('home') }}">
+                            Kembali
+                        </a>
+
                         <button class="primary-button" type="submit">
                             Lanjut
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
                                 <path d="M5 12h14M13 6l6 6-6 6" />
                             </svg>
                         </button>
-                        <a class="secondary-button" href="{{ route('home') }}">Kembali</a>
-                    </aside>
+                    </div>
                 </form>
             </section>
 
