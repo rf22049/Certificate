@@ -1311,6 +1311,10 @@
             settings
         };
 
+        console.log('Global name alignment:', settings.global.name.alignment);
+        console.log('Global number alignment:', settings.global.number.alignment);
+        console.log('Full settings:', settings);
+
         try {
             const response = await fetch(
                 '{{ route('certificate-edit.save') }}',
@@ -1332,7 +1336,8 @@
                 throw new Error(result.message || 'Gagal menyimpan perubahan.');
             }
 
-            status.textContent = 'Perubahan berhasil disimpan!';
+            // Berhasil menyimpan ke session, lanjut ke Step 5 sementara.
+            window.location.href = "{{ route('certificate-review.index') }}";
         } catch (error) {
             status.textContent = error.message;
         } finally {

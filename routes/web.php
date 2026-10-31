@@ -29,3 +29,8 @@ Route::get('/certificate-edit', [CertificateEditController::class, 'index'])
 
 Route::post('/certificate-edit/save', [CertificateEditController::class, 'save'])
     ->name('certificate-edit.save');
+
+// STEP 5 - HALAMAN SEMENTARA
+Route::get('/certificate-review', function () {
+    return response('', 200);
+})->name('certificate-review.index');
