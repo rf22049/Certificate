@@ -352,22 +352,24 @@ a:focus-visible {
 }
 
 .certificate-preview {
-    display: grid;
+    display: block;
     width: 100%;
-    aspect-ratio: 1.85;
-    place-items: center;
     overflow: hidden;
     border: 1px solid #4b4d51;
     background: #fff;
 }
 
-.certificate-preview img,
+.certificate-preview img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
 .certificate-preview iframe {
     display: block;
     width: 100%;
-    height: 100%;
+    min-height: 600px;
     border: 0;
-    object-fit: contain;
 }
 
 .file-panel {
@@ -436,10 +438,8 @@ a:focus-visible {
 }
 
 .file-thumbnail {
-    display: grid;
+    display: block;
     width: 100%;
-    aspect-ratio: 2.1;
-    place-items: center;
     overflow: hidden;
     border: 1px solid #55575b;
     background: #fff;
@@ -448,8 +448,7 @@ a:focus-visible {
 .file-thumbnail img {
     display: block;
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    height: auto;
 }
 
 .file-thumbnail--pdf {
