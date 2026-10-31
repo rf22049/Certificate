@@ -672,7 +672,6 @@ a:focus-visible {
 /* =========================================
    9. RECIPIENT PAGE HEADER
 ========================================= */
-
 .recipient-page {
     margin-top: 30px;
     animation: arrive 420ms ease both;
@@ -927,23 +926,29 @@ a:focus-visible {
     width: 100%;
     align-items: center;
     justify-content: space-between;
-    align-self: stretch;
-    gap: 12px;
-    margin-top: 8px;
+    gap: 16px;
+    margin-top: 2px;
 }
 
-.recipient-form-footer .secondary-button {
-    min-width: 145px;
-    min-height: 48px;
-    margin-right: auto;
+.recipient-form-footer > .secondary-button,
+.recipient-form-footer > .primary-button {
+    display: flex;
+    width: 210px;
+    min-width: 210px;
+    flex: 0 0 210px;
+    min-height: 58px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin: 0;
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 
-.recipient-form-footer .primary-button {
-    width: auto;
-    min-width: 145px;
-    min-height: 48px;
-    padding: 0 22px;
-    margin-left: auto;
+.recipient-form-footer svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
 }
 
 .recipient-error {
@@ -1115,17 +1120,122 @@ a:focus-visible {
 }
 
 /* =========================================
-   16. IMPORT & OTHER ACTIONS
+   16. RECIPIENT NAVIGATION
+========================================= */
+.recipient-form-footer,
+.import-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+}
+
+/* Manual input: tombol di kiri dan kanan */
+.recipient-form-footer > .secondary-button,
+.recipient-form-footer > .primary-button {
+    display: flex;
+    width: 210px;
+    min-width: 210px;
+    flex: 0 0 210px;
+    min-height: 58px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin: 0;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+
+/* Upload CSV: kedua tombol berbagi lebar */
+.import-actions > .secondary-button,
+.import-actions > .primary-button {
+    display: flex;
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    min-height: 58px;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin: 0;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+
+.recipient-form-footer svg,
+.import-actions svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.recipient-form-footer .secondary-button,
+.import-actions .secondary-button {
+    order: 0;
+}
+
+.recipient-form-footer .primary-button,
+.import-actions .primary-button {
+    order: 1;
+}
+
+@media (max-width: 600px) {
+    .recipient-form-footer,
+    .import-actions {
+        gap: 10px;
+    }
+
+    .recipient-form-footer > .secondary-button,
+    .recipient-form-footer > .primary-button,
+    .import-actions > .secondary-button,
+    .import-actions > .primary-button {
+        min-height: 50px;
+        font-size: 13px;
+    }
+
+    .recipient-form-footer > .secondary-button,
+    .recipient-form-footer > .primary-button {
+        width: auto;
+        min-width: 0;
+        flex: 1 1 0;
+    }
+}
+
+/* =========================================
+   17. IMPORT & OTHER ACTIONS
 ========================================= */
 .import-actions {
-    display: grid;
+    display: flex;
+    flex-direction: row;
     align-content: start;
-    gap: 8px;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
     margin-top: 12px;
 }
 
+.import-actions .primary-button,
+.import-actions .secondary-button {
+    display: flex;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.import-actions .secondary-button {
+    order: 0;
+}
+
 .import-actions .primary-button {
-    min-height: 58px;
+    order: 1;
 }
 
 .outline-action,
@@ -1165,7 +1275,7 @@ a:focus-visible {
 }
 
 /* =========================================
-   17. RESPONSIVE — TABLET
+   18. RESPONSIVE — TABLET
 ========================================= */
 @media (max-width: 900px) {
     .app-shell {
@@ -1196,7 +1306,7 @@ a:focus-visible {
 }
 
 /* =========================================
-   18. RESPONSIVE — MOBILE
+   19. RESPONSIVE — MOBILE
 ========================================= */
 @media (max-width: 700px) {
     .app-shell {
@@ -1403,8 +1513,22 @@ a:focus-visible {
     }
 }
 
+@media (max-width: 600px) {
+    .recipient-form-footer {
+        gap: 10px;
+    }
+
+    .recipient-form-footer > .secondary-button,
+    .recipient-form-footer > .primary-button {
+        width: auto;
+        min-width: 0;
+        flex: 1 1 0;
+        min-height: 50px;
+    }
+}
+
 /* =========================================
-   19. REDUCED MOTION
+   20. REDUCED MOTION
 ========================================= */
 @media (prefers-reduced-motion: reduce) {
     *,
@@ -1438,4 +1562,31 @@ a:focus-visible {
         animation: none !important;
         stroke-dashoffset: 0;
     }
+}
+
+/* Hover tombol Kembali — Excel/CSV dan Input Manual */
+.import-actions .secondary-button,
+.recipient-form-footer .secondary-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--blue);
+    transition: background 150ms ease,
+                border-color 150ms ease,
+                color 150ms ease;
+}
+
+.import-actions .secondary-button:hover,
+.recipient-form-footer .secondary-button:hover {
+    border-color: var(--blue);
+    background: #f5f7ff;
+    color: var(--blue);
+}
+
+.import-actions .secondary-button svg,
+.recipient-form-footer .secondary-button svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
 }

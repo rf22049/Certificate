@@ -162,6 +162,12 @@
 
                     <div class="recipient-form-footer">
                         <a class="secondary-button" href="{{ route('home') }}">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                            </svg>
                             Kembali
                         </a>
 
@@ -220,21 +226,36 @@
                             </tbody>
                         </table>
                     </div>
+
                     <button class="preview-toggle" type="button" aria-expanded="false" aria-controls="recipient-preview-rows" data-preview-toggle @if (count($recipients) <= 10) hidden @endif>
                         <span data-preview-label>Tampilkan Semua</span>
                         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="m4 6 4 4 4-4" />
                         </svg>
                     </button>
+
                     <form class="import-actions" method="POST" action="{{ route('recipients.next') }}">
                         @csrf
+
+                        <a class="secondary-button" href="{{ route('home') }}">
+                            <svg viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                            </svg>
+                            Kembali
+                        </a>
+
                         <button class="primary-button" type="submit">
                             Lanjut
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M5 12h14M13 6l6 6-6 6" />
+                            <svg viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M5 12h14M13 6l6 6-6 6"/>
                             </svg>
                         </button>
-                        <a class="secondary-button" href="{{ route('home') }}">Kembali</a>
                     </form>
                 </aside>
             </section>
