@@ -141,20 +141,23 @@ const renumberRecipientRows = () => {
     const rows = manualRows?.querySelectorAll('[data-recipient-row]');
     rows?.forEach((row, index) => {
         const number = index + 1;
-
-        row.querySelector('[data-row-number]').textContent = number;
-
+        const rowNumber = row.querySelector('[data-row-number]');
         const nameInput = row.querySelector('[data-recipient-name]');
         const noteInput = row.querySelector('[data-recipient-note]');
         const deleteButton = row.querySelector('[data-delete-row]');
 
+        if (!rowNumber || !nameInput || !noteInput) {
+            return;
+        }
+
+        rowNumber.textContent = number;
         nameInput.name = `recipients[${index}][name]`;
         nameInput.setAttribute('aria-label', `Nama penerima baris ${number}`);
 
         noteInput.name = `recipients[${index}][note]`;
         noteInput.setAttribute('aria-label', `Keterangan baris ${number}`);
 
-        deleteButton.setAttribute('aria-label', `Hapus baris ${number}`);
+        deleteButton?.setAttribute('aria-label', `Hapus baris ${number}`);
     });
 };
 

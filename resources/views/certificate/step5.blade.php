@@ -430,7 +430,7 @@
 
             <div class="heading-text">
                 <h1>Review & Download</h1>
-                <p>Tambahkan daftar nama penerima sertifikat</p>
+                <p>Periksa kembali seluruh sertifikat sebelum mengunduh.</p>
             </div>
 
             {{-- KELOMPOK TOMBOL --}}
@@ -450,15 +450,13 @@
             </svg>
         </a>
 
-                {{-- DOWNLOAD ZIP --}}
-                <button type="button" class="download-button zip" disabled>
+                <a href="{{ route('certificate-export.zip') }}" class="download-button zip">
                     Download (ZIP)
-                </button>
+                </a>
 
-                {{-- DOWNLOAD PDF --}}
-                <button type="button" class="download-button pdf" disabled>
+                <a href="{{ route('certificate-export.pdf') }}" class="download-button pdf">
                     Download PDF
-                </button>
+                </a>
 
             </div>
 
@@ -547,46 +545,21 @@
                     <div class="certificate-text" id="numberElement"></div>
 
                 </div>
-
             </div>
 
-            {{-- NOMOR HALAMAN --}}
             <div class="pagination">
-
                 <button type="button" id="previousPage">‹</button>
-
                 <span>
                     <span id="currentPage">1</span>
                     /
                     <span id="totalPage">{{ count($recipients) }}</span>
                 </span>
-
                 <button type="button" id="nextPage">›</button>
-
             </div>
 
         </div>
 
-    </div>
-
-                    {{-- NOMOR HALAMAN --}}
-                    <div class="pagination">
-
-                        <button type="button" id="previousPage">‹</button>
-
-                        <span>
-                            <span id="currentPage">1</span>
-                            /
-                            <span id="totalPage">{{ count($recipients) }}</span>
-                        </span>
-
-                        <button type="button" id="nextPage">›</button>
-
-                    </div>
-
-                </div>
-
-            </div>
+        </div>
 
         </main>
     </div>

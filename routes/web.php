@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\RecipientController;
-use App\Http\Controllers\TemplateUploadController;
 use App\Http\Controllers\CertificateEditController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CertificateExportController;
 use App\Http\Controllers\CertificateNumberController;
 use App\Http\Controllers\CertificateReview;
+use App\Http\Controllers\RecipientController;
+use App\Http\Controllers\TemplateUploadController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [TemplateUploadController::class, 'index'])->name('home');
 Route::post('/templates', [TemplateUploadController::class, 'store'])
@@ -35,3 +36,11 @@ Route::post('/certificate-edit/save', [CertificateEditController::class, 'save']
 
 Route::get('/certificate-review', [CertificateReview::class, 'index'])
     ->name('certificate-review.index');
+
+Route::get('/certificate-export/pdf', [CertificateExportController::class, 'pdf'])
+    ->middleware('throttle:5,1')
+    ->name('certificate-export.pdf');
+
+Route::get('/certificate-export/zip', [CertificateExportController::class, 'zip'])
+    ->middleware('throttle:5,1')
+    ->name('certificate-export.zip');

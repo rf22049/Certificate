@@ -88,6 +88,14 @@ class RecipientController extends Controller
                 ]);
             }
 
+            if (count($recipients) >= self::MAX_RECIPIENTS) {
+                $spreadsheet->disconnectWorksheets();
+
+                return back()->withErrors([
+                    'recipients_file' => 'File hanya boleh berisi maksimal 1.000 penerima.',
+                ]);
+            }
+
             $recipients[] = ['name' => $name, 'note' => $note];
         }
 
@@ -136,7 +144,6 @@ class RecipientController extends Controller
         return redirect()->route('certificate-number.index')->with('status', 'Data penerima berhasil disimpan.');
     }
 
-    
     public function next(Request $request): RedirectResponse
     {
         if (! $this->hasTemplate($request)) {
@@ -148,7 +155,9 @@ class RecipientController extends Controller
                 'recipients' => 'Tambahkan atau unggah minimal satu penerima.',
             ]);
         }
+
         $request->session()->flash('previous_wizard_step', 2);
+
         return redirect()->route('certificate-number.index');
     }
 

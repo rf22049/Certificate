@@ -443,6 +443,7 @@
                             <input
                                 id="year"
                                 type="number"
+                                name="year"
                                 min="2000"
                                 max="2100"
                                 value="{{ $selectedYear }}"
@@ -536,6 +537,7 @@
         const startNumberInput = document.getElementById('startNumber');
         const monthInput = document.getElementById('month');
         const yearInput = document.getElementById('year');
+        const lastNumbersByYear = @json($lastNumbersByYear);
 
         const previewCode = document.getElementById('previewCode');
         const previewNext = document.getElementById('previewNext');
@@ -593,6 +595,12 @@
         [startNumberInput, monthInput, yearInput].forEach((input) => {
             input.addEventListener('input', updatePreview);
             input.addEventListener('change', updatePreview);
+        });
+
+        yearInput.addEventListener('input', () => {
+            const lastNumber = Number(lastNumbersByYear[yearInput.value] ?? 0);
+            startNumberInput.value = String(lastNumber + 1);
+            updatePreview();
         });
 
         updatePreview();

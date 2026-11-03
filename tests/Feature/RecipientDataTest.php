@@ -78,11 +78,48 @@ class RecipientDataTest extends TestCase
             ],
         ]);
 
-        $response->assertRedirect(route('recipients.index', ['mode' => 'manual']));
+        $response->assertRedirect(route('certificate-number.index'));
         $response->assertSessionHas('recipients', [
             ['name' => 'Ayu Lestari', 'note' => 'Peserta'],
             ['name' => 'Bima Putra', 'note' => 'Panitia'],
         ]);
+    }
+
+    public function test_xlsx_import_rejects_more_than_one_thousand_recipients_without_a_header(): void
+    {
+        $this->withTemplate();
+
+        $path = tempnam(sys_get_temp_dir(), 'procert-xlsx-');
+        $spreadsheet = new Spreadsheet;
+        $rows = [];
+
+        for ($row = 1; $row <= 1001; $row++) {
+            $rows[] = ['Recipient '.$row, ''];
+        }
+
+        $spreadsheet->getActiveSheet()->fromArray($rows);
+        (new Xlsx($spreadsheet))->save($path);
+        $spreadsheet->disconnectWorksheets();
+
+        try {
+            $upload = new UploadedFile(
+                $path,
+                'penerima.xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                null,
+                true,
+            );
+            $response = $this->from(route('recipients.index', ['mode' => 'import']))
+                ->post(route('recipients.import'), ['recipients_file' => $upload]);
+        } finally {
+            @unlink($path);
+        }
+
+        $response->assertRedirect(route('recipients.index', ['mode' => 'import']));
+        $response->assertSessionHasErrors([
+            'recipients_file' => 'File hanya boleh berisi maksimal 1.000 penerima.',
+        ]);
+        $response->assertSessionMissing('recipients');
     }
 
     public function test_manual_submission_requires_at_least_one_recipient(): void
