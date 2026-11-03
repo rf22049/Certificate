@@ -12,16 +12,29 @@ class CertificateEditController extends Controller
 {
     public function index(Request $request): View|RedirectResponse
     {
+
         // TEMPLATE
         $template = $request->session()->get('template');
 
-        if (
-            ! is_array($template)
-            || empty($template['path'])
-            || ! Storage::disk('local')->exists($template['path'])
-        ) {
+        if (! is_array($template) || empty($template['path'])) {
             return redirect()->route('home')
-                ->with('status', 'Silakan unggah template sertifikat terlebih dahulu.');
+                ->with('status', 'Silakan pilih atau unggah template sertifikat terlebih dahulu.');
+        }
+
+        // CEK TEMPLATE BAWAAN ATAU TEMPLATE UPLOAD
+        if (($template['source'] ?? 'upload') === 'builtin') {
+            // Template bawaan berada di folder public
+            $templateExists = is_file(public_path($template['path']));
+        } else {
+            // Template yang diunggah berada di local storage
+            $templateExists = Storage::disk('local')->exists($template['path']);
+        }
+
+        if (! $templateExists) {
+            $request->session()->forget('template');
+
+            return redirect()->route('home')
+                ->with('status', 'File template tidak ditemukan. Silakan pilih template kembali.');
         }
 
         // DATA PENERIMA

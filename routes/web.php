@@ -12,6 +12,8 @@ Route::post('/templates', [TemplateUploadController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('templates.store');
 Route::get('/templates/preview', [TemplateUploadController::class, 'preview'])->name('templates.preview');
+Route::post('/templates/select/{id}', [TemplateUploadController::class, 'select'])
+    ->name('templates.select');
 Route::delete('/templates', [TemplateUploadController::class, 'destroy'])->name('templates.destroy');
 
 Route::get('/recipients', [RecipientController::class, 'index'])->name('recipients.index');

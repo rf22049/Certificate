@@ -156,9 +156,15 @@ class RecipientController extends Controller
     {
         $template = $request->session()->get('template');
 
-        return is_array($template)
-            && isset($template['path'])
-            && Storage::disk('local')->exists($template['path']);
+        if (! is_array($template) || ! isset($template['path'])) {
+            return false;
+        }
+
+        if (($template['source'] ?? 'upload') === 'builtin') {
+            return is_file(public_path($template['path']));
+        }
+
+        return Storage::disk('local')->exists($template['path']);
     }
 
     private function cellText(Worksheet $worksheet, string $coordinate): string
