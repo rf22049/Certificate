@@ -311,6 +311,13 @@
         top: 180px;
     }
 
+    .wizard-template-action {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 40px;
+    margin-bottom: 8px;
+}
+
     </style>
 </head>
 
@@ -322,14 +329,6 @@
     <main class="page-content {{ $template ? 'page-content--success' : 'page-content--upload' }}">
 
         @if ($template)
-
-            <div class="template-main-top">
-                <a class="excel-button"
-                   href="{{ route('recipients.index', ['mode' => 'import']) }}">
-                    <span>▤</span>
-                    Template Excel
-                </a>
-            </div>
 
             <section class="page-intro">
                 <h1>Template berhasil diunggah!</h1>
@@ -515,16 +514,6 @@
                             aria-label="Buka pencarian template">
                         &rsaquo;
                     </button>
-
-                    <div class="template-main-top">
-                        <button type="button"
-                                class="excel-button"
-                                disabled
-                                title="Pilih template sertifikat terlebih dahulu">
-                            <span>▤</span>
-                            Template Excel
-                        </button>
-                    </div>
 
                     <section class="page-intro page-intro--hero">
                         <h1>Buat <span class="title-accent">Sertifikat</span></h1>

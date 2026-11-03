@@ -63,41 +63,35 @@
             gap: 10px;
         }
 
-        .back-button {
-            width: 40px;
-            height: 40px;
-            min-width: 40px;
-            flex: 0 0 40px;
-
+        .review-back-button {
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
             display: inline-flex;
             justify-content: center;
             align-items: center;
 
-            border: 2px solid #2454ff;
-            border-radius: 50%;
+            background: #2454FF;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
 
-            color: #2454ff;
-            background: #ffffff;
             text-decoration: none;
             transition: all .2s ease;
         }
 
-        .back-button svg {
-            width: 17px;
-            height: 17px;
-
-            display: block;
+        .review-back-button svg {
+            width: 28px;
+            height: 28px;
             fill: none;
             stroke: currentColor;
-            stroke-width: 2;
+            stroke-width: 2.5;
             stroke-linecap: round;
             stroke-linejoin: round;
         }
 
-        .back-button:hover {
-            background: #2454FF;
-            color: #ffffff;
-            border-color: #2454FF;
+        .review-back-button:hover {
+            background: #1945E8;
         }
 
         .download-button {
@@ -442,12 +436,19 @@
             {{-- KELOMPOK TOMBOL --}}
             <div class="actions">
 
-                {{-- KEMBALI --}}
-                <a href="{{ route('certificate-edit.index') }}"
-                class="back-button"
-                title="Kembali ke Edit Sertifikat">
-                    <span class="back-arrow">←</span>
-                </a>
+        <a href="{{ route('certificate-edit.index') }}"
+        class="review-back-button"
+        aria-label="Kembali ke Edit Sertifikat">
+            <svg viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M19 12H5"/>
+                <path d="m12 19-7-7 7-7"/>
+            </svg>
+        </a>
 
                 {{-- DOWNLOAD ZIP --}}
                 <button type="button" class="download-button zip" disabled>
