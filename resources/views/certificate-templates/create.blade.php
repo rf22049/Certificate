@@ -14,310 +14,413 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-    /* Layout homepage */
-    .template-home-layout {
-        display: flex;
-        align-items: flex-start;
-        gap: 0;
-        width: 100%;
-        position: relative;
-        min-height: 0;
-    }
+        /* =========================================
+        1. HOMEPAGE LAYOUT
+        ========================================= */
 
-    .template-sidebar {
-        width: 242px;
-        min-width: 242px;
-        height: 620px;
-        background: #D9D9D9;
-        padding: 16px 12px;
-        display: none;
-        flex-direction: column;
-        gap: 16px;
-        align-self: flex-start;
-        border-radius: 0;
-        flex-shrink: 0;
-    }
-
-    .template-sidebar.is-open {
-        display: flex;
-    }
-
-    .sidebar-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .sidebar-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: #222;
-    }
-
-    .sidebar-close {
-        border: none;
-        background: transparent;
-        font-size: 23px;
-        cursor: pointer;
-        color: #333;
-        line-height: 1;
-        padding: 2px 5px;
-    }
-
-    .sidebar-close:hover {
-        color: #2454FF;
-    }
-
-    .template-search {
-        width: 100%;
-        height: 36px;
-        padding: 8px 14px;
-        border: 1px solid #D5D5D5;
-        border-radius: 25px;
-        background: #fff;
-        font-family: inherit;
-        font-size: 12px;
-        outline: none;
-        box-sizing: border-box;
-    }
-
-    .template-search:focus {
-        border-color: #2454FF;
-    }
-
-    .template-list {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-        overflow-y: auto;
-        max-height: 520px;
-    }
-
-    .template-option {
-        display: block;
-        width: 100%;
-        padding: 0;
-        border: 2px solid transparent;
-        border-radius: 5px;
-        overflow: hidden;
-        background: #fff;
-        cursor: pointer;
-        text-align: left;
-        transition: border-color .2s ease;
-    }
-
-    .template-option:hover {
-        border-color: #2454FF;
-    }
-
-    .template-option img {
-        display: block;
-        width: 100%;
-        aspect-ratio: 1.414 / 1;
-        object-fit: cover;
-    }
-
-    .template-option span {
-        display: block;
-        padding: 7px 9px;
-        font-size: 11px;
-        font-weight: 700;
-        color: #333;
-    }
-
-    .template-empty {
-        font-size: 12px;
-        color: #777;
-        text-align: center;
-        padding: 15px 5px;
-    }
-
-    .template-main {
-        flex: 1;
-        min-width: 0;
-        position: relative;
-        padding: 0 12px;
-    }
-
-    .template-main-top {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        margin-bottom: 4px;
-        min-height: 36px;
-    }
-
-    .sidebar-open {
-        display: none;
-        position: absolute;
-        left: -1px;
-        top: 180px;
-        width: 32px;
-        height: 70px;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #D5D5D5;
-        border-left: none;
-        border-radius: 0 35px 35px 0;
-        background: #fff;
-        color: #222;
-        font-size: 22px;
-        cursor: pointer;
-        z-index: 2;
-    }
-
-    .sidebar-open.is-visible {
-        display: flex;
-    }
-
-    .excel-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 7px;
-        padding: 7px 13px;
-        border: none;
-        border-radius: 8px;
-        background: #104F16;
-        color: #fff;
-        font-family: inherit;
-        font-size: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
-        transition: .2s ease;
-    }
-
-    .excel-button:hover:not(:disabled) {
-        background: #0B3F11;
-    }
-
-    .excel-button:disabled {
-        background: #BFC5D3;
-        color: #fff;
-        cursor: not-allowed;
-    }
-
-    .template-main .page-intro--hero {
-        margin-top: 0;
-        margin-bottom: 22px;
-    }
-
-    .template-main .page-intro--hero h1 {
-        font-size: 38px;
-        line-height: 1.2;
-        margin-bottom: 6px;
-    }
-
-    .template-main .page-intro--hero p {
-        font-size: 12px;
-        margin: 0;
-    }
-
-    .template-main .upload-card {
-        width: 100%;
-        max-width: 560px;
-        margin: 0 auto;
-        box-sizing: border-box;
-    }
-
-    .template-main .dropzone {
-        min-height: 285px;
-        box-sizing: border-box;
-        padding: 26px 20px;
-    }
-
-    .template-main .upload-symbol {
-        width: 78px !important;
-        height: 78px !important;
-        min-width: 78px;
-        min-height: 78px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        border-radius: 50%;
-        background: #D9D9D9;
-    }
-
-    .template-main .upload-symbol svg {
-        width: 42px !important;
-        height: 42px !important;
-        display: block;
-        flex-shrink: 0;
-    }
-
-    .template-main .dropzone h2 {
-        font-size: 15px;
-    }
-
-    .template-main .file-picker {
-        min-width: 145px;
-    }
-
-    @media (max-width: 760px) {
-        .template-sidebar {
-            width: 210px;
-            min-width: 210px;
+        .template-home-layout {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            width: 100%;
+            min-width: 0;
+            min-height: 0;
+            position: relative;
         }
+
+        /* =========================================
+        2. TEMPLATE SIDEBAR
+        ========================================= */
+
+        .template-sidebar {
+            display: none;
+            width: clamp(190px, 20vw, 260px);
+            max-width: 100%;
+            min-width: 0;
+            height: min(620px, calc(100dvh - 160px));
+            min-height: 300px;
+            flex: 0 0 auto;
+            flex-direction: column;
+            align-self: flex-start;
+            gap: 16px;
+            padding: 16px 12px;
+            overflow: hidden;
+            background: #D9D9D9;
+            box-sizing: border-box;
+        }
+
+        .template-sidebar.is-open {
+            display: flex;
+        }
+
+        .sidebar-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .sidebar-title {
+            color: #222;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .sidebar-close {
+            padding: 2px 5px;
+            border: none;
+            background: transparent;
+            color: #333;
+            font-size: 23px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .sidebar-close:hover {
+            color: #2454FF;
+        }
+
+        .template-search {
+            width: 100%;
+            height: 36px;
+            padding: 8px 14px;
+            border: 1px solid #D5D5D5;
+            border-radius: 25px;
+            outline: none;
+            background: #fff;
+            font-family: inherit;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+
+        .template-search:focus {
+            border-color: #2454FF;
+        }
+
+        .template-list {
+            display: flex;
+            min-height: 0;
+            flex: 1 1 auto;
+            flex-direction: column;
+            gap: 14px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .template-option {
+            display: block;
+            width: 100%;
+            flex: 0 0 auto;
+            padding: 0;
+            overflow: hidden;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            background: #fff;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .2s ease;
+        }
+
+        .template-option:hover {
+            border-color: #2454FF;
+        }
+
+        .template-option img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 1.414 / 1;
+            object-fit: cover;
+        }
+
+        .template-option span {
+            display: block;
+            padding: 7px 9px;
+            color: #333;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .template-empty {
+            padding: 15px 5px;
+            color: #777;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* =========================================
+        3. MAIN CONTENT
+        ========================================= */
 
         .template-main {
-            padding: 0 8px;
+            position: relative;
+            min-width: 0;
+            max-width: 100%;
+            flex: 1 1 0;
+            padding-inline: clamp(8px, 1.5vw, 12px);
+            box-sizing: border-box;
         }
 
-        .template-main .page-intro--hero h1 {
-            font-size: 30px;
-        }
-    }
-
-    @media (max-width: 520px) {
-        .template-sidebar {
-            width: 180px;
-            min-width: 180px;
+        .template-main-top {
+            display: flex;
+            min-height: 36px;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 0;
         }
 
-        .template-main .page-intro--hero h1 {
-            font-size: 24px;
+        /* =========================================
+        4. SIDEBAR TOGGLE
+        ========================================= */
+
+        .sidebar-open {
+            display: none;
+            position: absolute;
+            top: clamp(150px, 24vh, 210px);
+            left: 0;
+            z-index: 2;
+            width: clamp(32px, 4vw, 42px);
+            height: clamp(58px, 8vh, 70px);
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #D5D5D5;
+            border-left: none;
+            border-radius: 0 35px 35px 0;
+            background: #fff;
+            color: #222;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .sidebar-open.is-visible {
+            display: flex;
+        }
+
+        /* =========================================
+        5. TEMPLATE EXCEL BUTTON
+        ========================================= */
+
+        .wizard-template-action {
+            display: flex;
+            width: 100%;
+            min-width: 0;
+            align-items: center;
+            justify-content: flex-end;
+            padding-inline: clamp(0px, 3vw, 40px);
+            margin-bottom: 8px;
+            box-sizing: border-box;
         }
 
         .excel-button {
-            padding: 7px 9px;
-            font-size: 10px;
+            display: inline-flex;
+            max-width: 100%;
+            min-height: 38px;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 7px 13px;
+            border: none;
+            border-radius: 8px;
+            background: #104F16;
+            color: #fff;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background .2s ease;
         }
-    }
 
-        /* Penyesuaian tinggi homepage */
-    .template-main .upload-card {
-        max-width: 560px;
-        margin: 0 auto;
-    }
+        .excel-button:hover:not(:disabled) {
+            background: #0B3F11;
+        }
 
-    .template-main .dropzone {
-        min-height: 285px;
-        height: 285px;
-        padding: 20px;
-        justify-content: center;
-    }
+        .excel-button:disabled {
+            background: #BFC5D3;
+            color: #fff;
+            cursor: not-allowed;
+        }
 
-    .template-main-top {
-        margin-bottom: 0;
-    }
+        /* =========================================
+        6. PAGE INTRODUCTION
+        ========================================= */
 
-    .template-main .page-intro--hero {
-        margin-bottom: 16px;
-    }
+        .template-main .page-intro--hero {
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
 
-    .sidebar-open {
-        top: 180px;
-    }
+        .template-main .page-intro--hero h1 {
+            margin-bottom: 6px;
+            font-size: 38px;
+            line-height: 1.2;
+        }
 
-    .wizard-template-action {
-    display: flex;
-    justify-content: flex-end;
-    padding: 0 40px;
-    margin-bottom: 8px;
-}
+        .template-main .page-intro--hero p {
+            margin: 0;
+            font-size: 12px;
+        }
 
+        /* =========================================
+        7. UPLOAD CARD
+        ========================================= */
+
+        .template-main .upload-card {
+            width: 100%;
+            max-width: 560px;
+            min-height: 0;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .template-main .dropzone {
+            display: flex;
+            width: 100%;
+            min-height: 285px;
+            height: auto;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 20px;
+            box-sizing: border-box;
+        }
+
+        .template-main .upload-symbol {
+            display: flex;
+            width: 78px !important;
+            height: 78px !important;
+            min-width: 78px;
+            min-height: 78px;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #D9D9D9;
+        }
+
+        .template-main .upload-symbol svg {
+            display: block;
+            width: 42px !important;
+            height: 42px !important;
+            flex-shrink: 0;
+        }
+
+        .template-main .dropzone h2 {
+            font-size: 15px;
+        }
+
+        .template-main .file-picker {
+            min-width: 145px;
+        }
+
+        /* =========================================
+        8. TABLET
+        ========================================= */
+
+        @media (max-width: 760px) {
+            .template-home-layout {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .template-sidebar {
+                width: clamp(180px, 30vw, 220px);
+                max-width: 42vw;
+                min-width: 0;
+                height: min(620px, calc(100dvh - 140px));
+                min-height: 280px;
+            }
+
+            .template-main {
+                min-width: 0;
+                flex: 1 1 0;
+                padding-inline: 8px;
+            }
+
+            .template-main .page-intro--hero h1 {
+                font-size: clamp(25px, 4vw, 30px);
+            }
+
+            .template-main .upload-card {
+                width: 100%;
+                max-width: 560px;
+            }
+
+            .template-main .dropzone {
+                min-height: 260px;
+                padding: 24px 14px;
+            }
+        }
+
+        /* =========================================
+        9. MOBILE
+        ========================================= */
+
+        @media (max-width: 520px) {
+            .topbar {
+                min-height: 64px;
+            }
+
+            .brand {
+                width: 112px;
+            }
+
+            .wizard-template-action {
+                padding-inline: 0;
+            }
+
+            .excel-button {
+                padding: 7px 9px;
+                font-size: 10px;
+            }
+
+            .template-sidebar {
+                width: min(220px, 75vw);
+                max-width: 75vw;
+                height: min(620px, calc(100dvh - 120px));
+                min-height: 260px;
+            }
+
+            .template-main {
+                padding-inline: 4px;
+            }
+
+            .template-main .page-intro--hero {
+                margin-bottom: 16px;
+            }
+
+            .template-main .page-intro--hero h1 {
+                font-size: clamp(23px, 6vw, 27px);
+            }
+
+            .template-main .page-intro--hero p {
+                font-size: 11px;
+            }
+
+            .template-main .dropzone {
+                min-height: 240px;
+                padding: 20px 10px;
+            }
+
+            .template-main .upload-symbol {
+                width: 64px !important;
+                height: 64px !important;
+                min-width: 64px;
+                min-height: 64px;
+            }
+
+            .template-main .upload-symbol svg {
+                width: 34px !important;
+                height: 34px !important;
+            }
+
+            .sidebar-open {
+                position: fixed;
+                top: 50%;
+                left: 0;
+                z-index: 100;
+                transform: translateY(-50%);
+            }
+        }
     </style>
 </head>
 
