@@ -155,13 +155,28 @@ class CertificatePdfGenerator
                 $pageHeight,
             );
 
-            $customText = $editSettings['global']['customText'] ?? null;
+            $textBoxes = ($editSettings['syncTextBoxes'] ?? false)
+                ? ($editSettings['global']['textBoxes'] ?? [])
+                : ($editSettings['individual'][$recipientIndex]['textBoxes'] ?? null);
+            $legacyTextBox = $editSettings['global']['customText'] ?? null;
 
-            if (is_array($customText) && is_string($customText['content'] ?? null) && trim($customText['content']) !== '') {
+            if (! is_array($textBoxes)) {
+                $textBoxes = $editSettings['global']['textBoxes'] ?? [];
+            }
+
+            if ($textBoxes === [] && is_array($legacyTextBox)) {
+                $textBoxes = [$legacyTextBox];
+            }
+
+            foreach ($textBoxes as $textBox) {
+                if (! is_array($textBox) || ! is_string($textBox['content'] ?? null) || trim($textBox['content']) === '') {
+                    continue;
+                }
+
                 $this->renderText(
                     $pdf,
-                    $this->styleFor($editSettings, $recipientIndex, 'customText'),
-                    $customText['content'],
+                    array_merge($this->styleFor($editSettings, $recipientIndex, 'textBox'), $textBox),
+                    $textBox['content'],
                     $pageWidth,
                     $pageHeight,
                 );
@@ -302,6 +317,7 @@ class CertificatePdfGenerator
     {
         return [
             'global' => $editSettings['global'] ?? [],
+            'syncTextBoxes' => $editSettings['syncTextBoxes'] ?? false,
             'individual' => [
                 $recipientIndex => $editSettings['individual'][$recipientIndex] ?? [],
             ],

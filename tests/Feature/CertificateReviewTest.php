@@ -28,18 +28,40 @@ class CertificateReviewTest extends TestCase
                 'start_number' => 1,
             ],
             'certificate_edit_settings' => [
+                'syncTextBoxes' => false,
                 'global' => [
-                    'customText' => [
-                        'content' => 'Teks tambahan untuk sertifikat',
-                        'font_family' => 'Manrope',
-                        'font_size' => 24,
-                        'color' => '#4042A4',
-                        'alignment' => 'center',
-                        'bold' => false,
-                        'italic' => false,
-                        'underline' => false,
-                        'x' => 50,
-                        'y' => 80,
+                    'textBoxes' => [],
+                ],
+                'individual' => [
+                    0 => [
+                        'textBoxes' => [[
+                            'id' => 'text-one',
+                            'content' => 'Teks Ayu',
+                            'font_family' => 'Manrope',
+                            'font_size' => 24,
+                            'color' => '#4042A4',
+                            'alignment' => 'center',
+                            'bold' => false,
+                            'italic' => false,
+                            'underline' => false,
+                            'x' => 50,
+                            'y' => 80,
+                        ]],
+                    ],
+                    1 => [
+                        'textBoxes' => [[
+                            'id' => 'text-two',
+                            'content' => 'Teks Bima',
+                            'font_family' => 'Manrope',
+                            'font_size' => 16,
+                            'color' => '#4042A4',
+                            'alignment' => 'left',
+                            'bold' => false,
+                            'italic' => false,
+                            'underline' => false,
+                            'x' => 60,
+                            'y' => 90,
+                        ]],
                     ],
                 ],
             ],
@@ -51,7 +73,8 @@ class CertificateReviewTest extends TestCase
         $response->assertSee(route('certificate-export.pdf'), false);
         $response->assertSee(route('certificate-export.zip'), false);
         $response->assertDontSee('Template Excel');
-        $response->assertSee('Teks tambahan untuk sertifikat');
+        $response->assertSee('Teks Ayu');
+        $response->assertSee('Teks Bima');
         $this->assertSame(1, substr_count($response->getContent(), 'id="previousPage"'));
         $this->assertSame(1, substr_count($response->getContent(), 'id="nextPage"'));
     }

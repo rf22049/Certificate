@@ -145,7 +145,7 @@
                     <div class="certificate-text" id="nameElement"></div>
 
                     <div class="certificate-text" id="numberElement"></div>
-                    <div class="certificate-text" id="customTextElement" hidden></div>
+                    <div id="textBoxLayer"></div>
 
                 </div>
             </div>
@@ -177,7 +177,7 @@
 
         const nameElement = document.getElementById('nameElement');
         const numberElement = document.getElementById('numberElement');
-        const customTextElement = document.getElementById('customTextElement');
+        const textBoxLayer = document.getElementById('textBoxLayer');
 
         const romanMonths = {
             1: 'I', 2: 'II', 3: 'III', 4: 'IV',
@@ -253,16 +253,23 @@
                 buildNumber(currentIndex)
             );
 
-            const customText = editSettings.global?.customText;
-            customTextElement.hidden = !customText?.content;
+            textBoxLayer.replaceChildren();
+            const recipientTextBoxes = editSettings.individual?.[currentIndex]?.textBoxes;
+            const textBoxes = editSettings.syncTextBoxes
+                ? (editSettings.global?.textBoxes ?? [])
+                : (recipientTextBoxes ?? editSettings.global?.textBoxes ?? []);
+            const legacyTextBox = editSettings.global?.customText;
 
-            if (customText?.content) {
-                renderElement(
-                    customTextElement,
-                    getStyle('customText'),
-                    customText.content
-                );
+            if (textBoxes.length === 0 && legacyTextBox?.content) {
+                textBoxes.push(legacyTextBox);
             }
+
+            textBoxes.forEach(textBox => {
+                const element = document.createElement('div');
+                element.className = 'certificate-text';
+                renderElement(element, textBox, textBox.content);
+                textBoxLayer.append(element);
+            });
 
             document.getElementById('currentPage').textContent =
                 currentIndex + 1;

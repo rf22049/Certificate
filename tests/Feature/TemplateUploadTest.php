@@ -16,7 +16,8 @@ class TemplateUploadTest extends TestCase
         $response->assertSee('Buat');
         $response->assertSee('Drag &amp; Drop File Here', false);
         $response->assertSee('Template Excel');
-        $response->assertSee('logo ProCert (1).jpeg');
+        $response->assertSee('logo ProCert.png');
+        $response->assertSee('procert_logo_transparent.png');
         $response->assertDontSee('Admin Prodi');
     }
 

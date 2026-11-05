@@ -64,7 +64,7 @@
 
                         <div class="certificate-text recipient-name" id="nameElement"></div>
                         <div class="certificate-text certificate-number" id="numberElement"></div>
-                        <div class="certificate-text" id="customTextElement" hidden></div>
+                        <div id="textBoxLayer"></div>
 
                     </div>
                 </div>
@@ -92,6 +92,14 @@
                 <button type="button" class="action-button full-width" id="addTextBox">
                     Tambah Kotak Teks
                 </button>
+                <p class="muted">Anda dapat menambahkan hingga 50 kotak teks.</p>
+                <label class="text-box-sync">
+                    <input type="checkbox" id="syncTextBoxes">
+                    <span>
+                        <strong>Sinkronkan kotak teks di semua sertifikat</strong>
+                        <small>Nonaktif secara default. Jika dipilih, teks dan posisinya akan sama untuk semua penerima.</small>
+                    </span>
+                </label>
 
                 <div class="element-tabs">
                     <button type="button" class="element-tab active" data-element="name">
@@ -100,11 +108,7 @@
                     <button type="button" class="element-tab" data-element="number">
                         Nomor Sertifikat
                     </button>
-                    <button type="button" class="element-tab" data-element="customText"
-                        id="customTextTab"
-                        @if (! isset($editSettings['global']['customText'])) hidden @endif>
-                        Teks Bebas
-                    </button>
+                    <div class="text-box-tabs" id="textBoxTabs"></div>
                 </div>
 
                 <div class="editor-empty" id="emptySelection" hidden>
@@ -134,12 +138,12 @@
                     </div>
                 </div>
 
-                <div id="customTextSettings" hidden>
+                <div id="textBoxSettings" hidden>
                     <div class="setting-section">
-                        <h3>Teks Bebas</h3>
+                        <h3>Kotak Teks</h3>
                         <div class="field">
-                            <label for="customTextInput">Isi Teks</label>
-                            <textarea id="customTextInput" maxlength="1000" rows="4"></textarea>
+                            <label for="textBoxContent">Isi Teks</label>
+                            <textarea id="textBoxContent" maxlength="1000" rows="4"></textarea>
                             <small>Maksimal 1.000 karakter. Geser teks pada preview untuk mengatur posisinya.</small>
                         </div>
                         <button type="button" class="action-button" id="removeTextBox">
@@ -308,7 +312,7 @@
         y: 70
     };
 
-    const defaultCustomTextStyle = {
+    const defaultTextBoxStyle = {
         ...defaultNameStyle,
         bold: false,
         y: 80
@@ -317,10 +321,23 @@
     const settings = {
         global: savedSettings.global ?? {
             name: { ...defaultNameStyle },
-            number: { ...defaultNumberStyle }
+            number: { ...defaultNumberStyle },
+            textBoxes: []
         },
-        individual: savedSettings.individual ?? {}
+        individual: savedSettings.individual ?? {},
+        syncTextBoxes: savedSettings.syncTextBoxes === true
     };
+    settings.global.textBoxes = Array.isArray(settings.global.textBoxes)
+        ? settings.global.textBoxes
+        : [];
+    recipients.forEach((_, index) => {
+        settings.individual[index] ??= {};
+        if (!Array.isArray(settings.individual[index].textBoxes)) {
+            settings.individual[index].textBoxes = JSON.parse(
+                JSON.stringify(settings.global.textBoxes)
+            );
+        }
+    });
 
     let currentIndex = 0;
     let selectedElement = 'name';
@@ -341,8 +358,9 @@
 
     const nameElement = document.getElementById('nameElement');
     const numberElement = document.getElementById('numberElement');
-    const customTextElement = document.getElementById('customTextElement');
     const stage = document.getElementById('certificateStage');
+    const textBoxLayer = document.getElementById('textBoxLayer');
+    const textBoxTabs = document.getElementById('textBoxTabs');
     const previewCanvas = document.getElementById('previewCanvas');
 
     const fontFamily = document.getElementById('fontFamily');
@@ -351,6 +369,22 @@
 
     const positionX = document.getElementById('positionX');
     const positionY = document.getElementById('positionY');
+
+    function getTextBoxes(index = currentIndex) {
+        return settings.syncTextBoxes
+            ? settings.global.textBoxes
+            : (settings.individual[index]?.textBoxes ?? []);
+    }
+
+    function setCurrentTextBoxes(textBoxes) {
+        if (settings.syncTextBoxes) {
+            settings.global.textBoxes = textBoxes;
+            return;
+        }
+
+        settings.individual[currentIndex] ??= {};
+        settings.individual[currentIndex].textBoxes = textBoxes;
+    }
 
     // NOMOR SERTIFIKAT
     function buildNumber(index) {
@@ -368,7 +402,9 @@
 
     // STYLE ELEMENT
     function getStyle(element) {
-        const style = settings.individual[currentIndex]?.[element]
+        const textBox = getTextBoxes().find(item => item.id === element);
+        const style = textBox
+            ?? settings.individual[currentIndex]?.[element]
             ?? settings.global[element];
 
         return {
@@ -380,17 +416,19 @@
     }
 
     function setStyle(element, style) {
+        const textBox = getTextBoxes().find(item => item.id === element);
+
+        if (textBox) {
+            Object.assign(textBox, style);
+
+            return;
+        }
+
         if (!settings.individual[currentIndex]) {
             settings.individual[currentIndex] = {};
         }
 
-        const styleSettings = { ...style };
-
-        if (element === 'customText') {
-            delete styleSettings.content;
-        }
-
-        settings.individual[currentIndex][element] = styleSettings;
+        settings.individual[currentIndex][element] = { ...style };
     }
 
     function renderElement(element, style, content) {
@@ -406,6 +444,55 @@
         element.style.textDecoration = style.underline ? 'underline' : 'none';
         element.style.textAlign = style.alignment;
         element.style.fontSynthesis = 'style';
+    }
+
+    function renderTextBoxes() {
+        const textBoxes = getTextBoxes();
+        const textBoxIds = textBoxes.map(textBox => textBox.id);
+
+        [...textBoxLayer.children].forEach(element => {
+            if (!textBoxIds.includes(element.dataset.textBoxId)) {
+                element.remove();
+            }
+        });
+        [...textBoxTabs.children].forEach(button => button.remove());
+
+        textBoxes.forEach((textBox, index) => {
+            let element = [...textBoxLayer.children].find(
+                child => child.dataset.textBoxId === textBox.id
+            );
+
+            if (!element) {
+                element = document.createElement('div');
+                element.className = 'certificate-text';
+                element.dataset.textBoxId = textBox.id;
+                element.dataset.elementKey = textBox.id;
+                element.addEventListener('click', () => {
+                    selectedElement = textBox.id;
+                    render();
+                });
+                element.addEventListener('pointerdown', startDrag);
+                element.addEventListener('pointermove', moveDrag);
+                element.addEventListener('pointerup', endDrag);
+                element.addEventListener('pointercancel', endDrag);
+                textBoxLayer.append(element);
+            }
+
+            renderElement(element, getStyle(textBox.id), textBox.content);
+            element.classList.toggle('selected', selectedElement === textBox.id);
+
+            const tab = document.createElement('button');
+            tab.type = 'button';
+            tab.className = 'element-tab';
+            tab.dataset.textBoxId = textBox.id;
+            tab.textContent = `Teks ${index + 1}`;
+            tab.classList.toggle('active', selectedElement === textBox.id);
+            tab.addEventListener('click', () => {
+                selectedElement = textBox.id;
+                render();
+            });
+            textBoxTabs.append(tab);
+        });
     }
 
     // UNDO / REDO
@@ -439,6 +526,7 @@
 
         settings.global = data.settings.global;
         settings.individual = data.settings.individual;
+        settings.syncTextBoxes = data.settings.syncTextBoxes;
 
         currentIndex = data.currentIndex;
         selectedElement = data.selectedElement;
@@ -464,31 +552,32 @@
     // RENDER PREVIEW
     function render() {
         const recipient = recipients[currentIndex];
+        const textBoxes = getTextBoxes();
+
+        if (
+            typeof selectedElement === 'string'
+            && selectedElement.startsWith('text-')
+            && !textBoxes.some(textBox => textBox.id === selectedElement)
+        ) {
+            selectedElement = 'name';
+        }
 
         document.getElementById('recipientNameInput').value = recipient.name;
         document.getElementById('numberValue').textContent = buildNumber(currentIndex);
 
         renderElement(nameElement, getStyle('name'), recipient.name);
         renderElement(numberElement, getStyle('number'), buildNumber(currentIndex));
-        const hasCustomText = Boolean(settings.global.customText);
-        customTextElement.hidden = !hasCustomText;
-        document.getElementById('customTextTab').hidden = !hasCustomText;
-
-        if (hasCustomText) {
-            renderElement(
-                customTextElement,
-                getStyle('customText'),
-                settings.global.customText.content
-            );
-        }
+        renderTextBoxes();
 
         nameElement.classList.toggle('selected', selectedElement === 'name');
         numberElement.classList.toggle('selected', selectedElement === 'number');
-        customTextElement.classList.toggle('selected', selectedElement === 'customText');
-        document.getElementById('customTextInput').value =
-            settings.global.customText?.content ?? '';
-        document.getElementById('addTextBox').textContent =
-            hasCustomText ? 'Pilih Kotak Teks' : 'Tambah Kotak Teks';
+        const selectedTextBox = textBoxes.find(
+            textBox => textBox.id === selectedElement
+        );
+        document.getElementById('textBoxContent').value = selectedTextBox?.content ?? '';
+        document.getElementById('addTextBox').disabled =
+            textBoxes.length >= 50;
+        document.getElementById('syncTextBoxes').checked = settings.syncTextBoxes;
 
         document.getElementById('pageIndicator').textContent =
             `${currentIndex + 1} / ${recipients.length}`;
@@ -505,8 +594,8 @@
         document.getElementById('numberSettingsPanel').hidden =
             !hasSelection || selectedElement !== 'number';
 
-        document.getElementById('customTextSettings').hidden =
-            !hasSelection || selectedElement !== 'customText';
+        document.getElementById('textBoxSettings').hidden =
+            !selectedTextBox;
 
         document.getElementById('emptySelection').hidden = hasSelection;
 
@@ -521,7 +610,7 @@
             section.hidden = !hasSelection;
         });
 
-        document.getElementById('applyAll').disabled = !hasSelection;
+        document.getElementById('applyAll').disabled = !hasSelection || Boolean(selectedTextBox);
 
         if (hasSelection) {
             updateControls();
@@ -585,39 +674,42 @@
         render();
     });
 
-    customTextElement.addEventListener('click', () => {
-        selectedElement = 'customText';
-        render();
-    });
-
     document.getElementById('addTextBox').addEventListener('click', () => {
-        if (!settings.global.customText) {
-            saveHistory();
-            settings.global.customText = {
-                ...defaultCustomTextStyle,
-                content: 'Tulis teks di sini'
-            };
+        const textBoxes = getTextBoxes();
+
+        if (textBoxes.length >= 50) {
+            document.getElementById('statusMessage').textContent =
+                'Maksimal 50 kotak teks dapat ditambahkan.';
+
+            return;
         }
 
-        selectedElement = 'customText';
+        saveHistory();
+
+        const textBox = {
+            ...defaultTextBoxStyle,
+            id: `text-${crypto.randomUUID()}`,
+            content: 'Tulis teks di sini'
+        };
+        textBoxes.push(textBox);
+        setCurrentTextBoxes(textBoxes);
+        selectedElement = textBox.id;
         render();
-        document.getElementById('customTextInput').focus();
-        document.getElementById('customTextInput').select();
+        document.getElementById('textBoxContent').focus();
+        document.getElementById('textBoxContent').select();
     });
 
     document.getElementById('removeTextBox').addEventListener('click', () => {
-        if (!settings.global.customText) return;
+        const textBoxes = getTextBoxes();
+        const textBoxIndex = textBoxes.findIndex(
+            textBox => textBox.id === selectedElement
+        );
+
+        if (textBoxIndex === -1) return;
 
         saveHistory();
-        delete settings.global.customText;
-
-        Object.keys(settings.individual).forEach(index => {
-            delete settings.individual[index]?.customText;
-
-            if (Object.keys(settings.individual[index] ?? {}).length === 0) {
-                delete settings.individual[index];
-            }
-        });
+        textBoxes.splice(textBoxIndex, 1);
+        setCurrentTextBoxes(textBoxes);
 
         selectedElement = 'name';
         render();
@@ -643,12 +735,21 @@
         nameElement.textContent = event.target.value;
     });
 
-    document.getElementById('customTextInput').addEventListener('input', event => {
-        if (!settings.global.customText) return;
+    document.getElementById('textBoxContent').addEventListener('input', event => {
+        const textBoxes = getTextBoxes();
+        const textBox = textBoxes.find(
+            item => item.id === selectedElement
+        );
+
+        if (!textBox) return;
 
         saveHistory();
-        settings.global.customText.content = event.target.value;
-        customTextElement.textContent = event.target.value;
+        textBox.content = event.target.value;
+        setCurrentTextBoxes(textBoxes);
+        const element = [...textBoxLayer.children].find(
+            child => child.dataset.textBoxId === textBox.id
+        );
+        if (element) element.textContent = event.target.value;
     });
 
 
@@ -695,9 +796,7 @@
 
         const element = event.currentTarget;
 
-        selectedElement = element === nameElement
-            ? 'name'
-            : (element === numberElement ? 'number' : 'customText');
+        selectedElement = element.dataset.elementKey;
         render();
 
         dragging = true;
@@ -742,7 +841,10 @@
         dragPointerId = null;
     }
 
-    [nameElement, numberElement, customTextElement].forEach(element => {
+    nameElement.dataset.elementKey = 'name';
+    numberElement.dataset.elementKey = 'number';
+
+    [nameElement, numberElement].forEach(element => {
         element.addEventListener('pointerdown', startDrag);
         element.addEventListener('pointermove', moveDrag);
         element.addEventListener('pointerup', endDrag);
@@ -842,9 +944,7 @@
 
         const style = { ...getStyle(selectedElement) };
 
-        settings.global[selectedElement] = selectedElement === 'customText'
-            ? { ...style, content: settings.global.customText.content }
-            : style;
+        settings.global[selectedElement] = style;
 
         Object.keys(settings.individual).forEach(index => {
             if (settings.individual[index]) {
@@ -860,6 +960,32 @@
 
         document.getElementById('statusMessage').textContent =
             'Pengaturan berhasil diterapkan ke semua sertifikat.';
+    });
+
+    document.getElementById('syncTextBoxes').addEventListener('change', event => {
+        saveHistory();
+        const currentTextBoxes = JSON.parse(
+            JSON.stringify(getTextBoxes(currentIndex))
+        );
+        settings.syncTextBoxes = event.target.checked;
+
+        if (settings.syncTextBoxes) {
+            settings.global.textBoxes = currentTextBoxes;
+        } else {
+            recipients.forEach((recipient, index) => {
+                settings.individual[index] ??= {};
+                settings.individual[index].textBoxes = JSON.parse(
+                    JSON.stringify(settings.global.textBoxes)
+                );
+            });
+            settings.global.textBoxes = [];
+        }
+
+        render();
+        document.getElementById('statusMessage').textContent =
+            settings.syncTextBoxes
+                ? 'Kotak teks disinkronkan untuk semua sertifikat.'
+                : 'Kotak teks dapat diedit terpisah untuk setiap sertifikat.';
     });
 
 
@@ -895,7 +1021,12 @@
 
             if (!response.ok) {
                 const result = await response.json().catch(() => ({}));
-                throw new Error(result.message || 'Gagal menyimpan perubahan.');
+                const validationErrors = Object.values(result.errors ?? {}).flat();
+                const message = validationErrors.length > 0
+                    ? validationErrors.join(' ')
+                    : (result.message || 'Gagal menyimpan perubahan.');
+
+                throw new Error(message);
             }
 
             window.location.href = "{{ route('certificate-review.index') }}";

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Services\CertificatePdfGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -53,6 +52,8 @@ class CertificateExportController extends Controller
                 throw new RuntimeException('Arsip sertifikat tidak dapat dibuka.');
             }
 
+            $usedDirectoryNames = [];
+
             foreach ($export['recipients'] as $index => $recipient) {
                 $content = $generator->generateOne(
                     $export['template'],
@@ -61,12 +62,27 @@ class CertificateExportController extends Controller
                     $export['numberSettings'],
                     $export['editSettings'],
                 );
-                $recipientName = Str::limit(Str::slug($recipient['name']), 80, '');
-                $filename = str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT)
-                    .'-'.($recipientName !== '' ? $recipientName : 'recipient')
-                    .'.pdf';
+                $recipientName = preg_replace(
+                    '/[\/\\\\:*?"<>|\x00-\x1F]/u',
+                    '-',
+                    $recipient['name'],
+                );
+                $directoryName = trim(mb_substr($recipientName ?? '', 0, 80), " .-_");
+                $directoryName = $directoryName !== '' ? $directoryName : 'Recipient';
+                $directoryKey = $directoryName;
+                $suffix = 2;
 
-                if (! $archive->addFromString('certificates/'.$filename, $content)) {
+                while (isset($usedDirectoryNames[mb_strtolower($directoryKey)])) {
+                    $directoryKey = $directoryName.' ('.$suffix.')';
+                    $suffix++;
+                }
+
+                $usedDirectoryNames[mb_strtolower($directoryKey)] = true;
+
+                if (
+                    ! $archive->addEmptyDir($directoryKey)
+                    || ! $archive->addFromString($directoryKey.'/certificate.pdf', $content)
+                ) {
                     throw new RuntimeException('Sertifikat tidak dapat ditambahkan ke arsip.');
                 }
             }

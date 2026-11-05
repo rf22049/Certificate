@@ -75,7 +75,7 @@ class CertificateEditController extends Controller
             'bold' => false,
             'y' => 70,
         ]);
-        $defaultCustomTextStyle = array_merge($defaultNameStyle, [
+        $defaultTextBoxStyle = array_merge($defaultNameStyle, [
             'bold' => false,
             'y' => 80,
         ]);
@@ -123,25 +123,31 @@ class CertificateEditController extends Controller
             }
         }
 
+        $textBoxes = $settings['global']['textBoxes'] ?? [];
+
+        if (! is_array($textBoxes) || ! array_is_list($textBoxes)) {
+            $textBoxes = [];
+        }
+
         if (
-            is_array($settings['global']['customText'] ?? null)
+            $textBoxes === []
+            && is_array($settings['global']['customText'] ?? null)
             && is_string($settings['global']['customText']['content'] ?? null)
         ) {
-            $settings['global']['customText'] = array_merge(
-                $defaultCustomTextStyle,
-                $settings['global']['customText'],
-            );
-
-            if (! in_array(
-                $settings['global']['customText']['alignment'],
-                $allowedAlignments,
-                true
-            )) {
-                $settings['global']['customText']['alignment'] = 'center';
-            }
-        } else {
-            unset($settings['global']['customText']);
+            $textBoxes[] = [
+                ...$settings['global']['customText'],
+                'id' => 'text-legacy',
+            ];
         }
+
+        $settings['global']['textBoxes'] = $this->normalizeTextBoxes(
+            $textBoxes,
+            $defaultTextBoxStyle,
+            $allowedAlignments,
+        );
+        $textBoxes = $settings['global']['textBoxes'];
+
+        unset($settings['global']['customText']);
 
         // PERIKSA PENGATURAN INDIVIDUAL
         foreach ($settings['individual'] as $index => $elements) {
@@ -152,13 +158,23 @@ class CertificateEditController extends Controller
             }
 
             foreach ($elements as $element => $style) {
-                $allowedElements = ['name', 'number'];
+                if ($element === 'textBoxes') {
+                    if (! is_array($style) || ! array_is_list($style)) {
+                        unset($settings['individual'][$index]['textBoxes']);
 
-                if (isset($settings['global']['customText'])) {
-                    $allowedElements[] = 'customText';
+                        continue;
+                    }
+
+                    $settings['individual'][$index]['textBoxes'] = $this->normalizeTextBoxes(
+                        $style,
+                        $defaultTextBoxStyle,
+                        $allowedAlignments,
+                    );
+
+                    continue;
                 }
 
-                if (! in_array($element, $allowedElements, true) || ! is_array($style)) {
+                if (! in_array($element, ['name', 'number'], true) || ! is_array($style)) {
                     unset($settings['individual'][$index][$element]);
 
                     continue;
@@ -167,7 +183,6 @@ class CertificateEditController extends Controller
                 $default = match ($element) {
                     'name' => $defaultNameStyle,
                     'number' => $defaultNumberStyle,
-                    default => $defaultCustomTextStyle,
                 };
 
                 $settings['individual'][$index][$element] = array_merge(
@@ -182,6 +197,18 @@ class CertificateEditController extends Controller
                 )) {
                     $settings['individual'][$index][$element]['alignment'] = 'center';
                 }
+            }
+        }
+
+        $settings['syncTextBoxes'] = ($settings['syncTextBoxes'] ?? false) === true;
+
+        if (! $settings['syncTextBoxes']) {
+            foreach (array_keys($recipients) as $index) {
+                $settings['individual'][$index]['textBoxes'] ??= $this->normalizeTextBoxes(
+                    $textBoxes,
+                    $defaultTextBoxStyle,
+                    $allowedAlignments,
+                );
             }
         }
 
@@ -214,25 +241,63 @@ class CertificateEditController extends Controller
             'recipients.*.name' => ['required', 'string', 'max:255'],
             'recipients.*.note' => ['nullable', 'string', 'max:255'],
 
-            'settings' => ['required', 'array'],
-            'settings.global' => ['required', 'array'],
+            'settings' => ['required', 'array:global,individual,syncTextBoxes'],
+            'settings.syncTextBoxes' => ['required', 'boolean'],
+            'settings.global' => ['required', 'array:name,number,textBoxes'],
             'settings.global.name' => ['required', 'array'],
             'settings.global.number' => ['required', 'array'],
-            'settings.global.customText' => [
-                'sometimes',
-                'array:content,font_family,font_size,color,alignment,bold,italic,underline,x,y',
+            'settings.global.textBoxes' => ['present', 'array', 'list', 'max:50'],
+            'settings.global.textBoxes.*' => [
+                'required',
+                'array:id,content,font_family,font_size,color,alignment,bold,italic,underline,x,y',
             ],
-            'settings.global.customText.content' => [
-                'required_with:settings.global.customText',
+            'settings.global.textBoxes.*.id' => [
+                'required',
                 'string',
-                'max:1000',
+                'max:80',
+                'regex:/^text-[a-zA-Z0-9-]+$/',
+                'distinct',
             ],
+            'settings.global.textBoxes.*.content' => ['present', 'string', 'max:1000'],
             'settings.individual' => ['nullable', 'array'],
+            'settings.individual.*' => ['array:name,number,textBoxes'],
+            'settings.individual.*.name' => [
+                'sometimes',
+                'array:font_family,font_size,color,alignment,bold,italic,underline,x,y',
+            ],
+            'settings.individual.*.number' => [
+                'sometimes',
+                'array:font_family,font_size,color,alignment,bold,italic,underline,x,y',
+            ],
+            'settings.individual.*.textBoxes' => ['sometimes', 'array', 'list', 'max:50'],
+            'settings.individual.*.textBoxes.*' => [
+                'required',
+                'array:id,content,font_family,font_size,color,alignment,bold,italic,underline,x,y',
+            ],
+            'settings.individual.*.textBoxes.*.id' => [
+                'required',
+                'string',
+                'max:80',
+                'regex:/^text-[a-zA-Z0-9-]+$/',
+            ],
+            'settings.individual.*.textBoxes.*.content' => ['present', 'string', 'max:1000'],
         ];
 
         foreach ($styleRules as $field => $rules) {
-            $validationRules["settings.global.customText.{$field}"] = [
-                'required_with:settings.global.customText',
+            $validationRules["settings.global.textBoxes.*.{$field}"] = [
+                'required',
+                ...array_slice($rules, 1),
+            ];
+            $validationRules["settings.individual.*.name.{$field}"] = [
+                'sometimes',
+                ...array_slice($rules, 1),
+            ];
+            $validationRules["settings.individual.*.textBoxes.*.{$field}"] = [
+                'required',
+                ...array_slice($rules, 1),
+            ];
+            $validationRules["settings.individual.*.number.{$field}"] = [
+                'sometimes',
                 ...array_slice($rules, 1),
             ];
         }
@@ -240,13 +305,7 @@ class CertificateEditController extends Controller
         $validated = $request->validate($validationRules);
 
         // VALIDASI STYLE GLOBAL
-        $globalElements = ['name', 'number'];
-
-        if (isset($validated['settings']['global']['customText'])) {
-            $globalElements[] = 'customText';
-        }
-
-        foreach ($globalElements as $element) {
+        foreach (['name', 'number'] as $element) {
             foreach ($styleRules as $field => $rules) {
                 $request->validate([
                     "settings.global.{$element}.{$field}" => $rules,
@@ -258,22 +317,45 @@ class CertificateEditController extends Controller
         $individual = $validated['settings']['individual'] ?? [];
 
         foreach ($individual as $index => $elements) {
-            if (
-                ! is_array($elements)
-                || ! isset($validated['recipients'][$index])
-            ) {
-                abort(422, 'Pengaturan sertifikat tidak valid.');
+            if (! isset($validated['recipients'][$index])) {
+                return response()->json([
+                    'message' => 'Pengaturan sertifikat tidak valid.',
+                    'errors' => [
+                        "settings.individual.{$index}" => [
+                            'Pengaturan untuk penerima nomor '.((int) $index + 1)
+                                .' tidak cocok dengan daftar penerima. Muat ulang halaman lalu coba lagi.',
+                        ],
+                    ],
+                ], 422);
+            }
+
+            $textBoxIds = array_column($elements['textBoxes'] ?? [], 'id');
+
+            if (count($textBoxIds) !== count(array_unique($textBoxIds))) {
+                return response()->json([
+                    'message' => 'Pengaturan sertifikat tidak valid.',
+                    'errors' => [
+                        "settings.individual.{$index}.textBoxes" => [
+                            'Setiap kotak teks pada satu sertifikat harus memiliki ID yang berbeda.',
+                        ],
+                    ],
+                ], 422);
             }
 
             foreach ($elements as $element => $style) {
-                $allowedElements = ['name', 'number'];
+                if ($element === 'textBoxes') {
+                    foreach ($style as $textBoxIndex => $textBox) {
+                        foreach ($styleRules as $field => $rules) {
+                            $request->validate([
+                                "settings.individual.{$index}.textBoxes.{$textBoxIndex}.{$field}" => [
+                                    'required',
+                                    ...array_slice($rules, 1),
+                                ],
+                            ]);
+                        }
+                    }
 
-                if (isset($validated['settings']['global']['customText'])) {
-                    $allowedElements[] = 'customText';
-                }
-
-                if (! in_array($element, $allowedElements, true) || ! is_array($style)) {
-                    abort(422, 'Elemen sertifikat tidak valid.');
+                    continue;
                 }
 
                 foreach ($styleRules as $field => $rules) {
@@ -304,8 +386,22 @@ class CertificateEditController extends Controller
         // SIMPAN KE SESSION, BUKAN DATABASE
         $request->session()->put('recipients', $recipients);
 
+        $syncTextBoxes = (bool) $validated['settings']['syncTextBoxes'];
+        $individual = $validated['settings']['individual'] ?? [];
+
+        if (! $syncTextBoxes) {
+            foreach ($recipients as $index => $recipient) {
+                $individual[$index]['textBoxes'] ??= [];
+            }
+        }
+
         $request->session()->put('certificate_edit_settings', [
-            'global' => $validated['settings']['global'],
+            'global' => array_merge($validated['settings']['global'], [
+                'textBoxes' => $syncTextBoxes
+                    ? $validated['settings']['global']['textBoxes']
+                    : [],
+            ]),
+            'syncTextBoxes' => $syncTextBoxes,
             'individual' => $individual,
         ]);
 
@@ -319,5 +415,43 @@ class CertificateEditController extends Controller
 
         return redirect()->route('certificate-edit.index')
             ->with('status', 'Perubahan sertifikat berhasil disimpan.');
+    }
+
+    /**
+     * @param  list<mixed>  $textBoxes
+     * @param  array<string, mixed>  $defaultStyle
+     * @param  list<string>  $allowedAlignments
+     * @return list<array<string, mixed>>
+     */
+    private function normalizeTextBoxes(
+        array $textBoxes,
+        array $defaultStyle,
+        array $allowedAlignments,
+    ): array {
+        $normalized = [];
+
+        foreach (array_slice($textBoxes, 0, 50) as $index => $textBox) {
+            if (
+                ! is_array($textBox)
+                || ! is_string($textBox['content'] ?? null)
+                || ! is_string($textBox['id'] ?? null)
+            ) {
+                continue;
+            }
+
+            $textBox = array_merge($defaultStyle, $textBox);
+            $textBox['alignment'] = in_array($textBox['alignment'], $allowedAlignments, true)
+                ? $textBox['alignment']
+                : 'center';
+            $textBox['id'] = mb_substr($textBox['id'], 0, 80);
+
+            if ($textBox['id'] === '') {
+                $textBox['id'] = 'text-'.($index + 1);
+            }
+
+            $normalized[] = $textBox;
+        }
+
+        return $normalized;
     }
 }

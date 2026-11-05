@@ -2047,6 +2047,14 @@ a:focus-visible {
             flex-shrink: 0;
         }
 
+#certificate-editor #textBoxLayer,
+.review-page #textBoxLayer {
+            position: absolute;
+            z-index: 2;
+            inset: 0;
+            pointer-events: none;
+        }
+
 #certificate-editor .certificate-stage > img {
             display: block;
             width: 100%;
@@ -2079,6 +2087,7 @@ a:focus-visible {
             transform: translate(-50%, -50%);
             text-align: center;
             touch-action: none;
+            pointer-events: auto;
         }
 
 #certificate-editor .certificate-text:active { cursor: grabbing; }
@@ -2124,6 +2133,10 @@ a:focus-visible {
             margin: 22px 0;
         }
 
+#certificate-editor .text-box-tabs {
+            display: contents;
+        }
+
 #certificate-editor .element-tab {
             padding: 12px;
             border: 1px solid #dfe2e8;
@@ -2153,6 +2166,30 @@ a:focus-visible {
         }
 
 #certificate-editor .field { margin-bottom: 15px; }
+
+#certificate-editor .text-box-sync {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin: 0 0 18px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+#certificate-editor .text-box-sync input {
+            margin-top: 2px;
+        }
+
+#certificate-editor .text-box-sync strong,
+#certificate-editor .text-box-sync small {
+            display: block;
+        }
+
+#certificate-editor .text-box-sync small {
+            margin-top: 4px;
+            color: #687080;
+            line-height: 1.5;
+        }
 
 #certificate-editor .field label {
             display: block;
