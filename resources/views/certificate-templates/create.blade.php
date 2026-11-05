@@ -20,7 +20,8 @@
 
         @include('partials.wizard-header', [
             'currentStep' => 1,
-            'showSteps' => false
+            'showSteps' => false,
+            'showExcel' => !$template
         ])
 
         <main class="page-content {{ $template ? 'page-content--success' : 'page-content--upload' }}">

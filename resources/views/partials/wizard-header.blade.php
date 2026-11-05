@@ -1,14 +1,4 @@
 
-<header class="topbar">
-    <a class="brand" href="{{ route('home') }}" aria-label="ProCert, beranda">
-        <img
-            class="brand-logo"
-            src="{{ asset('images/procert_logo_transparent.png') }}"
-            alt="ProCert"
-        >
-    </a>
-</header>
-
 @php
     $wizardSteps = [
         1 => 'Upload Template',
@@ -20,36 +10,31 @@
 
     $previousStep = session('previous_wizard_step');
     $showSteps = $showSteps ?? true;
+    $showExcel = $showExcel ?? false;
 @endphp
 
 <header class="topbar">
     <a class="brand" href="{{ route('home') }}" aria-label="ProCert, beranda">
         <img
             class="brand-logo"
-            src="{{ asset('images/procert logo (1).jpeg') }}"
+            src="{{ asset('images/procert_logo_transparent.png') }}"
             alt="ProCert"
         >
     </a>
 
-    @if (!$showSteps)
-        <a class="excel-button"
-            href="{{ asset('images/templates/template_sertif.xlsx') }}">
+    @if ($showExcel)
+        <a
+            class="excel-button"
+            href="{{ asset('images/templates/template_sertif.xlsx') }}"
+            download
+        >
             <span>▤</span>
             Template Excel
         </a>
     @endif
 </header>
 
-
 @if ($showSteps)
-    <div class="wizard-template-action">
-        <a class="excel-button"
-            href="{{ asset('images/templates/template_sertif.xlsx') }}">
-            <span>▤</span>
-            Template Excel
-        </a>
-    </div>
-
     <nav class="steps" aria-label="Tahapan pembuatan sertifikat">
         <ol class="steps-list">
             @foreach ($wizardSteps as $stepNumber => $stepLabel)
