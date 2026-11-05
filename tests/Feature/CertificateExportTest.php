@@ -42,8 +42,9 @@ class CertificateExportTest extends TestCase
         try {
             $this->assertSame(true, $archive->open($archivePath));
             $this->assertSame(2, $archive->numFiles);
-            $this->assertStringStartsWith('%PDF-', $archive->getFromName('001-ayu-lestari.pdf'));
-            $this->assertStringStartsWith('%PDF-', $archive->getFromName('002-bima-ozturk.pdf'));
+            $this->assertStringStartsWith('%PDF-', $archive->getFromName('certificates/001-ayu-lestari.pdf'));
+            $this->assertStringStartsWith('%PDF-', $archive->getFromName('certificates/002-bima-ozturk.pdf'));
+            $this->assertFalse($archive->locateName('001-ayu-lestari.pdf'));
             $this->assertTrue($archive->close());
         } finally {
             if (is_file($archivePath)) {
@@ -113,6 +114,12 @@ class CertificateExportTest extends TestCase
                 'global' => [
                     'name' => ['x' => 50, 'y' => 45, 'font_size' => 24, 'bold' => true],
                     'number' => ['x' => 50, 'y' => 75, 'font_size' => 14],
+                    'customText' => [
+                        'content' => 'Teks tambahan untuk sertifikat',
+                        'x' => 35,
+                        'y' => 82,
+                        'font_size' => 20,
+                    ],
                 ],
                 'individual' => [
                     1 => ['name' => ['x' => 60, 'y' => 45]],

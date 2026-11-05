@@ -107,6 +107,7 @@ class RecipientController extends Controller
 
         $request->session()->put('recipients', $recipients);
         $request->session()->put('recipient_mode', 'import');
+        $request->session()->put('recipient_data_source', 'import');
 
         return redirect()->route('recipients.index', ['mode' => 'import']);
     }
@@ -138,6 +139,7 @@ class RecipientController extends Controller
 
         $request->session()->put('recipients', $recipients);
         $request->session()->put('recipient_mode', 'manual');
+        $request->session()->put('recipient_data_source', 'manual');
 
         $request->session()->flash('previous_wizard_step', 2);
 
@@ -148,6 +150,15 @@ class RecipientController extends Controller
     {
         if (! $this->hasTemplate($request)) {
             return redirect()->route('home');
+        }
+
+        if (
+            $request->session()->get('recipient_mode') !== 'import'
+            || $request->session()->get('recipient_data_source') !== 'import'
+        ) {
+            return back()->withErrors([
+                'recipients_file' => 'Unggah file Excel atau CSV terlebih dahulu.',
+            ]);
         }
 
         if ($request->session()->get('recipients', []) === []) {

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Data Penerima | ProCert</title>
+    @include('partials.favicon')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -247,7 +248,8 @@
                             Kembali
                         </a>
 
-                        <button class="primary-button" type="submit">
+                        <button class="primary-button" type="submit"
+                            @if (session('recipient_data_source') !== 'import') disabled @endif>
                             Lanjut
                             <svg viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2"
@@ -257,6 +259,9 @@
                             </svg>
                         </button>
                     </form>
+                    @if (session('recipient_data_source') !== 'import')
+                        <p class="form-error" role="status">Unggah file Excel atau CSV sebelum melanjutkan.</p>
+                    @endif
                 </aside>
             </section>
         </main>

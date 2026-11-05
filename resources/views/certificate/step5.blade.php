@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Review & Download | ProCert</title>
+    @include('partials.favicon')
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -144,6 +145,7 @@
                     <div class="certificate-text" id="nameElement"></div>
 
                     <div class="certificate-text" id="numberElement"></div>
+                    <div class="certificate-text" id="customTextElement" hidden></div>
 
                 </div>
             </div>
@@ -175,6 +177,7 @@
 
         const nameElement = document.getElementById('nameElement');
         const numberElement = document.getElementById('numberElement');
+        const customTextElement = document.getElementById('customTextElement');
 
         const romanMonths = {
             1: 'I', 2: 'II', 3: 'III', 4: 'IV',
@@ -249,6 +252,17 @@
                 getStyle('number'),
                 buildNumber(currentIndex)
             );
+
+            const customText = editSettings.global?.customText;
+            customTextElement.hidden = !customText?.content;
+
+            if (customText?.content) {
+                renderElement(
+                    customTextElement,
+                    getStyle('customText'),
+                    customText.content
+                );
+            }
 
             document.getElementById('currentPage').textContent =
                 currentIndex + 1;

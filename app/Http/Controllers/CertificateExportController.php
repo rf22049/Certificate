@@ -66,7 +66,7 @@ class CertificateExportController extends Controller
                     .'-'.($recipientName !== '' ? $recipientName : 'recipient')
                     .'.pdf';
 
-                if (! $archive->addFromString($filename, $content)) {
+                if (! $archive->addFromString('certificates/'.$filename, $content)) {
                     throw new RuntimeException('Sertifikat tidak dapat ditambahkan ke arsip.');
                 }
             }

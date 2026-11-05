@@ -21,13 +21,15 @@
     $previousStep = session('previous_wizard_step');
 @endphp
 
-<div class="wizard-template-action">
-    <a class="excel-button"
-       href="{{ route('recipients.index', ['mode' => 'import']) }}">
-        <span>▤</span>
-        Template Excel
-    </a>
-</div>
+@if ($currentStep === 1)
+    <div class="wizard-template-action">
+        <a class="excel-button"
+           href="{{ route('recipients.index', ['mode' => 'import']) }}">
+            <span>▤</span>
+            Template Excel
+        </a>
+    </div>
+@endif
 
 <nav class="steps" aria-label="Tahapan pembuatan sertifikat">
     <ol class="steps-list">

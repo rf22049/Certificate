@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Edit Sertifikat | ProCert</title>
+    @include('partials.favicon')
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,6 +64,7 @@
 
                         <div class="certificate-text recipient-name" id="nameElement"></div>
                         <div class="certificate-text certificate-number" id="numberElement"></div>
+                        <div class="certificate-text" id="customTextElement" hidden></div>
 
                     </div>
                 </div>
@@ -87,6 +89,10 @@
                 <h2>Pengaturan Elemen</h2>
                 <p class="muted">Pilih elemen pada sertifikat untuk mengatur tampilannya.</p>
 
+                <button type="button" class="action-button full-width" id="addTextBox">
+                    Tambah Kotak Teks
+                </button>
+
                 <div class="element-tabs">
                     <button type="button" class="element-tab active" data-element="name">
                         Nama Penerima
@@ -94,12 +100,17 @@
                     <button type="button" class="element-tab" data-element="number">
                         Nomor Sertifikat
                     </button>
+                    <button type="button" class="element-tab" data-element="customText"
+                        id="customTextTab"
+                        @if (! isset($editSettings['global']['customText'])) hidden @endif>
+                        Teks Bebas
+                    </button>
                 </div>
 
                 <div class="editor-empty" id="emptySelection" hidden>
                     Belum ada elemen yang dipilih.
                     <br>
-                    Klik nama atau nomor pada preview untuk mulai mengedit.
+                    Klik nama, nomor, atau kotak teks pada preview untuk mulai mengedit.
                 </div>
 
                 <div id="nameSettings">
@@ -120,6 +131,20 @@
                         <h3>Nomor Sertifikat</h3>
                         <div class="locked-value" id="numberValue"></div>
                         <p class="muted">Isi nomor dikelola otomatis oleh sistem dan tidak dapat diedit.</p>
+                    </div>
+                </div>
+
+                <div id="customTextSettings" hidden>
+                    <div class="setting-section">
+                        <h3>Teks Bebas</h3>
+                        <div class="field">
+                            <label for="customTextInput">Isi Teks</label>
+                            <textarea id="customTextInput" maxlength="1000" rows="4"></textarea>
+                            <small>Maksimal 1.000 karakter. Geser teks pada preview untuk mengatur posisinya.</small>
+                        </div>
+                        <button type="button" class="action-button" id="removeTextBox">
+                            Hapus Kotak Teks
+                        </button>
                     </div>
                 </div>
 
@@ -283,6 +308,12 @@
         y: 70
     };
 
+    const defaultCustomTextStyle = {
+        ...defaultNameStyle,
+        bold: false,
+        y: 80
+    };
+
     const settings = {
         global: savedSettings.global ?? {
             name: { ...defaultNameStyle },
@@ -310,6 +341,7 @@
 
     const nameElement = document.getElementById('nameElement');
     const numberElement = document.getElementById('numberElement');
+    const customTextElement = document.getElementById('customTextElement');
     const stage = document.getElementById('certificateStage');
     const previewCanvas = document.getElementById('previewCanvas');
 
@@ -350,7 +382,15 @@
     function setStyle(element, style) {
         if (!settings.individual[currentIndex]) {
             settings.individual[currentIndex] = {};
-        } settings.individual[currentIndex][element] = { ...style };
+        }
+
+        const styleSettings = { ...style };
+
+        if (element === 'customText') {
+            delete styleSettings.content;
+        }
+
+        settings.individual[currentIndex][element] = styleSettings;
     }
 
     function renderElement(element, style, content) {
@@ -430,9 +470,25 @@
 
         renderElement(nameElement, getStyle('name'), recipient.name);
         renderElement(numberElement, getStyle('number'), buildNumber(currentIndex));
+        const hasCustomText = Boolean(settings.global.customText);
+        customTextElement.hidden = !hasCustomText;
+        document.getElementById('customTextTab').hidden = !hasCustomText;
+
+        if (hasCustomText) {
+            renderElement(
+                customTextElement,
+                getStyle('customText'),
+                settings.global.customText.content
+            );
+        }
 
         nameElement.classList.toggle('selected', selectedElement === 'name');
         numberElement.classList.toggle('selected', selectedElement === 'number');
+        customTextElement.classList.toggle('selected', selectedElement === 'customText');
+        document.getElementById('customTextInput').value =
+            settings.global.customText?.content ?? '';
+        document.getElementById('addTextBox').textContent =
+            hasCustomText ? 'Pilih Kotak Teks' : 'Tambah Kotak Teks';
 
         document.getElementById('pageIndicator').textContent =
             `${currentIndex + 1} / ${recipients.length}`;
@@ -448,6 +504,9 @@
 
         document.getElementById('numberSettingsPanel').hidden =
             !hasSelection || selectedElement !== 'number';
+
+        document.getElementById('customTextSettings').hidden =
+            !hasSelection || selectedElement !== 'customText';
 
         document.getElementById('emptySelection').hidden = hasSelection;
 
@@ -526,6 +585,44 @@
         render();
     });
 
+    customTextElement.addEventListener('click', () => {
+        selectedElement = 'customText';
+        render();
+    });
+
+    document.getElementById('addTextBox').addEventListener('click', () => {
+        if (!settings.global.customText) {
+            saveHistory();
+            settings.global.customText = {
+                ...defaultCustomTextStyle,
+                content: 'Tulis teks di sini'
+            };
+        }
+
+        selectedElement = 'customText';
+        render();
+        document.getElementById('customTextInput').focus();
+        document.getElementById('customTextInput').select();
+    });
+
+    document.getElementById('removeTextBox').addEventListener('click', () => {
+        if (!settings.global.customText) return;
+
+        saveHistory();
+        delete settings.global.customText;
+
+        Object.keys(settings.individual).forEach(index => {
+            delete settings.individual[index]?.customText;
+
+            if (Object.keys(settings.individual[index] ?? {}).length === 0) {
+                delete settings.individual[index];
+            }
+        });
+
+        selectedElement = 'name';
+        render();
+    });
+
     previewCanvas.addEventListener('click', event => {
         const clickedEmptyArea =
             event.target === previewCanvas ||
@@ -544,6 +641,14 @@
 
         recipients[currentIndex].name = event.target.value;
         nameElement.textContent = event.target.value;
+    });
+
+    document.getElementById('customTextInput').addEventListener('input', event => {
+        if (!settings.global.customText) return;
+
+        saveHistory();
+        settings.global.customText.content = event.target.value;
+        customTextElement.textContent = event.target.value;
     });
 
 
@@ -590,7 +695,9 @@
 
         const element = event.currentTarget;
 
-        selectedElement = element === nameElement ? 'name' : 'number';
+        selectedElement = element === nameElement
+            ? 'name'
+            : (element === numberElement ? 'number' : 'customText');
         render();
 
         dragging = true;
@@ -635,7 +742,7 @@
         dragPointerId = null;
     }
 
-    [nameElement, numberElement].forEach(element => {
+    [nameElement, numberElement, customTextElement].forEach(element => {
         element.addEventListener('pointerdown', startDrag);
         element.addEventListener('pointermove', moveDrag);
         element.addEventListener('pointerup', endDrag);
@@ -735,7 +842,9 @@
 
         const style = { ...getStyle(selectedElement) };
 
-        settings.global[selectedElement] = style;
+        settings.global[selectedElement] = selectedElement === 'customText'
+            ? { ...style, content: settings.global.customText.content }
+            : style;
 
         Object.keys(settings.individual).forEach(index => {
             if (settings.individual[index]) {

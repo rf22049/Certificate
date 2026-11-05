@@ -2071,7 +2071,7 @@ a:focus-visible {
             border: 1px solid transparent;
             border-radius: 3px;
             cursor: grab;
-            white-space: normal;
+            white-space: pre-wrap;
             overflow-wrap: anywhere;
             user-select: none;
             touch-action: none;
@@ -2119,7 +2119,7 @@ a:focus-visible {
 
 #certificate-editor .element-tabs {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
             margin: 22px 0;
         }
@@ -2173,8 +2173,21 @@ a:focus-visible {
             font-size: 12px;
         }
 
+#certificate-editor .field textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #dfe2e8;
+            border-radius: 7px;
+            background: #fff;
+            font: inherit;
+            font-size: 12px;
+            resize: vertical;
+        }
+
 #certificate-editor .field input:focus,
-#certificate-editor .field select:focus {
+#certificate-editor .field select:focus,
+#certificate-editor .field textarea:focus {
             outline: 2px solid #2454ff22;
             border-color: #2454ff;
         }
@@ -2985,7 +2998,7 @@ a:focus-visible {
     max-width: 90%;
     padding: 4px 8px;
     line-height: 1.25;
-    white-space: normal;
+    white-space: pre-wrap;
     overflow-wrap: anywhere;
     transform: translate(-50%, -50%);
     text-align: center;

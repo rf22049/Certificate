@@ -43,7 +43,7 @@ class CertificateEditController extends Controller
         if (empty($recipients)) {
             return redirect()->route('recipients.index')
                 ->withErrors([
-                    'recipients' => 'Tambahkan minimal satu penerima terlebih dahulu.'
+                    'recipients' => 'Tambahkan minimal satu penerima terlebih dahulu.',
                 ]);
         }
 
@@ -53,7 +53,7 @@ class CertificateEditController extends Controller
         if (! is_array($numberSettings)) {
             return redirect()->route('certificate-number.index')
                 ->withErrors([
-                    'certificate_number' => 'Silakan atur nomor sertifikat terlebih dahulu.'
+                    'certificate_number' => 'Silakan atur nomor sertifikat terlebih dahulu.',
                 ]);
         }
 
@@ -74,6 +74,10 @@ class CertificateEditController extends Controller
             'font_size' => 14,
             'bold' => false,
             'y' => 70,
+        ]);
+        $defaultCustomTextStyle = array_merge($defaultNameStyle, [
+            'bold' => false,
+            'y' => 80,
         ]);
 
         // AMBIL PENGATURAN DARI SESSION
@@ -119,22 +123,52 @@ class CertificateEditController extends Controller
             }
         }
 
+        if (
+            is_array($settings['global']['customText'] ?? null)
+            && is_string($settings['global']['customText']['content'] ?? null)
+        ) {
+            $settings['global']['customText'] = array_merge(
+                $defaultCustomTextStyle,
+                $settings['global']['customText'],
+            );
+
+            if (! in_array(
+                $settings['global']['customText']['alignment'],
+                $allowedAlignments,
+                true
+            )) {
+                $settings['global']['customText']['alignment'] = 'center';
+            }
+        } else {
+            unset($settings['global']['customText']);
+        }
+
         // PERIKSA PENGATURAN INDIVIDUAL
         foreach ($settings['individual'] as $index => $elements) {
             if (! is_array($elements)) {
                 unset($settings['individual'][$index]);
+
                 continue;
             }
 
             foreach ($elements as $element => $style) {
-                if (! in_array($element, ['name', 'number'], true) || ! is_array($style)) {
+                $allowedElements = ['name', 'number'];
+
+                if (isset($settings['global']['customText'])) {
+                    $allowedElements[] = 'customText';
+                }
+
+                if (! in_array($element, $allowedElements, true) || ! is_array($style)) {
                     unset($settings['individual'][$index][$element]);
+
                     continue;
                 }
 
-                $default = $element === 'name'
-                    ? $defaultNameStyle
-                    : $defaultNumberStyle;
+                $default = match ($element) {
+                    'name' => $defaultNameStyle,
+                    'number' => $defaultNumberStyle,
+                    default => $defaultCustomTextStyle,
+                };
 
                 $settings['individual'][$index][$element] = array_merge(
                     $default,
@@ -161,19 +195,6 @@ class CertificateEditController extends Controller
 
     public function save(Request $request): JsonResponse|RedirectResponse
     {
-        // VALIDASI DATA PENERIMA DAN STRUKTUR PENGATURAN
-        $validated = $request->validate([
-            'recipients' => ['required', 'array', 'min:1', 'max:1000'],
-            'recipients.*.name' => ['required', 'string', 'max:255'],
-            'recipients.*.note' => ['nullable', 'string', 'max:255'],
-
-            'settings' => ['required', 'array'],
-            'settings.global' => ['required', 'array'],
-            'settings.global.name' => ['required', 'array'],
-            'settings.global.number' => ['required', 'array'],
-            'settings.individual' => ['nullable', 'array'],
-        ]);
-
         // ATURAN VALIDASI STYLE
         $styleRules = [
             'font_family' => ['required', 'string', 'max:100'],
@@ -187,8 +208,45 @@ class CertificateEditController extends Controller
             'y' => ['required', 'numeric', 'between:0,100'],
         ];
 
+        // VALIDASI DATA PENERIMA DAN STRUKTUR PENGATURAN
+        $validationRules = [
+            'recipients' => ['required', 'array', 'min:1', 'max:1000'],
+            'recipients.*.name' => ['required', 'string', 'max:255'],
+            'recipients.*.note' => ['nullable', 'string', 'max:255'],
+
+            'settings' => ['required', 'array'],
+            'settings.global' => ['required', 'array'],
+            'settings.global.name' => ['required', 'array'],
+            'settings.global.number' => ['required', 'array'],
+            'settings.global.customText' => [
+                'sometimes',
+                'array:content,font_family,font_size,color,alignment,bold,italic,underline,x,y',
+            ],
+            'settings.global.customText.content' => [
+                'required_with:settings.global.customText',
+                'string',
+                'max:1000',
+            ],
+            'settings.individual' => ['nullable', 'array'],
+        ];
+
+        foreach ($styleRules as $field => $rules) {
+            $validationRules["settings.global.customText.{$field}"] = [
+                'required_with:settings.global.customText',
+                ...array_slice($rules, 1),
+            ];
+        }
+
+        $validated = $request->validate($validationRules);
+
         // VALIDASI STYLE GLOBAL
-        foreach (['name', 'number'] as $element) {
+        $globalElements = ['name', 'number'];
+
+        if (isset($validated['settings']['global']['customText'])) {
+            $globalElements[] = 'customText';
+        }
+
+        foreach ($globalElements as $element) {
             foreach ($styleRules as $field => $rules) {
                 $request->validate([
                     "settings.global.{$element}.{$field}" => $rules,
@@ -208,10 +266,13 @@ class CertificateEditController extends Controller
             }
 
             foreach ($elements as $element => $style) {
-                if (
-                    ! in_array($element, ['name', 'number'], true)
-                    || ! is_array($style)
-                ) {
+                $allowedElements = ['name', 'number'];
+
+                if (isset($validated['settings']['global']['customText'])) {
+                    $allowedElements[] = 'customText';
+                }
+
+                if (! in_array($element, $allowedElements, true) || ! is_array($style)) {
                     abort(422, 'Elemen sertifikat tidak valid.');
                 }
 

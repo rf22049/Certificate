@@ -154,6 +154,18 @@ class CertificatePdfGenerator
                 $pageWidth,
                 $pageHeight,
             );
+
+            $customText = $editSettings['global']['customText'] ?? null;
+
+            if (is_array($customText) && is_string($customText['content'] ?? null) && trim($customText['content']) !== '') {
+                $this->renderText(
+                    $pdf,
+                    $this->styleFor($editSettings, $recipientIndex, 'customText'),
+                    $customText['content'],
+                    $pageWidth,
+                    $pageHeight,
+                );
+            }
         }
 
         return $pdf->Output('S');
@@ -215,40 +227,43 @@ class CertificatePdfGenerator
     private function wrapText(Fpdi $pdf, string $text, float $maxWidth): array
     {
         $lines = [];
-        $line = '';
-        $words = preg_split('/\s+/u', trim($text), -1, PREG_SPLIT_NO_EMPTY) ?: [$text];
 
-        foreach ($words as $word) {
-            $candidate = $line === '' ? $word : $line.' '.$word;
+        foreach (preg_split('/\R/u', $text) ?: [$text] as $paragraph) {
+            $line = '';
+            $words = preg_split('/\s+/u', trim($paragraph), -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
-            if ($pdf->GetStringWidth($candidate) <= $maxWidth) {
-                $line = $candidate;
+            foreach ($words as $word) {
+                $candidate = $line === '' ? $word : $line.' '.$word;
 
-                continue;
-            }
-
-            if ($line !== '') {
-                $lines[] = $line;
-                $line = '';
-            }
-
-            foreach (mb_str_split($word) as $character) {
-                $candidate = $line.$character;
-
-                if ($line !== '' && $pdf->GetStringWidth($candidate) > $maxWidth) {
-                    $lines[] = $line;
-                    $line = $character;
-                } else {
+                if ($pdf->GetStringWidth($candidate) <= $maxWidth) {
                     $line = $candidate;
+
+                    continue;
+                }
+
+                if ($line !== '') {
+                    $lines[] = $line;
+                    $line = '';
+                }
+
+                foreach (mb_str_split($word) as $character) {
+                    $candidate = $line.$character;
+
+                    if ($line !== '' && $pdf->GetStringWidth($candidate) > $maxWidth) {
+                        $lines[] = $line;
+                        $line = $character;
+                    } else {
+                        $line = $candidate;
+                    }
                 }
             }
+
+            if ($line !== '' || $words === []) {
+                $lines[] = $line;
+            }
         }
 
-        if ($line !== '' || $lines === []) {
-            $lines[] = $line;
-        }
-
-        return $lines;
+        return $lines === [] ? [''] : $lines;
     }
 
     private function fontFamily(string $fontFamily): string
@@ -301,14 +316,18 @@ class CertificatePdfGenerator
     {
         $defaultStyle = [
             'font_family' => 'Manrope',
-            'font_size' => $element === 'name' ? 24 : 14,
+            'font_size' => $element === 'number' ? 14 : 24,
             'color' => '#4042A4',
             'alignment' => 'center',
             'bold' => $element === 'name',
             'italic' => false,
             'underline' => false,
             'x' => 50,
-            'y' => $element === 'name' ? 50 : 70,
+            'y' => match ($element) {
+                'name' => 50,
+                'number' => 70,
+                default => 80,
+            },
         ];
 
         $globalStyle = $editSettings['global'][$element] ?? [];
