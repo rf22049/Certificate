@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use App\Services\CertificatePdfGenerator;
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Tests\TestCase;
@@ -27,6 +28,59 @@ class CertificateExportTest extends TestCase
         $this->assertSame(2, $pdf->setSourceFile(StreamReader::createByString($content)));
     }
 
+    public function test_pdf_generator_uses_the_recipient_specific_text_box(): void
+    {
+        $this->withImageTemplate();
+        $template = session('template');
+        $template['path'] = Storage::disk('local')->path($template['path']);
+        $recipient = ['name' => 'Ayu Lestari', 'note' => 'Peserta'];
+        $numberSettings = ['year' => 2025, 'month' => 7, 'start_number' => 21];
+        $editSettings = [
+            'syncTextBoxes' => false,
+            'global' => [
+                'name' => ['x' => 50, 'y' => 45, 'font_size' => 24, 'bold' => true],
+                'number' => ['x' => 50, 'y' => 75, 'font_size' => 14],
+            ],
+            'individual' => [
+                0 => [
+                    'textBoxes' => [[
+                        'id' => 'text-one',
+                        'content' => 'Teks Ayu',
+                        'font_family' => 'Manrope',
+                        'font_size' => 20,
+                        'color' => '#4042A4',
+                        'alignment' => 'center',
+                        'bold' => false,
+                        'italic' => false,
+                        'underline' => false,
+                        'x' => 35,
+                        'y' => 82,
+                    ]],
+                ],
+            ],
+        ];
+        $generator = app(CertificatePdfGenerator::class);
+        $original = $generator->generateOne(
+            $template,
+            $recipient,
+            0,
+            $numberSettings,
+            $editSettings,
+        );
+        $editSettings['individual'][0]['textBoxes'][0]['content'] = 'Teks berbeda';
+        $editSettings['individual'][0]['textBoxes'][0]['x'] = 75;
+
+        $changed = $generator->generateOne(
+            $template,
+            $recipient,
+            0,
+            $numberSettings,
+            $editSettings,
+        );
+
+        $this->assertNotSame($original, $changed);
+    }
+
     public function test_zip_export_contains_a_pdf_for_each_recipient(): void
     {
         $this->withImageTemplate();
@@ -41,13 +95,51 @@ class CertificateExportTest extends TestCase
 
         try {
             $this->assertSame(true, $archive->open($archivePath));
-            $this->assertSame(2, $archive->numFiles);
-            $this->assertStringStartsWith('%PDF-', $archive->getFromName('001-ayu-lestari.pdf'));
-            $this->assertStringStartsWith('%PDF-', $archive->getFromName('002-bima-ozturk.pdf'));
+            $this->assertSame(4, $archive->numFiles);
+            $this->assertIsInt($archive->locateName('Ayu Lestari/'));
+            $this->assertIsInt($archive->locateName('Bima Öztürk/'));
+            $this->assertStringStartsWith('%PDF-', $archive->getFromName('Ayu Lestari/certificate.pdf'));
+            $this->assertStringStartsWith('%PDF-', $archive->getFromName('Bima Öztürk/certificate.pdf'));
+            $this->assertFalse($archive->locateName('certificate.pdf'));
             $this->assertTrue($archive->close());
+            unset($archive);
+            gc_collect_cycles();
         } finally {
             if (is_file($archivePath)) {
-                unlink($archivePath);
+                @unlink($archivePath);
+            }
+        }
+    }
+
+    public function test_zip_export_creates_a_unique_folder_for_each_recipient_with_a_matching_name(): void
+    {
+        Storage::fake('local');
+        $path = UploadedFile::fake()->image('template.png', 1200, 800)
+            ->store('certificate-templates', 'local');
+        $this->withExportSession($path, 'image/png', [
+            ['name' => 'A', 'note' => ''],
+            ['name' => 'A', 'note' => ''],
+        ]);
+
+        $response = $this->get(route('certificate-export.zip'));
+
+        $response->assertOk();
+        $archive = new ZipArchive;
+        $archivePath = $response->baseResponse->getFile()->getPathname();
+
+        try {
+            $this->assertSame(true, $archive->open($archivePath));
+            $this->assertSame(4, $archive->numFiles);
+            $this->assertIsInt($archive->locateName('A/'));
+            $this->assertIsInt($archive->locateName('A (2)/'));
+            $this->assertStringStartsWith('%PDF-', $archive->getFromName('A/certificate.pdf'));
+            $this->assertStringStartsWith('%PDF-', $archive->getFromName('A (2)/certificate.pdf'));
+            $this->assertTrue($archive->close());
+            unset($archive);
+            gc_collect_cycles();
+        } finally {
+            if (is_file($archivePath)) {
+                @unlink($archivePath);
             }
         }
     }
@@ -92,7 +184,7 @@ class CertificateExportTest extends TestCase
         $this->withExportSession($path, 'image/png');
     }
 
-    private function withExportSession(string $templatePath, string $mime): void
+    private function withExportSession(string $templatePath, string $mime, ?array $recipients = null): void
     {
         $this->withSession([
             'template' => [
@@ -100,7 +192,7 @@ class CertificateExportTest extends TestCase
                 'path' => $templatePath,
                 'mime' => $mime,
             ],
-            'recipients' => [
+            'recipients' => $recipients ?? [
                 ['name' => 'Ayu Lestari', 'note' => 'Peserta'],
                 ['name' => 'Bima Öztürk', 'note' => 'Panitia'],
             ],
@@ -110,12 +202,43 @@ class CertificateExportTest extends TestCase
                 'start_number' => 21,
             ],
             'certificate_edit_settings' => [
+                'syncTextBoxes' => false,
                 'global' => [
                     'name' => ['x' => 50, 'y' => 45, 'font_size' => 24, 'bold' => true],
                     'number' => ['x' => 50, 'y' => 75, 'font_size' => 14],
                 ],
                 'individual' => [
-                    1 => ['name' => ['x' => 60, 'y' => 45]],
+                    0 => [
+                        'textBoxes' => [[
+                            'id' => 'text-one',
+                            'content' => 'Teks Ayu',
+                            'font_family' => 'Manrope',
+                            'font_size' => 20,
+                            'color' => '#4042A4',
+                            'alignment' => 'center',
+                            'bold' => false,
+                            'italic' => false,
+                            'underline' => false,
+                            'x' => 35,
+                            'y' => 82,
+                        ]],
+                    ],
+                    1 => [
+                        'name' => ['x' => 60, 'y' => 45],
+                        'textBoxes' => [[
+                            'id' => 'text-two',
+                            'content' => 'Teks Bima',
+                            'font_family' => 'Manrope',
+                            'font_size' => 16,
+                            'color' => '#4042A4',
+                            'alignment' => 'left',
+                            'bold' => false,
+                            'italic' => false,
+                            'underline' => false,
+                            'x' => 60,
+                            'y' => 90,
+                        ]],
+                    ],
                 ],
             ],
         ]);

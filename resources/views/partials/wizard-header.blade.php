@@ -1,3 +1,14 @@
+
+<header class="topbar">
+    <a class="brand" href="{{ route('home') }}" aria-label="ProCert, beranda">
+        <img
+            class="brand-logo"
+            src="{{ asset('images/procert_logo_transparent.png') }}"
+            alt="ProCert"
+        >
+    </a>
+</header>
+
 @php
     $wizardSteps = [
         1 => 'Upload Template',

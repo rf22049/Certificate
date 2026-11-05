@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Review & Download | ProCert</title>
+    @include('partials.favicon')
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -123,10 +124,13 @@
                                 ></iframe>
                             @endif
 
-                            <div class="certificate-text" id="nameElement"></div>
-                            <div class="certificate-text" id="numberElement"></div>
-                        </div>
-                    </div>
+                    <div class="certificate-text" id="nameElement"></div>
+
+                    <div class="certificate-text" id="numberElement"></div>
+                    <div id="textBoxLayer"></div>
+
+                </div>
+            </div>
 
                     <div class="pagination">
                         <button type="button" id="previousPage">‹</button>
@@ -152,6 +156,7 @@
 
         const nameElement = document.getElementById('nameElement');
         const numberElement = document.getElementById('numberElement');
+        const textBoxLayer = document.getElementById('textBoxLayer');
 
         const romanMonths = {
             1: 'I', 2: 'II', 3: 'III', 4: 'IV',
@@ -221,6 +226,24 @@
                 getStyle('number'),
                 buildNumber(currentIndex)
             );
+
+            textBoxLayer.replaceChildren();
+            const recipientTextBoxes = editSettings.individual?.[currentIndex]?.textBoxes;
+            const textBoxes = editSettings.syncTextBoxes
+                ? (editSettings.global?.textBoxes ?? [])
+                : (recipientTextBoxes ?? editSettings.global?.textBoxes ?? []);
+            const legacyTextBox = editSettings.global?.customText;
+
+            if (textBoxes.length === 0 && legacyTextBox?.content) {
+                textBoxes.push(legacyTextBox);
+            }
+
+            textBoxes.forEach(textBox => {
+                const element = document.createElement('div');
+                element.className = 'certificate-text';
+                renderElement(element, textBox, textBox.content);
+                textBoxLayer.append(element);
+            });
 
             document.getElementById('currentPage').textContent =
                 currentIndex + 1;

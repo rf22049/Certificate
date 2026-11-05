@@ -25,11 +25,13 @@ class RecipientDataTest extends TestCase
             ->assertOk()
             ->assertSee('Masukkan Data Penerima')
             ->assertSee('Tambah Baris')
+            ->assertDontSee('Template Excel')
             ->assertSee('Kembali');
 
         $this->get(route('recipients.index', ['mode' => 'import']))
             ->assertOk()
             ->assertSee('Drag &amp; Drop File Here', false)
+            ->assertSee('disabled', false)
             ->assertSee('Pratinjau data');
     }
 
@@ -64,6 +66,7 @@ class RecipientDataTest extends TestCase
             ['name' => 'Ayu Lestari', 'note' => 'Peserta'],
             ['name' => 'Bima Putra', 'note' => 'Panitia'],
         ]);
+        $response->assertSessionHas('recipient_data_source', 'import');
     }
 
     public function test_manual_recipients_are_trimmed_and_saved(): void
@@ -133,6 +136,29 @@ class RecipientDataTest extends TestCase
 
         $response->assertRedirect(route('recipients.index', ['mode' => 'manual']));
         $response->assertSessionHasErrors('recipients');
+    }
+
+    public function test_import_mode_cannot_advance_without_a_successful_file_upload(): void
+    {
+        Storage::fake('local');
+        Storage::disk('local')->put('certificate-templates/template.png', 'template');
+        $this->withSession([
+            'template' => [
+                'path' => 'certificate-templates/template.png',
+                'name' => 'template.png',
+            ],
+            'recipient_mode' => 'import',
+            'recipient_data_source' => 'manual',
+            'recipients' => [['name' => 'Ayu Lestari', 'note' => '']],
+        ]);
+
+        $response = $this->from(route('recipients.index', ['mode' => 'import']))
+            ->post(route('recipients.next'));
+
+        $response->assertRedirect(route('recipients.index', ['mode' => 'import']));
+        $response->assertSessionHasErrors([
+            'recipients_file' => 'Unggah file Excel atau CSV terlebih dahulu.',
+        ]);
     }
 
     private function withTemplate(): void
