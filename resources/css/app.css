@@ -92,7 +92,8 @@ a:focus-visible {
     min-width: 0;
     min-height: clamp(72px, 7vw, 96px);
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
+    gap: 16px;
 }
 
 .brand {
@@ -3130,5 +3131,1194 @@ a:focus-visible {
 
     .review-page .recipient-header h3 {
         font-size: 13px;
+    }
+}
+
+/* =========================================================
+   CREATE PAGE — TEMPLATE UPLOAD, SIDEBAR & PREVIEW
+   Styles moved from resources/views/.../create.blade.php
+   ========================================================= */
+
+
+/* =========================================
+1. HOMEPAGE LAYOUT
+========================================= */
+.template-home-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+}
+
+/* =========================================
+2. TEMPLATE SIDEBAR
+========================================= */
+.template-sidebar {
+    display: none;
+    width: clamp(190px, 20vw, 260px);
+    max-width: 100%;
+    min-width: 0;
+    height: min(620px, calc(100dvh - 160px));
+    min-height: 300px;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-self: flex-start;
+    gap: 16px;
+    padding: 16px 12px;
+    overflow: hidden;
+    background: #D9D9D9;
+    box-sizing: border-box;
+}
+
+.template-sidebar.is-open {
+    display: flex;
+}
+
+.sidebar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sidebar-title {
+    color: #222;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.sidebar-close {
+    padding: 2px 5px;
+    border: none;
+    background: transparent;
+    color: #333;
+    font-size: 23px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.sidebar-close:hover {
+    color: #2454FF;
+}
+
+.template-search {
+    width: 100%;
+    height: 36px;
+    padding: 8px 14px;
+    border: 1px solid #D5D5D5;
+    border-radius: 25px;
+    outline: none;
+    background: #fff;
+    font-family: inherit;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.template-search:focus {
+    border-color: #2454FF;
+}
+
+.template-list {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.template-option {
+    display: block;
+    width: 100%;
+    flex: 0 0 auto;
+    padding: 0;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .2s ease;
+}
+
+.template-option:hover {
+    border-color: #2454FF;
+}
+
+.template-option img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.414 / 1;
+    object-fit: cover;
+}
+
+.template-option span {
+    display: block;
+    padding: 7px 9px;
+    color: #333;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.template-empty {
+    padding: 15px 5px;
+    color: #777;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* =========================================
+    3. MAIN CONTENT
+========================================= */
+.template-main {
+    position: relative;
+    min-width: 0;
+    max-width: 100%;
+    flex: 1 1 0;
+    padding-inline: clamp(8px, 1.5vw, 12px);
+    box-sizing: border-box;
+}
+
+.template-main-top {
+    display: flex;
+    min-height: 36px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 0;
+}
+
+/* =========================================
+    4. SIDEBAR TOGGLE
+========================================= */
+.sidebar-open {
+    display: none;
+    position: absolute;
+    top: clamp(150px, 24vh, 210px);
+    left: 0;
+    z-index: 2;
+    width: clamp(32px, 4vw, 42px);
+    height: clamp(58px, 8vh, 70px);
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #D5D5D5;
+    border-left: none;
+    border-radius: 0 35px 35px 0;
+    background: #fff;
+    color: #222;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.sidebar-open.is-visible {
+    display: flex;
+}
+
+/* =========================================
+     5. TEMPLATE EXCEL BUTTON
+ ========================================= */
+.wizard-template-action {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    padding-inline: clamp(0px, 3vw, 40px);
+    margin-bottom: 8px;
+    box-sizing: border-box;
+}
+
+.excel-button {
+    display: inline-flex;
+    max-width: 100%;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border: none;
+    border-radius: 8px;
+    background: #104F16;
+    color: #fff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.excel-button:hover:not(:disabled) {
+    background: #0B3F11;
+}
+
+.excel-button:disabled {
+    background: #BFC5D3;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+/* =========================================
+    6. PAGE INTRODUCTION
+========================================= */
+.template-main .page-intro--hero {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.template-main .page-intro--hero h1 {
+    margin-bottom: 6px;
+    font-size: 38px;
+    line-height: 1.2;
+}
+
+.template-main .page-intro--hero p {
+    margin: 0;
+    font-size: 12px;
+}
+
+/* =========================================
+    7. UPLOAD CARD
+========================================= */
+.template-main .upload-card {
+    width: 100%;
+    max-width: 560px;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+.template-main .dropzone {
+    display: flex;
+    width: 100%;
+    min-height: 285px;
+    height: auto;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    box-sizing: border-box;
+}
+
+.template-main .upload-symbol {
+    display: flex;
+    width: 78px !important;
+    height: 78px !important;
+    min-width: 78px;
+    min-height: 78px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #D9D9D9;
+}
+
+.template-main .upload-symbol svg {
+    display: block;
+    width: 42px !important;
+    height: 42px !important;
+    flex-shrink: 0;
+}
+
+.template-main .dropzone h2 {
+    font-size: 15px;
+}
+
+.template-main .file-picker {
+    min-width: 145px;
+}
+
+/* =========================================
+    8. TABLET
+========================================= */
+@media (max-width: 760px) {
+    .template-home-layout {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .template-sidebar {
+        width: clamp(180px, 30vw, 220px);
+        max-width: 42vw;
+        min-width: 0;
+        height: min(620px, calc(100dvh - 140px));
+        min-height: 280px;
+    }
+
+    .template-main {
+        min-width: 0;
+        flex: 1 1 0;
+        padding-inline: 8px;
+    }
+
+    .template-main .page-intro--hero h1 {
+        font-size: clamp(25px, 4vw, 30px);
+    }
+
+    .template-main .upload-card {
+        width: 100%;
+        max-width: 560px;
+    }
+
+    .template-main .dropzone {
+        min-height: 260px;
+        padding: 24px 14px;
+    }
+}
+
+/* =========================================
+    9. MOBILE
+========================================= */
+@media (max-width: 520px) {
+    .topbar {
+        min-height: 64px;
+    }
+
+    .brand {
+        width: 112px;
+    }
+
+    .wizard-template-action {
+        padding-inline: 0;
+    }
+
+    .excel-button {
+        padding: 7px 9px;
+        font-size: 10px;
+    }
+
+    .template-sidebar {
+        width: min(220px, 75vw);
+        max-width: 75vw;
+        height: min(620px, calc(100dvh - 120px));
+        min-height: 260px;
+    }
+
+    .template-main {
+        padding-inline: 4px;
+    }
+
+    .template-main .page-intro--hero {
+        margin-bottom: 16px;
+    }
+
+    .template-main .page-intro--hero h1 {
+        font-size: clamp(23px, 6vw, 27px);
+    }
+
+    .template-main .page-intro--hero p {
+        font-size: 11px;
+    }
+
+    .template-main .dropzone {
+        min-height: 240px;
+        padding: 20px 10px;
+    }
+
+    .template-main .upload-symbol {
+        width: 64px !important;
+        height: 64px !important;
+        min-width: 64px;
+        min-height: 64px;
+    }
+
+    .template-main .upload-symbol svg {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .sidebar-open {
+        position: fixed;
+        top: 50%;
+        left: 0;
+        z-index: 100;
+        transform: translateY(-50%);
+    }
+
+}
+
+/* =========================================
+    SIDEBAR LAYOUT — REVISION 4
+========================================= */
+.template-home-layout {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: calc(100dvh - 96px);
+    margin: 0;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* SIDEBAR */
+.template-sidebar {
+    display: none;
+    position: relative;
+    width: clamp(220px, 25vw, 320px);
+    max-width: 38%;
+    height: auto;
+    min-height: calc(100dvh - 96px);
+    flex: 0 0 clamp(220px, 25vw, 320px);
+    align-self: stretch;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 14px;
+    overflow: hidden;
+    box-sizing: border-box;
+    background: #D9D9D9;
+}
+
+
+/* TEMPLATE LIST */
+.template-list {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* MAIN CONTENT */
+.template-main {
+    position: relative;
+    min-width: 0;
+    width: auto;
+    max-width: 100%;
+    flex: 1 1 0;
+    padding-inline: clamp(12px, 2vw, 28px);
+    box-sizing: border-box;
+}
+
+/* SIDEBAR TOGGLE */
+.sidebar-open {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 0;
+    z-index: 100;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 76px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #D5D5D5;
+    border-left: none;
+    border-radius: 0 35px 35px 0;
+    background: #fff;
+    color: #222;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* TABLET */
+@media (max-width: 760px) {
+    .template-home-layout {
+        min-height: calc(100dvh - 80px);
+    }
+
+    .template-sidebar {
+        width: clamp(190px, 30vw, 230px);
+        flex-basis: clamp(190px, 30vw, 230px);
+        max-width: 42%;
+        min-height: calc(100dvh - 80px);
+    }
+
+    .template-main {
+        min-width: 0;
+        padding-inline: 12px;
+    }
+
+}
+
+/* MOBILE */
+@media (max-width: 520px) {
+    .template-sidebar {
+        position: fixed;
+        top: 64px;
+        bottom: 0;
+        left: 0;
+        z-index: 200;
+        width: min(280px, 82vw);
+        max-width: 82vw;
+        height: auto;
+        min-height: 0;
+        flex-basis: auto;
+        box-shadow: 5px 0 20px rgba(0, 0, 0, .12);
+    }
+
+    .template-main {
+        width: 100%;
+        flex: 1 1 100%;
+        padding-inline: 12px;
+    }
+
+    .sidebar-open {
+        width: 34px;
+        height: 64px;
+    }
+}
+
+/* =========================================
+    TEMPLATE PREVIEW MODAL
+========================================= */
+.template-card {
+    position: relative;
+}
+
+.template-option {
+    position: relative;
+}
+
+.template-preview-button {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    z-index: 5;
+    display: flex;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .95);
+    color: #2454FF;
+    cursor: pointer;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, .15);
+    transition: background .2s ease, transform .2s ease;
+}
+
+.template-preview-button:hover {
+    background: #2454FF;
+    color: #fff;
+    transform: scale(1.08);
+}
+
+.template-preview-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Overlay */
+.template-preview-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(20, 24, 33, .78);
+    backdrop-filter: blur(3px);
+    box-sizing: border-box;
+}
+
+.template-preview-modal.is-active {
+    display: flex;
+}
+
+/* Modal content */
+.template-preview-content {
+    position: relative;
+    display: flex;
+    width: min(900px, 100%);
+    max-height: 90dvh;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 22px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, .3);
+    box-sizing: border-box;
+    animation: previewAppear .2s ease;
+}
+
+.template-preview-heading {
+    width: 100%;
+    color: #222;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.template-preview-image-wrap {
+    display: flex;
+    width: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+.template-preview-image {
+    display: block;
+    max-width: 100%;
+    max-height: calc(90dvh - 130px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.template-preview-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    width: 34px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: #f1f2f4;
+    color: #333;
+    font-size: 23px;
+    cursor: pointer;
+}
+
+.template-preview-close:hover {
+    background: #e3e6eb;
+}
+
+@keyframes previewAppear {
+    from {
+        opacity: 0;
+        transform: scale(.96);
+    } to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 520px) {
+    .template-preview-modal {
+        padding: 12px;
+    }
+
+    .template-preview-content {
+        max-height: 85dvh;
+        padding: 14px;
+    }
+
+    .template-preview-image {
+        max-height: calc(85dvh - 110px);
+    }
+}
+
+/* =========================================
+HOMEPAGE SCROLL FIX
+Khusus halaman awal sebelum upload
+========================================= */
+html:has(.template-upload-page),
+body.template-upload-page {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+body.template-upload-page {
+    height: 100dvh;
+    overflow: hidden;
+}
+
+.template-upload-page .app-shell {
+    display: flex;
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+}
+
+.template-upload-page .topbar {
+    flex: 0 0 auto;
+}
+
+.template-upload-page .page-content--upload {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    margin-top: 0;
+    overflow: hidden;
+}
+
+.template-upload-page .template-home-layout {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    align-items: stretch;
+    overflow: hidden;
+}
+
+.template-upload-page .template-sidebar {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    align-self: stretch;
+    overflow: hidden;
+}
+
+.template-upload-page .template-list {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.template-upload-page .template-main {
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Mobile: sidebar tetap bisa discroll sendiri */
+@media (max-width: 520px) {
+    .template-upload-page .template-sidebar {
+        position: fixed;
+        top: 64px;
+        bottom: 0;
+        left: 0;
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        overflow: hidden;
+    }
+
+    .template-upload-page .template-list {
+        min-height: 0;
+        overflow-y: auto;
+    }
+}
+
+/* =========================================
+    SIDEBAR OVERLAY — FULL HEIGHT
+========================================= */
+body.template-upload-page .template-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: clamp(220px, 25vw, 320px);
+    height: 100dvh;
+    min-height: 0;
+    max-height: 100dvh;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    padding: 24px 14px;
+    overflow: hidden;
+    background: #D9D9D9;
+    box-shadow: 5px 0 24px rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+}
+
+body.template-upload-page .template-sidebar.is-open {
+    display: flex;
+}
+
+/* Header sidebar tetap diam */
+body.template-upload-page .template-sidebar .sidebar-top,
+body.template-upload-page .template-sidebar .template-search {
+    flex-shrink: 0;
+}
+
+/* Hanya daftar template yang bergerak */
+body.template-upload-page .template-sidebar .template-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+
+/* Tombol buka sidebar */
+body.template-upload-page .sidebar-open {
+    z-index: 100;
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+    body.template-upload-page .template-sidebar {
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: min(280px, 82vw);
+        max-width: 82vw;
+        height: 100dvh;
+        max-height: 100dvh;
+    }
+}
+
+/* =========================================
+   SIDEBAR LAYOUT — DESKTOP FLOW
+\========================================= */
+body.template-upload-page .page-content--upload {
+    animation: none !important;
+    transform: none !important;
+    overflow: hidden !important;
+}
+
+body.template-upload-page .template-home-layout {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    align-items: stretch;
+}
+
+/* Sidebar tetap menjadi bagian dari layout */
+body.template-upload-page .template-sidebar {
+    position: relative;
+    inset: auto;
+    z-index: 10;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Daftar template saja yang bisa scroll */
+body.template-upload-page .template-sidebar .sidebar-top,
+body.template-upload-page .template-sidebar .sidebar-search-wrap {
+    flex: 0 0 auto;
+}
+
+body.template-upload-page .template-sidebar .template-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* Tombol buka sidebar */
+body.template-upload-page .sidebar-open {
+    z-index: 100 !important;
+}
+
+/* =========================================
+   SIDEBAR REDESIGN
+\========================================= */
+body.template-upload-page .template-sidebar {
+    background: #F4F6FA !important;
+    padding: 28px 18px !important;
+    gap: 22px !important;
+}
+
+/* Header */
+.sidebar-top {
+    align-items: flex-start !important;
+    gap: 12px;
+}
+
+.sidebar-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.sidebar-eyebrow {
+    color: #2454FF;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.sidebar-title {
+    color: #202735 !important;
+    font-size: 21px !important;
+    font-weight: 750 !important;
+    line-height: 1.25;
+}
+
+.sidebar-subtitle {
+    margin: 0;
+    color: #8790A0;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* Close button */
+.sidebar-close {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #E9EDF5;
+    color: #647084;
+    font-size: 21px;
+    transition: .2s ease;
+}
+
+.sidebar-close:hover {
+    background: #2454FF;
+    color: #fff;
+}
+
+/* Search */
+.sidebar-search-wrap {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.sidebar-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    width: 16px;
+    height: 16px;
+    color: #9AA3B2;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.sidebar-search-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.template-search {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px 0 40px !important;
+    border: 1px solid #E3E7EF !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: #273044;
+    font-size: 12px !important;
+    box-shadow: 0 2px 8px rgba(30, 45, 75, .04);
+    transition: .2s ease;
+}
+
+.template-search:focus {
+    border-color: #2454FF !important;
+    box-shadow: 0 0 0 3px rgba(36, 84, 255, .10);
+}
+
+/* Template list */
+.template-list {
+    gap: 16px !important;
+    padding: 2px 3px 8px 0;
+}
+
+/* Template cards */
+.template-option {
+    border: 2px solid transparent !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    box-shadow: 0 3px 12px rgba(30, 45, 75, .06);
+    transition: transform .2s ease,
+                box-shadow .2s ease,
+                border-color .2s ease;
+}
+
+.template-option:hover {
+    border-color: #2454FF !important;
+    box-shadow: 0 5px 16px rgba(36, 84, 255, .12);
+    transform: translateY(-2px);
+}
+
+.template-option span {
+    padding: 11px 12px !important;
+    color: #30394A !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+/* Preview button */
+.template-preview-button {
+    top: 10px !important;
+    right: 10px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border: 1px solid #E9EDF5 !important;
+    box-shadow: 0 3px 12px rgba(30, 45, 75, .15) !important;
+}
+
+
+/* =========================================
+   SIDEBAR — FINAL SLIDE SYSTEM
+========================================= */
+
+body.template-upload-page .template-home-layout {
+    --sidebar-width: clamp(260px, 25vw, 360px);
+
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+}
+
+/* Sidebar */
+body.template-upload-page .template-sidebar {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+
+    width: var(--sidebar-width) !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+
+    display: flex !important;
+    flex-direction: column;
+    box-sizing: border-box;
+
+    z-index: 1200 !important;
+
+    margin: 0 !important;
+    overflow: hidden;
+
+    transform: translate3d(-100%, 0, 0);
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        transform 0.85s cubic-bezier(0.77, 0, 0.175, 1),
+        visibility 0s linear 0.85s;
+
+    will-change: transform;
+}
+
+body.template-upload-page .template-sidebar.is-open {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+    pointer-events: auto;
+
+    transition:
+        transform 0.85s cubic-bezier(0.77, 0, 0.175, 1),
+        visibility 0s;
+}
+
+/* Header dan pencarian tetap */
+body.template-upload-page .template-sidebar .sidebar-top,
+body.template-upload-page .template-sidebar .sidebar-search-wrap {
+    flex: 0 0 auto;
+}
+
+/* Hanya daftar template yang scroll */
+body.template-upload-page .template-sidebar .template-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Main content */
+body.template-upload-page .template-main {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0 !important;
+    box-sizing: border-box;
+
+    transform: translate3d(0, 0, 0);
+
+    transition:
+        transform 0.85s cubic-bezier(0.77, 0, 0.175, 1);
+
+    will-change: transform;
+}
+
+/* Geser upload langsung ke kanan.
+   Tidak mengubah width atau margin. */
+@media (min-width: 521px) {
+    body.template-upload-page
+    .template-home-layout:has(.template-sidebar.is-open)
+    .template-main {
+        transform: translate3d(
+            calc(var(--sidebar-width) / 2),
+            0,
+            0
+        );
+    }
+}
+
+/* Tombol panah tetap di viewport */
+body.template-upload-page .sidebar-open {
+    position: fixed !important;
+    top: 50% !important;
+    left: 0 !important;
+    z-index: 1100 !important;
+
+    transform: translateY(-50%) !important;
+    transition: none !important;
+}
+
+body.template-upload-page .sidebar-open.is-visible {
+    display: flex !important;
+}
+
+/* Mobile: sidebar menjadi overlay */
+@media (max-width: 520px) {
+    body.template-upload-page .template-home-layout {
+        --sidebar-width: min(300px, 85vw);
+    }
+
+    body.template-upload-page .template-main {
+        transform: none !important;
+    }
+}
+
+
+/* =========================================
+   SIDEBAR BUTTON — FLOATING LABEL
+========================================= */
+body.template-upload-page .sidebar-open.is-visible::after {
+    content: "Browse Templates";
+
+    position: absolute;
+    left: calc(100% + 14px);
+    top: 50%;
+
+    white-space: nowrap;
+    padding: 7px 12px;
+
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+
+    color: #374151;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+
+    pointer-events: none;
+
+    animation: floatingTemplateLabel 2s ease-in-out infinite;
+}
+
+@keyframes floatingTemplateLabel {
+    0%, 100% {
+        transform: translateY(-50%);
+    }
+
+    50% {
+        transform: translateY(calc(-50% - 5px));
     }
 }

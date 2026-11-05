@@ -13,160 +13,137 @@
         <link href="https://fonts.googleapis.com/css2?family=Manrope:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Lato:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Oswald:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto+Slab:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
         
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
 
-    </head>
-
-    <body>
-
+<body>
     <div class="app-shell">
 
         {{-- HEADER / PROGRESS --}}
         @include('partials.wizard-header', ['currentStep' => 5])
-
         <main class="review-page">
 
+            {{-- JUDUL DAN TOMBOL --}}
+            <div class="review-heading">
+                <div class="heading-text">
+                    <h1>Review & Download</h1>
+                    <p>Periksa kembali seluruh sertifikat sebelum mengunduh.</p>
+                </div>
 
-        {{-- JUDUL DAN TOMBOL --}}
-        <div class="review-heading">
+                {{-- KELOMPOK TOMBOL --}}
+                <div class="actions">
+                    <a href="{{ route('certificate-edit.index') }}"
+                    class="review-back-button"
+                    aria-label="Kembali ke Edit Sertifikat">
+                        
+                    <svg viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M19 12H5"/>
+                            <path d="m12 19-7-7 7-7"/>
+                        </svg>
+                    </a>
 
-            <div class="heading-text">
-                <h1>Review & Download</h1>
-                <p>Periksa kembali seluruh sertifikat sebelum mengunduh.</p>
-            </div>
+                    <a href="{{ route('certificate-export.zip') }}" class="download-button zip">
+                        Download (ZIP)
+                    </a>
 
-            {{-- KELOMPOK TOMBOL --}}
-            <div class="actions">
+                    <a href="{{ route('certificate-export.pdf') }}" class="download-button pdf">
+                        Download PDF
+                    </a>
+                </div>
+            </div> 
 
-        <a href="{{ route('certificate-edit.index') }}"
-        class="review-back-button"
-        aria-label="Kembali ke Edit Sertifikat">
-            <svg viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M19 12H5"/>
-                <path d="m12 19-7-7 7-7"/>
-            </svg>
-        </a>
-
-                <a href="{{ route('certificate-export.zip') }}" class="download-button zip">
-                    Download (ZIP)
-                </a>
-
-                <a href="{{ route('certificate-export.pdf') }}" class="download-button pdf">
-                    Download PDF
-                </a>
-
-            </div>
-
-        </div>
-
-            
+                
             {{-- KONTEN REVIEW --}}
             <div class="review-layout">
 
-            {{-- KOLOM KIRI: DAFTAR PENERIMA --}}
-            <div class="recipient-panel">
+                {{-- KOLOM KIRI: DAFTAR PENERIMA --}}
+                <div class="recipient-panel">
+                    <div class="recipient-header">
+                        <div>
+                            <h3>Daftar Penerima</h3>
+                                <p>Pilih nama untuk melihat sertifikat</p>
+                        </div>
 
-                <div class="recipient-header">
-                    <div>
-                        <h3>Daftar Penerima</h3>
-                            <p>Pilih nama untuk melihat sertifikat</p>
+                        <span class="recipient-count">
+                            {{ count($recipients) }}
+                        </span>
                     </div>
 
-                <span class="recipient-count">
-                    {{ count($recipients) }}
-                </span>
-            </div>
+                    <div class="search-wrapper">
+                        <span class="search-icon">⌕</span>
 
-            <div class="search-wrapper">
-                <span class="search-icon">⌕</span>
-
-                <input
-                    type="text"
-                    class="search-input"
-                    id="searchName"
-                    placeholder="Cari nama penerima..."
-                >
-            </div>
-
-            <div class="recipient-list" id="recipientList">
-
-                @foreach($recipients as $index => $recipient)
-
-                    <button
-                        type="button"
-                        class="recipient-item {{ $index === 0 ? 'active' : '' }}"
-                        data-index="{{ $index }}"
-                    >
-                        <span class="recipient-number">
-                            {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}
-                        </span>
-
-                        <span class="recipient-name">
-                            {{ $recipient['name'] }}
-                        </span>
-
-                        <span class="recipient-arrow">›</span>
-                    </button>
-
-                @endforeach
-
-            </div>
-
-        </div>
-
-        {{-- KOLOM KANAN: PREVIEW SERTIFIKAT --}}
-        <div class="preview-section">
-
-            <div class="certificate-area">
-
-                <div class="certificate-stage" id="certificateStage">
-
-                    @if(str_starts_with($template['mime'], 'image/'))
-
-                        <img
-                            src="{{ route('templates.preview') }}"
-                            alt="Template Sertifikat"
+                        <input
+                            type="text"
+                            class="search-input"
+                            id="searchName"
+                            placeholder="Cari nama penerima..."
                         >
+                    </div>
 
-                    @elseif($template['mime'] === 'application/pdf')
+                    <div class="recipient-list" id="recipientList">
 
-                        <iframe
-                            src="{{ route('templates.preview') }}"
-                            title="Template Sertifikat"
-                        ></iframe>
+                        @foreach($recipients as $index => $recipient)
+                            <button
+                                type="button"
+                                class="recipient-item {{ $index === 0 ? 'active' : '' }}"
+                                data-index="{{ $index }}"
+                        >
+                                <span class="recipient-number">
+                                    {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}
+                                </span>
 
-                    @endif
+                                <span class="recipient-name">
+                                    {{ $recipient['name'] }}
+                                </span>
 
-                    <div class="certificate-text" id="nameElement"></div>
+                                <span class="recipient-arrow">›</span>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
 
-                    <div class="certificate-text" id="numberElement"></div>
+                {{-- KOLOM KANAN: PREVIEW SERTIFIKAT --}}
+                <div class="preview-section">
+                    <div class="certificate-area">
+                        <div class="certificate-stage" id="certificateStage">
+                            
+                            @if(str_starts_with($template['mime'], 'image/'))
+                                <img
+                                    src="{{ route('templates.preview') }}"
+                                    alt="Template Sertifikat"
+                                >
+                                @elseif($template['mime'] === 'application/pdf')
+                                <iframe
+                                    src="{{ route('templates.preview') }}"
+                                    title="Template Sertifikat"
+                                ></iframe>
+                            @endif
 
+                            <div class="certificate-text" id="nameElement"></div>
+                            <div class="certificate-text" id="numberElement"></div>
+                        </div>
+                    </div>
+
+                    <div class="pagination">
+                        <button type="button" id="previousPage">‹</button>
+                        <span>
+                            <span id="currentPage">1</span>
+                            /
+                            <span id="totalPage">{{ count($recipients) }}</span>
+                        </span>
+                        
+                        <button type="button" id="nextPage">›</button>
+                    </div>
                 </div>
             </div>
-
-            <div class="pagination">
-                <button type="button" id="previousPage">‹</button>
-                <span>
-                    <span id="currentPage">1</span>
-                    /
-                    <span id="totalPage">{{ count($recipients) }}</span>
-                </span>
-                <button type="button" id="nextPage">›</button>
-            </div>
-
-        </div>
-
-        </div>
-
         </main>
     </div>
 
     <script>
-
         const recipients = @json($recipients);
         const numberSettings = @json($numberSettings);
         const editSettings = @json($editSettings);
@@ -184,7 +161,6 @@
 
         // MENGHASILKAN NOMOR SERTIFIKAT
         function buildNumber(index) {
-
             const sequence =
                 Number(numberSettings.start_number) + index;
 
@@ -200,7 +176,6 @@
 
         // MENGAMBIL STYLE DARI STEP 4
         function getStyle(element) {
-
             const individual =
                 editSettings.individual?.[currentIndex]?.[element];
 
@@ -212,7 +187,6 @@
 
         // MENAMPILKAN STYLE SERTIFIKAT
         function renderElement(element, style, content) {
-
             element.textContent = content;
 
             element.style.left = style.x + '%';
@@ -235,9 +209,7 @@
 
         // RENDER PREVIEW
         function render() {
-
             const recipient = recipients[currentIndex];
-
             renderElement(
                 nameElement,
                 getStyle('name'),
@@ -266,57 +238,43 @@
 
         // PILIH NAMA
         document.querySelectorAll('.recipient-item').forEach(item => {
-
             item.addEventListener('click', () => {
-
                 currentIndex = Number(item.dataset.index);
-
                 render();
-
             });
-
         });
 
         // HALAMAN SEBELUMNYA
         document.getElementById('previousPage').addEventListener('click', () => {
-
             if (currentIndex > 0) {
                 currentIndex--;
                 render();
             }
-
         });
 
         // HALAMAN SELANJUTNYA
         document.getElementById('nextPage').addEventListener('click', () => {
-
             if (currentIndex < recipients.length - 1) {
                 currentIndex++;
                 render();
             }
-
         });
 
         // PENCARIAN NAMA
         document.getElementById('searchName').addEventListener('input', function() {
-
             const keyword = this.value.toLowerCase();
 
             document.querySelectorAll('.recipient-item').forEach(item => {
-
                 item.style.display =
                     item.textContent.toLowerCase().includes(keyword)
                     ? 'flex'
                     : 'none';
-
             });
 
         });
 
         // TAMPILKAN SERTIFIKAT PERTAMA
         render();
-
     </script>
-
-    </body>
-    </html>
+</body>
+</html>

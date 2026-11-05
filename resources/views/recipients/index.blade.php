@@ -29,6 +29,7 @@
                         </svg>
                         Upload Excel / CSV
                     </a>
+
                     <a class="recipient-mode-button {{ $mode === 'manual' ? 'is-selected' : '' }}" href="{{ route('recipients.index', ['mode' => 'manual']) }}" @if ($mode === 'manual') aria-current="page" @endif>
                         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M11.5 4H4.25A1.25 1.25 0 0 0 3 5.25v10.5A1.25 1.25 0 0 0 4.25 17h10.5A1.25 1.25 0 0 0 16 15.75V9" />
@@ -46,8 +47,8 @@
             <section class="recipient-workspace recipient-workspace--manual" data-recipient-panel="manual" @if ($mode !== 'manual') hidden @endif>
                 <form class="recipient-manual-form" method="POST"
                     action="{{ route('recipients.store') }}" data-manual-form>
+                   
                     @csrf
-
                     @php($manualRecipients = old('recipients', $recipients))
 
                     <div class="recipient-table-toolbar">
@@ -186,7 +187,8 @@
 
             <section class="recipient-workspace recipient-workspace--import" data-recipient-panel="import" @if ($mode !== 'import') hidden @endif>
                 <form class="recipient-import-form" method="POST" action="{{ route('recipients.import') }}" enctype="multipart/form-data" data-recipient-import-form>
-                    @csrf
+                    
+                @csrf
                     <div class="recipient-dropzone" data-recipient-dropzone>
                         <span class="spreadsheet-symbol" aria-hidden="true">
                             <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -194,8 +196,10 @@
                                 <path d="M27 5v12h12M16 25h16M16 32h16M16 39h16" />
                             </svg>
                         </span>
+                        
                         <h2>Drag &amp; Drop File Here</h2>
                         <p>atau</p>
+                        
                         <input class="visually-hidden" id="recipients-file" name="recipients_file" type="file" accept=".xlsx,.xls,.csv" data-recipient-file>
                         <button class="file-picker" type="button" data-recipient-picker>Pilih File</button>
                         <p class="format-copy">Format: XLSX, XLS, atau CSV<br>Ukuran maks. 10 MB</p>
@@ -207,12 +211,16 @@
                     @error('recipients_file')
                         <p class="form-error recipient-error" role="alert">{{ $message }}</p>
                     @enderror
+                    
                     <h2>Pratinjau data <span>({{ count($recipients) }})</span></h2>
+                    
                     <div class="recipient-preview-scroll" data-preview-scroll>
                         <table class="recipient-table recipient-table--preview">
+                            
                             <thead>
                                 <tr><th scope="col">No</th><th scope="col">Nama Penerima</th><th scope="col">Ket</th></tr>
                             </thead>
+                            
                             <tbody id="recipient-preview-rows">
                                 @forelse ($recipients as $index => $recipient)
                                     <tr data-preview-row @if ($index >= 10) hidden @endif>
@@ -224,6 +232,7 @@
                                     <tr class="preview-empty"><td colspan="3">Belum ada data</td></tr>
                                 @endforelse
                             </tbody>
+
                         </table>
                     </div>
 
