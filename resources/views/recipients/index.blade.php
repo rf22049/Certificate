@@ -249,7 +249,7 @@
                         </a>
 
                         <button class="primary-button" type="submit"
-                            @if (session('recipient_data_source') !== 'import') disabled @endif>
+                            <button class="primary-button" type="submit">
                             Lanjut
                             <svg viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2"
