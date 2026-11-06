@@ -135,13 +135,11 @@
                             >
                             <small>Nomor urut dimulai kembali setiap tahun.</small>
                         </div>
-
                     </div>
                 </section>
 
                 <section class="number-preview" aria-label="Preview nomor sertifikat">
                     <p class="number-preview-label">Preview Nomor Sertifikat</p>
-
                     <p class="number-preview-code" id="previewCode"></p>
                     <p class="number-preview-next" id="previewNext"></p>
                 </section>
