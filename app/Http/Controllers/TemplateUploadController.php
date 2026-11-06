@@ -13,15 +13,23 @@ class TemplateUploadController extends Controller
 private const BUILT_IN_TEMPLATES = [
         'template-1' => [
             'name' => 'Template 1',
-            'path' => 'images/templates/template-1.jpeg',
+            'path' => 'images/templates/template-1.png',
         ],
         'template-2' => [
             'name' => 'Template 2',
-            'path' => 'images/templates/template-2.jpeg',
+            'path' => 'images/templates/template-2.png',
         ],
         'template-3' => [
             'name' => 'Template 3',
-            'path' => 'images/templates/template-3.jpeg',
+            'path' => 'images/templates/template-3.png',
+        ],
+        'template-4' => [
+            'name' => 'Template 4',
+            'path' => 'images/templates/template-4.png',
+        ],
+        'template-5' => [
+            'name' => 'Template 5',
+            'path' => 'images/templates/template-5.png',
         ],
     ];
 
