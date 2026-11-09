@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Pengaturan Nomor Sertifikat | ProCert</title>
+    <title>{{ __('Certificate Number Settings') }} | ProCert</title>
     @include('partials.favicon')
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    @include('partials.theme-init')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -25,10 +26,9 @@
         <main class="number-page">
 
             <header class="number-heading">
-                <h1>Pengaturan Nomor Sertifikat</h1>
+                <h1>{{ __('Certificate Number Settings') }}</h1>
                 <p>
-                    Atur penomoran sertifikat sesuai ketentuan program studi.
-                    Preview akan diperbarui secara otomatis.
+                    {{ __('Set certificate numbering according to your program requirements. The preview updates automatically.') }}
                 </p>
             </header>
 
@@ -39,91 +39,99 @@
             > @csrf
 
                 <section class="number-card">
-                    <h2 class="number-card-title">Format Nomor Sertifikat</h2>
+                    <h2 class="number-card-title">{{ __('Certificate Number Format') }}</h2>
 
                     <p class="number-card-description">
-                        Kode tetap dari program studi sudah tersedia dan tidak perlu diisi ulang.
+                        {{ __('Fixed program codes are already included and do not need to be entered again.') }}
                     </p>
 
                     <div class="number-form-grid">
 
                         <div class="number-field">
-                            <label for="faculty">Kode Fakultas</label>
+                            <label for="faculty">{{ __('Faculty Code') }}</label>
                             <input id="faculty" value="UP-DKN2.2" disabled>
-                            <small>Kode tetap program studi.</small>
+                            <small>{{ __('Fixed program code.') }}</small>
                         </div>
 
                         <div class="number-field">
-                            <label for="document">Jenis Dokumen</label>
+                            <label for="document">{{ __('Document Type') }}</label>
                             <input id="document" value="SERTIFIKAT" disabled>
-                            <small>Jenis dokumen tetap.</small>
+                            <small>{{ __('Document type is fixed.') }}</small>
                         </div>
 
                         <div class="number-field">
-                            <label for="studyProgram">Kode Program Studi</label>
+                            <label for="studyProgram">{{ __('Program Code') }}</label>
                             <input id="studyProgram" value="PP05" disabled>
-                            <small>Kode tetap program studi.</small>
+                            <small>{{ __('Fixed program code.') }}</small>
                         </div>
 
                         <div class="number-field">
-                            <label for="startNumber">Nomor Awal</label>
+                            <label for="startNumber">{{ __('Starting Number') }}</label>
                             <input
                                 id="startNumber"
                                 type="number"
+                                name="start_number"
                                 min="1"
+                                max="{{ $maximumStartNumber }}"
                                 step="1"
-                                value="{{ $nextNumber }}"
+                                value="{{ $initialStartNumber }}"
                                 inputmode="numeric"
-                                readonly
+                                required
+                                aria-describedby="startNumberHelp"
                             >
-                            <small>Contoh: 1 menjadi 001, 52 menjadi 052.</small>
+                            <small id="startNumberHelp">
+                                {{ __('Choose the sequence number for this year. Previously used numbers can still be selected. Example: 52 becomes 052.') }}
+                            </small>
+                            @error('start_number')
+                                <small class="form-error" role="alert">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="number-field">
-                            <label for="month">Bulan Sertifikat</label>
+                            <label for="month">{{ __('Certificate Month') }}</label>
                             <select id="month" name="month" required>
                                 <option value="1" {{ $selectedMonth == 1 ? 'selected' : '' }}>
-                                    Januari (I)
+                                    {{ __('January (I)') }}
                                 </option>
                                 <option value="2" {{ $selectedMonth == 2 ? 'selected' : '' }}>
-                                    Februari (II)
+                                    {{ __('February (II)') }}
                                 </option>
                                 <option value="3" {{ $selectedMonth == 3 ? 'selected' : '' }}>
-                                    Maret (III)
+                                    {{ __('March (III)') }}
                                 </option>
                                 <option value="4" {{ $selectedMonth == 4 ? 'selected' : '' }}>
-                                    April (IV)
+                                    {{ __('April (IV)') }}
                                 </option>
                                 <option value="5" {{ $selectedMonth == 5 ? 'selected' : '' }}>
-                                    Mei (V)
+                                    {{ __('May (V)') }}
                                 </option>
                                 <option value="6" {{ $selectedMonth == 6 ? 'selected' : '' }}>
-                                    Juni (VI)
+                                    {{ __('June (VI)') }}
                                 </option>
                                 <option value="7" {{ $selectedMonth == 7 ? 'selected' : '' }}>
-                                    Juli (VII)
+                                    {{ __('July (VII)') }}
                                 </option>
                                 <option value="8" {{ $selectedMonth == 8 ? 'selected' : '' }}>
-                                    Agustus (VIII)
+                                    {{ __('August (VIII)') }}
                                 </option>
                                 <option value="9" {{ $selectedMonth == 9 ? 'selected' : '' }}>
                                     September (IX)
                                 </option>
                                 <option value="10" {{ $selectedMonth == 10 ? 'selected' : '' }}>
-                                    Oktober (X)
+                                    {{ __('October (X)') }}
                                 </option>
                                 <option value="11" {{ $selectedMonth == 11 ? 'selected' : '' }}>
                                     November (XI)
                                 </option>
                                 <option value="12" {{ $selectedMonth == 12 ? 'selected' : '' }}>
-                                    Desember (XII)
+                                    {{ __('December (XII)') }}
                                 </option>
                             </select>
-                            <small>Bulan akan dikonversi menjadi angka Romawi.</small>
+                            <small>{{ __('The month will be converted to a Roman numeral.') }}</small>
                         </div>
 
                         <div class="number-field">
-                            <label for="year">Tahun Sertifikat</label>
+                            <label for="year">{{ __('Certificate Year') }}</label>
                             <input
                                 id="year"
                                 type="number"
@@ -133,32 +141,45 @@
                                 value="{{ $selectedYear }}"
                                 required
                             >
-                            <small>Nomor urut dimulai kembali setiap tahun.</small>
+                            <small>{{ __('The sequence restarts each year.') }}</small>
                         </div>
                     </div>
                 </section>
 
-                <section class="number-preview" aria-label="Preview nomor sertifikat">
-                    <p class="number-preview-label">Preview Nomor Sertifikat</p>
+                <section class="number-preview" aria-label="{{ __('Certificate number preview') }}">
+                    <p class="number-preview-label">{{ __('Certificate Number Preview') }}</p>
                     <p class="number-preview-code" id="previewCode"></p>
                     <p class="number-preview-next" id="previewNext"></p>
                 </section>
+
+                <p
+                    id="usedNumberNotice"
+                    class="number-notice is-warning"
+                    role="status"
+                    aria-live="polite"
+                    @if (! $selectedNumberWasUsed) hidden @endif
+                >{{ __('Number :number has already been used in :year. You can still reuse it.', [
+                    'number' => str_pad((string) $initialStartNumber, 3, '0', STR_PAD_LEFT),
+                    'year' => $selectedYear,
+                ]) }}</p>
 
                 <section class="number-reminder">
                     <div class="number-reminder-icon" aria-hidden="true">↻</div>
 
                     <div>
-                        <h2>Pengingat Nomor Sertifikat</h2>
+                        <h2>{{ __('Certificate Number Reminder') }}</h2>
                         <p id="reminderText">
                             @if ($lastNumber === 0)
-                                Belum ada sertifikat yang diterbitkan pada tahun {{ $selectedYear }}.
-                                Nomor berikutnya yang disarankan adalah
-                                <strong>{{ str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT) }}</strong>.
+                                {{ __('No certificates have been recorded for :year yet. The suggested next number is :number.', [
+                                    'year' => $selectedYear,
+                                    'number' => str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT),
+                                ]) }}
                             @else
-                                Nomor terakhir yang digunakan pada tahun {{ $selectedYear }} adalah
-                                <strong>{{ str_pad((string) $lastNumber, 3, '0', STR_PAD_LEFT) }}</strong>.
-                                Nomor berikutnya yang disarankan adalah
-                                <strong>{{ str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT) }}</strong>.
+                                {{ __('The highest number assigned or used in :year is :number. The suggested next number is :next.', [
+                                    'year' => $selectedYear,
+                                    'number' => str_pad((string) $lastNumber, 3, '0', STR_PAD_LEFT),
+                                    'next' => str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT),
+                                ]) }}
                             @endif
                         </p> 
                     </div>
@@ -174,13 +195,13 @@
                 </div>
 
                 <footer class="number-actions">
-                    <a class="number-button" href="{{ route('recipients.index') }}">
+                    <a class="number-button" href="{{ route('recipients.index', ['back' => 1]) }}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             aria-hidden="true">
                             <path d="M19 12H5M12 19l-7-7 7-7"/>
                         </svg>
-                        Kembali
+                        {{ __('Back') }}
                     </a>
 
                     <button
@@ -188,7 +209,7 @@
                         id="continueButton"
                         type="submit"
                     >
-                        Lanjut
+                        {{ __('Continue') }}
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             aria-hidden="true">
@@ -199,6 +220,12 @@
             </form>
         </main>
     </div>
+
+    @php
+        $numberUsedMessage = __('Number :number has already been used in :year. You can still reuse it.');
+        $invalidNumberMessage = __('Enter a valid starting number and year');
+        $sameNumberMessage = __('This number will be used for every recipient.');
+    @endphp
 
     <script>
         const romanMonths = {
@@ -219,11 +246,16 @@
         const startNumberInput = document.getElementById('startNumber');
         const monthInput = document.getElementById('month');
         const yearInput = document.getElementById('year');
-        const lastNumbersByYear = @json($lastNumbersByYear);
+        const suggestedNumbersByYear = @json($suggestedNumbersByYear);
+        const usedNumbersByYear = @json($usedNumbersByYear);
+        const usedNumberMessage = {{ \Illuminate\Support\Js::from($numberUsedMessage) }};
+        const invalidNumberMessage = {{ \Illuminate\Support\Js::from($invalidNumberMessage) }};
+        const sameNumberMessage = {{ \Illuminate\Support\Js::from($sameNumberMessage) }};
 
         const previewCode = document.getElementById('previewCode');
         const previewNext = document.getElementById('previewNext');
         const notice = document.getElementById('numberNotice');
+        const usedNumberNotice = document.getElementById('usedNumberNotice');
 
         function formatNumber(number) {
             return String(number).padStart(3, '0');
@@ -255,8 +287,10 @@
         }
 
         function updatePreview() {
+            updateUsedNumberNotice();
+
             if (!isValidInput()) {
-                previewCode.textContent = 'Masukkan nomor awal dan tahun yang valid';
+                previewCode.textContent = invalidNumberMessage;
                 previewNext.textContent = '';
                 return;
             }
@@ -264,8 +298,21 @@
             const number = Number(startNumberInput.value);
 
             previewCode.textContent = buildCertificateNumber(number);
-            previewNext.textContent = 'Nomor berikutnya: ' +
-                buildCertificateNumber(number + 1);
+            previewNext.textContent = sameNumberMessage;
+        }
+
+        function updateUsedNumberNotice() {
+            const number = Number(startNumberInput.value);
+            const usedNumbers = usedNumbersByYear[yearInput.value] ?? [];
+            const hasBeenUsed = usedNumbers.includes(number);
+
+            usedNumberNotice.hidden = !hasBeenUsed;
+
+            if (hasBeenUsed) {
+                usedNumberNotice.textContent = usedNumberMessage
+                    .replace(':number', formatNumber(number))
+                    .replace(':year', yearInput.value);
+            }
         }
 
         function showNotice(message, isError = false) {
@@ -280,8 +327,8 @@
         });
 
         yearInput.addEventListener('input', () => {
-            const lastNumber = Number(lastNumbersByYear[yearInput.value] ?? 0);
-            startNumberInput.value = String(lastNumber + 1);
+            const lastNumber = Number(suggestedNumbersByYear[yearInput.value] ?? 0);
+            startNumberInput.value = String(Math.min(lastNumber + 1, 4294967295));
             updatePreview();
         });
 

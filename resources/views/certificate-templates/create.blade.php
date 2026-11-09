@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.favicon')
     
-    <title>Buat Sertifikat | ProCert</title>
+    <title>{{ __('Create Certificate') }} | ProCert</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @include('partials.theme-init')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -28,8 +30,8 @@
             
             @if ($template)
                 <section class="page-intro">
-                    <h1>Template berhasil diunggah!</h1>
-                    <p>Pastikan desain yang Anda unggah sudah sesuai.</p>
+                    <h1>{{ __('Template uploaded successfully!') }}</h1>
+                    <p>{{ __('Make sure the uploaded design is correct.') }}</p>
                 </section>
 
                 @error('template')
@@ -37,20 +39,20 @@
                 @enderror
 
                 <div class="success-layout">
-                    <div class="certificate-preview" aria-label="Pratinjau template sertifikat"> 
+                    <div class="certificate-preview" aria-label="{{ __('Certificate template preview') }}">
                         @if (str_starts_with($template['mime'], 'image/'))
                         <img
                             src="{{ route('templates.preview', [
                                 'v' => ($template['id'] ?? 'upload') . '-' . $template['size'] . '-' . md5($template['name']) ]) }}"
-                            alt="Pratinjau {{ $template['name'] }}"
+                            alt="{{ __('Preview :name', ['name' => $template['name']]) }}"
                         >
                         @else
                             <iframe src="{{ route('templates.preview') }}"
-                                title="Pratinjau {{ $template['name'] }}"></iframe>
+                                title="{{ __('Preview :name', ['name' => $template['name']]) }}"></iframe>
                         @endif
                     </div>
 
-                    <aside class="file-column" aria-label="Template yang diunggah">
+                    <aside class="file-column" aria-label="{{ __('Uploaded template') }}">
                         <section class="file-panel">
                             <div class="file-panel-header">
                                 
@@ -80,8 +82,8 @@
                                     @method('DELETE')
                                     
                                     <button class="icon-button" type="submit"
-                                            aria-label="Hapus template"
-                                            title="Hapus template">
+                                            aria-label="{{ __('Delete template') }}"
+                                            title="{{ __('Delete template') }}">
 
                                         <svg viewBox="0 0 24 24" fill="none"
                                             stroke="currentColor" stroke-width="1.7"
@@ -106,7 +108,7 @@
                                 @else
 
                                 <div class="file-thumbnail file-thumbnail--pdf"
-                                    aria-label="Dokumen PDF">
+                                    aria-label="{{ __('PDF document') }}">
                                     <svg viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="1.5"
                                         stroke-linecap="round" stroke-linejoin="round">
@@ -136,7 +138,7 @@
                                             stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M7 7h13l-3-3M17 17H4l3 3M20 7l-4 3M4 17l4-3"/>
                                         </svg>
-                                        Ganti File
+                                        {{ __('Replace File') }}
                                     </label>
                                 </form>
                             </div>
@@ -144,7 +146,7 @@
 
                         <div class="continue-area">
                             <a class="primary-button" href="{{ route('recipients.index') }}">
-                                Lanjut
+                                {{ __('Continue') }}
                                 <svg viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
@@ -164,18 +166,18 @@
                     <aside class="template-sidebar" id="templateSidebar">
                         <div class="sidebar-top">
                             <div class="sidebar-heading">
-                                <span class="sidebar-eyebrow">LIBRARY</span>
-                                <h2 class="sidebar-title">Pilih Desain</h2>
+                                <span class="sidebar-eyebrow">{{ __('LIBRARY') }}</span>
+                                <h2 class="sidebar-title">{{ __('Choose a Design') }}</h2>
                                 
                                 <p class="sidebar-subtitle">
-                                    Temukan template sertifikat yang sesuai.
+                                    {{ __('Find a certificate template that suits your needs.') }}
                                 </p>
                             </div>
 
                             <button type="button"
                                     class="sidebar-close"
                                     id="closeSidebar"
-                                    aria-label="Tutup sidebar">
+                                    aria-label="{{ __('Close sidebar') }}">
                                 &times;
                             </button>
                         </div>
@@ -195,7 +197,7 @@
                             <input type="search"
                                 class="template-search"
                                 id="templateSearch"
-                                placeholder="Cari nama template...">
+                                placeholder="{{ __('Search template names...') }}">
                         </div>
 
                         <div class="template-list" id="templateList">
@@ -219,8 +221,8 @@
                                     class="template-preview-button"
                                     data-preview-src="{{ asset($item['path']) }}"
                                     data-preview-name="{{ $item['name'] }}"
-                                    aria-label="Preview {{ $item['name'] }}"
-                                    title="Lihat preview">
+                                    aria-label="{{ __('Preview :name', ['name' => $item['name']]) }}"
+                                    title="{{ __('View preview') }}">
                                     
                                     <svg viewBox="0 0 24 24"
                                         fill="none"
@@ -237,7 +239,7 @@
 
                             @endforeach
                             <p class="template-empty" id="templateEmpty" hidden>
-                                Template tidak ditemukan.
+                                {{ __('No templates found.') }}
                             </p>
                         </div>
                     </aside>
@@ -246,15 +248,16 @@
                     <button type="button"
                             class="sidebar-open is-visible"
                             id="openSidebar"
-                            aria-label="Buka pencarian template">
+                            aria-label="{{ __('Open template search') }}">
                         &rsaquo;
+                        <span class="sidebar-open-label">{{ __('Browse Templates') }}</span>
                     </button>
 
                     <!-- BAGIAN UTAMA -->
                     <div class="template-main">
                         <section class="page-intro page-intro--hero">
-                            <h1>Buat <span class="title-accent">Sertifikat</span></h1>
-                            <p>Unggah desain sertifikat untuk memulai.</p>
+                            <h1>{{ __('Create') }} <span class="title-accent">{{ __('Certificate') }}</span></h1>
+                            <p>{{ __('Upload a certificate design to get started.') }}</p>
                         </section>
 
                         @error('template')
@@ -285,26 +288,28 @@
                                     </svg>
                                 </span>
 
-                                <h2>Drag &amp; Drop File Here</h2>
-                                <p class="or-copy">atau</p>
+                                <h2>{{ __('Drag & Drop File Here') }}</h2>
+                                <p class="or-copy">{{ __('or') }}</p>
 
                                 <input class="visually-hidden"
                                     id="template-file"
                                     name="template"
                                     type="file"
                                     accept="image/png,image/jpeg,application/pdf"
+                                    aria-hidden="true"
+                                    tabindex="-1"
                                     data-template-input>
 
                                 <button class="file-picker"
                                         type="button"
                                         data-file-picker>
 
-                                        Pilih File
+                                        {{ __('Choose File') }}
                                 </button>
 
                                 <p class="format-copy">
-                                    Format: PNG, JPG, atau PDF<br>
-                                    Ukuran maks. 10 MB
+                                    {{ __('Formats: PNG, JPG, or PDF') }}<br>
+                                    {{ __('Maximum size: 10 MB') }}
                                 </p>
 
                                 <div class="selected-file"
@@ -352,18 +357,18 @@
                 <button type="button"
                     class="template-preview-close"
                     id="closeTemplatePreview"
-                    aria-label="Tutup preview">
+                    aria-label="{{ __('Close preview') }}">
                     &times;
                 </button>
 
                 <div class="template-preview-heading"
                     id="templatePreviewTitle">
-                    Preview Template
+                    {{ __('Template Preview') }}
                 </div>
 
                 <div class="template-preview-image-wrap">
                     <img src=""
-                        alt="Preview template sertifikat"
+                        alt="{{ __('Certificate template preview') }}"
                         class="template-preview-image"
                         id="templatePreviewImage">
                 </div>
@@ -499,7 +504,7 @@
 
                     if (!previewModal || !previewImage) return;
                     previewImage.src = imageSrc;
-                    previewImage.alt = 'Preview ' + templateName;
+                    previewImage.alt = window.procertTranslations.previewPrefix + ' ' + templateName;
                     previewTitle.textContent = templateName;
                     previewModal.classList.add('is-active');
                     previewModal.setAttribute('aria-hidden', 'false');

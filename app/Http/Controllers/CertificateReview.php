@@ -6,13 +6,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Throwable;
 
 class CertificateReview extends Controller
 {
-public function index(Request $request): View|RedirectResponse
+    public function index(Request $request): View|RedirectResponse
     {
         $template = $request->session()->get('template');
         $recipients = $request->session()->get('recipients', []);
@@ -25,7 +22,7 @@ public function index(Request $request): View|RedirectResponse
         );
 
         // CEK TEMPLATE
-        if (!is_array($template) || empty($template['path'])) {
+        if (! is_array($template) || empty($template['path'])) {
             return redirect()->route('home');
         }
 
@@ -36,11 +33,11 @@ public function index(Request $request): View|RedirectResponse
             $templateExists = Storage::disk('local')->exists($template['path']);
         }
 
-        if (!$templateExists) {
+        if (! $templateExists) {
             $request->session()->forget('template');
 
             return redirect()->route('home')
-                ->with('status', 'File template tidak ditemukan. Silakan pilih template kembali.');
+                ->with('status', __('The template file was not found. Please choose a template again.'));
         }
 
         // CEK DATA PENERIMA
@@ -49,7 +46,7 @@ public function index(Request $request): View|RedirectResponse
         }
 
         // CEK PENGATURAN NOMOR
-        if (!is_array($numberSettings)) {
+        if (! is_array($numberSettings)) {
             return redirect()->route('certificate-number.index');
         }
 
@@ -65,7 +62,7 @@ public function index(Request $request): View|RedirectResponse
     {
         $template = $request->session()->get('template');
 
-        if (!is_array($template) || empty($template['path'])) {
+        if (! is_array($template) || empty($template['path'])) {
             abort(404);
         }
 
@@ -73,7 +70,7 @@ public function index(Request $request): View|RedirectResponse
         if (($template['source'] ?? 'upload') === 'builtin') {
             $path = public_path($template['path']);
 
-            if (!is_file($path)) {
+            if (! is_file($path)) {
                 abort(404);
             }
 
@@ -81,7 +78,7 @@ public function index(Request $request): View|RedirectResponse
         }
 
         // PREVIEW TEMPLATE UPLOAD
-        if (!Storage::disk('local')->exists($template['path'])) {
+        if (! Storage::disk('local')->exists($template['path'])) {
             abort(404);
         }
 

@@ -6,11 +6,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class TemplateUploadController extends Controller
 {
-private const BUILT_IN_TEMPLATES = [
+    private const BUILT_IN_TEMPLATES = [
         'template-1' => [
             'name' => 'Template 1',
             'path' => 'images/templates/template-1.png',
@@ -86,7 +85,7 @@ private const BUILT_IN_TEMPLATES = [
 
         if ($path === false) {
             return back()->withErrors([
-                'template' => 'Template tidak dapat disimpan. Silakan coba lagi.',
+                'template' => __('The template could not be saved. Please try again.'),
             ]);
         }
 
@@ -123,7 +122,7 @@ private const BUILT_IN_TEMPLATES = [
         $selected = self::BUILT_IN_TEMPLATES[$id];
 
         if (! is_file(public_path($selected['path']))) {
-            abort(404, 'File template tidak ditemukan.');
+            abort(404, __('Template file not found.'));
         }
 
         $previousTemplate = $request->session()->get('template');

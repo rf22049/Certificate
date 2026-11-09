@@ -6,9 +6,20 @@ use App\Http\Controllers\CertificateNumberController;
 use App\Http\Controllers\CertificateReview;
 use App\Http\Controllers\RecipientController;
 use App\Http\Controllers\TemplateUploadController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [TemplateUploadController::class, 'index'])->name('home');
+Route::post('/language', function (Request $request) {
+    $validated = $request->validate([
+        'locale' => ['required', 'in:id,en'],
+    ]);
+
+    $request->session()->put('locale', $validated['locale']);
+
+    return back();
+})->name('language.update');
+
 Route::post('/templates', [TemplateUploadController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('templates.store');

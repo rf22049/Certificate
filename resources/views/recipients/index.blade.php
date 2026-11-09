@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Data Penerima | ProCert</title>
+    <title>{{ __('Recipient Data') }} | ProCert</title>
     @include('partials.favicon')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    @include('partials.theme-init')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
@@ -18,17 +19,17 @@
         <main class="recipient-page">
             <div class="recipient-heading">
                 <div>
-                    <h1>Masukkan Data Penerima</h1>
-                    <p>Tambahkan daftar nama penerima sertifikat</p>
+                    <h1>{{ __('Enter Recipient Data') }}</h1>
+                    <p>{{ __('Add the names of certificate recipients') }}</p>
                 </div>
 
-                <nav class="recipient-mode" aria-label="Metode input data penerima">
+                <nav class="recipient-mode" aria-label="{{ __('Recipient input method') }}">
                     <a class="recipient-mode-button {{ $mode === 'import' ? 'is-selected' : '' }}" href="{{ route('recipients.index', ['mode' => 'import']) }}" @if ($mode === 'import') aria-current="page" @endif>
                         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect x="3" y="3.5" width="14" height="13" rx="1" />
                             <path d="M3 8h14M8 3.5v13" />
                         </svg>
-                        Upload Excel / CSV
+                        {{ __('Upload Excel / CSV') }}
                     </a>
 
                     <a class="recipient-mode-button {{ $mode === 'manual' ? 'is-selected' : '' }}" href="{{ route('recipients.index', ['mode' => 'manual']) }}" @if ($mode === 'manual') aria-current="page" @endif>
@@ -36,7 +37,7 @@
                             <path d="M11.5 4H4.25A1.25 1.25 0 0 0 3 5.25v10.5A1.25 1.25 0 0 0 4.25 17h10.5A1.25 1.25 0 0 0 16 15.75V9" />
                             <path d="m9 11 1-.2 6.3-6.3a1.4 1.4 0 0 0-2-2L8 9l-1 3 2-.4Z" />
                         </svg>
-                        Input Manual
+                        {{ __('Enter Manually') }}
                     </a>
                 </nav>
             </div>
@@ -58,7 +59,7 @@
                                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
                                 <path d="M10 3v14M3 10h14" />
                             </svg>
-                            Tambah Baris
+                            {{ __('Add Row') }}
                         </button>
                     </div>
 
@@ -72,9 +73,9 @@
                         <table class="recipient-table recipient-table--manual">
                             <thead>
                                 <tr>
-                                    <th scope="col">No</th>
-                                    <th scope="col">Nama Penerima</th>
-                                    <th scope="col">Ket</th>
+                                    <th scope="col">{{ __('No.') }}</th>
+                                    <th scope="col">{{ __('Recipient Name') }}</th>
+                                    <th scope="col">{{ __('Note') }}</th>
                                 </tr>
                             </thead>
 
@@ -90,7 +91,7 @@
                                                 name="recipients[{{ $index }}][name]"
                                                 value="{{ $recipient['name'] ?? '' }}"
                                                 maxlength="255"
-                                                aria-label="Nama penerima baris {{ $index + 1 }}"
+                                                aria-label="{{ __('Recipient name, row :number', ['number' => $index + 1]) }}"
                                                 data-recipient-name
                                             >
                                         </td>
@@ -101,15 +102,15 @@
                                                     name="recipients[{{ $index }}][note]"
                                                     value="{{ $recipient['note'] ?? '' }}"
                                                     maxlength="255"
-                                                    aria-label="Keterangan baris {{ $index + 1 }}"
+                                                    aria-label="{{ __('Note, row :number', ['number' => $index + 1]) }}"
                                                     data-recipient-note
                                                 >
 
                                                 <button class="delete-row-button"
                                                     type="button"
                                                     data-delete-row
-                                                    aria-label="Hapus baris {{ $index + 1 }}"
-                                                    title="Hapus baris">
+                                                    aria-label="{{ __('Delete row :number', ['number' => $index + 1]) }}"
+                                                    title="{{ __('Delete row') }}">
                                                     <svg viewBox="0 0 20 20" fill="none"
                                                         stroke="currentColor" stroke-width="1.8"
                                                         stroke-linecap="round"
@@ -130,7 +131,7 @@
                                         <td>
                                             <input name="recipients[0][name]"
                                                 maxlength="255"
-                                                aria-label="Nama penerima baris 1"
+                                                aria-label="{{ __('Recipient name, row :number', ['number' => 1]) }}"
                                                 data-recipient-name>
                                         </td>
 
@@ -138,14 +139,14 @@
                                             <div class="recipient-note-cell">
                                                 <input name="recipients[0][note]"
                                                     maxlength="255"
-                                                    aria-label="Keterangan baris 1"
+                                                    aria-label="{{ __('Note, row :number', ['number' => 1]) }}"
                                                     data-recipient-note>
 
                                                 <button class="delete-row-button"
                                                     type="button"
                                                     data-delete-row
-                                                    aria-label="Hapus baris 1"
-                                                    title="Hapus baris">
+                                                    aria-label="{{ __('Delete row :number', ['number' => 1]) }}"
+                                                    title="{{ __('Delete row') }}">
                                                     <svg viewBox="0 0 20 20" fill="none"
                                                         stroke="currentColor" stroke-width="1.8"
                                                         stroke-linecap="round"
@@ -170,11 +171,11 @@
                                 aria-hidden="true">
                                 <path d="M19 12H5M12 19l-7-7 7-7"/>
                             </svg>
-                            Kembali
+                            {{ __('Back') }}
                         </a>
 
                         <button class="primary-button" type="submit">
-                            Lanjut
+                            {{ __('Continue') }}
                             <svg viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round"
@@ -198,12 +199,12 @@
                             </svg>
                         </span>
                         
-                        <h2>Drag &amp; Drop File Here</h2>
-                        <p>atau</p>
+                        <h2>{{ __('Drag & Drop File Here') }}</h2>
+                        <p>{{ __('or') }}</p>
                         
-                        <input class="visually-hidden" id="recipients-file" name="recipients_file" type="file" accept=".xlsx,.xls,.csv" data-recipient-file>
-                        <button class="file-picker" type="button" data-recipient-picker>Pilih File</button>
-                        <p class="format-copy">Format: XLSX, XLS, atau CSV<br>Ukuran maks. 10 MB</p>
+                        <input class="visually-hidden" id="recipients-file" name="recipients_file" type="file" accept=".xlsx,.xls,.csv" aria-hidden="true" tabindex="-1" data-recipient-file>
+                        <button class="file-picker" type="button" data-recipient-picker>{{ __('Choose File') }}</button>
+                        <p class="format-copy">{{ __('Formats: XLSX, XLS, or CSV') }}<br>{{ __('Maximum size: 10 MB') }}</p>
                         <span class="selected-file-copy recipient-uploading" data-recipient-uploading hidden></span>
                     </div>
                 </form>
@@ -213,13 +214,13 @@
                         <p class="form-error recipient-error" role="alert">{{ $message }}</p>
                     @enderror
                     
-                    <h2>Pratinjau data <span>({{ count($recipients) }})</span></h2>
+                    <h2>{{ __('Data preview') }} <span>({{ count($recipients) }})</span></h2>
                     
                     <div class="recipient-preview-scroll" data-preview-scroll>
                         <table class="recipient-table recipient-table--preview">
                             
                             <thead>
-                                <tr><th scope="col">No</th><th scope="col">Nama Penerima</th><th scope="col">Ket</th></tr>
+                                <tr><th scope="col">{{ __('No.') }}</th><th scope="col">{{ __('Recipient Name') }}</th><th scope="col">{{ __('Note') }}</th></tr>
                             </thead>
                             
                             <tbody id="recipient-preview-rows">
@@ -230,7 +231,7 @@
                                         <td>{{ $recipient['note'] }}</td>
                                     </tr>
                                 @empty
-                                    <tr class="preview-empty"><td colspan="3">Belum ada data</td></tr>
+                                    <tr class="preview-empty"><td colspan="3">{{ __('No data yet') }}</td></tr>
                                 @endforelse
                             </tbody>
 
@@ -238,7 +239,7 @@
                     </div>
 
                     <button class="preview-toggle" type="button" aria-expanded="false" aria-controls="recipient-preview-rows" data-preview-toggle @if (count($recipients) <= 10) hidden @endif>
-                        <span data-preview-label>Tampilkan Semua</span>
+                        <span data-preview-label>{{ __('Show All') }}</span>
                         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="m4 6 4 4 4-4" />
                         </svg>
@@ -254,12 +255,11 @@
                                 aria-hidden="true">
                                 <path d="M19 12H5M12 19l-7-7 7-7"/>
                             </svg>
-                            Kembali
+                            {{ __('Back') }}
                         </a>
 
-                        <button class="primary-button" type="submit"
-                            <button class="primary-button" type="submit">
-                            Lanjut
+                        <button class="primary-button" type="submit" @disabled(!$canAdvanceImport)>
+                            {{ __('Continue') }}
                             <svg viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round"
@@ -269,7 +269,7 @@
                         </button>
                     </form>
                     @if (session('recipient_data_source') !== 'import')
-                        <p class="form-error" role="status">Unggah file Excel atau CSV sebelum melanjutkan.</p>
+                        <p class="form-error" role="status">{{ __('Upload an Excel or CSV file before continuing.') }}</p>
                     @endif
                 </aside>
             </section>

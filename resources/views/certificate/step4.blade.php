@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Edit Sertifikat | ProCert</title>
+    <title>{{ __('Edit Certificate') }} | ProCert</title>
     @include('partials.favicon')
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Lato:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Oswald:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto+Slab:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
 
+    @include('partials.theme-init')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -22,8 +23,8 @@
         <main class="edit-page" id="certificate-editor">
 
             <header class="edit-heading">
-                <h1>Edit Desain Sertifikat</h1>
-                <p>Atur nama, nomor, dan tampilan sertifikat sebelum diterbitkan.</p>
+                <h1>{{ __('Edit Certificate Design') }}</h1>
+                <p>{{ __('Adjust recipient names, numbering, and certificate design before issuing.') }}</p>
             </header>
 
             <section class="editor-layout">
@@ -32,14 +33,14 @@
                 <div class="preview-panel">
 
                     <div class="preview-toolbar">
-                        <strong>Preview Sertifikat</strong>
+                        <strong>{{ __('Certificate Preview') }}</strong>
 
                         <div class="toolbar-group">
-                            <button type="button" class="tool-button" id="undoButton" title="Undo" disabled>↶</button>
-                            <button type="button" class="tool-button" id="redoButton" title="Redo" disabled>↷</button>
-                            <button type="button" class="tool-button" id="zoomOut">−</button>
+                            <button type="button" class="tool-button" id="undoButton" title="{{ __('Undo') }}" aria-label="{{ __('Undo') }}" disabled>↶</button>
+                            <button type="button" class="tool-button" id="redoButton" title="{{ __('Redo') }}" aria-label="{{ __('Redo') }}" disabled>↷</button>
+                            <button type="button" class="tool-button" id="zoomOut" title="{{ __('Zoom out') }}" aria-label="{{ __('Zoom out') }}">−</button>
                             <span class="zoom-label" id="zoomLabel">100%</span>
-                            <button type="button" class="tool-button" id="zoomIn">+</button>
+                            <button type="button" class="tool-button" id="zoomIn" title="{{ __('Zoom in') }}" aria-label="{{ __('Zoom in') }}">+</button>
                         </div>
                     </div>
 
@@ -49,13 +50,13 @@
                             @if (str_starts_with($template['mime'], 'image/'))
                                 <img
                                     src="{{ route('templates.preview') }}"
-                                    alt="Template Sertifikat"
+                                    alt="{{ __('Certificate Template') }}"
                                     id="templateImage"
                                 >
                             @elseif ($template['mime'] === 'application/pdf')
                                 <iframe
                                     src="{{ route('templates.preview') }}"
-                                    title="Template Sertifikat"
+                                    title="{{ __('Certificate Template') }}"
                                 ></iframe>
                             @endif
 
@@ -67,13 +68,13 @@
                     </div>
 
                     <div class="preview-navigation">
-                        <button type="button" class="nav-button" id="previousRecipient">
+                        <button type="button" class="nav-button" id="previousRecipient" aria-label="{{ __('Previous recipient') }}">
                             ← 
                         </button>
 
                         <strong id="pageIndicator">1 / {{ count($recipients) }}</strong>
 
-                        <button type="button" class="nav-button" id="nextRecipient">
+                        <button type="button" class="nav-button" id="nextRecipient" aria-label="{{ __('Next recipient') }}">
                             →
                         </button>
                     </div>
@@ -83,44 +84,44 @@
                 {{-- EDITOR TOOLS --}}
                 <aside class="editor-panel">
 
-                <h2>Pengaturan Elemen</h2>
-                <p class="muted">Pilih elemen pada sertifikat untuk mengatur tampilannya.</p>
+                <h2>{{ __('Element Settings') }}</h2>
+                <p class="muted">{{ __('Select an element on the certificate to customize its appearance.') }}</p>
 
                 <button type="button" class="action-button full-width" id="addTextBox">
-                    Tambah Kotak Teks
+                    {{ __('Add Text Box') }}
                 </button>
-                <p class="muted">Anda dapat menambahkan hingga 50 kotak teks.</p>
+                <p class="muted">{{ __('You can add up to 50 text boxes.') }}</p>
                 <label class="text-box-sync">
                     <input type="checkbox" id="syncTextBoxes">
                     <span>
-                        <strong>Sinkronkan kotak teks di semua sertifikat</strong>
-                        <small>Nonaktif secara default. Jika dipilih, teks dan posisinya akan sama untuk semua penerima.</small>
+                        <strong>{{ __('Sync text boxes across all certificates') }}</strong>
+                        <small>{{ __('Off by default. When enabled, the text and its position will be the same for every recipient.') }}</small>
                     </span>
                 </label>
 
                 <div class="element-tabs">
                     <button type="button" class="element-tab active" data-element="name">
-                        Nama Penerima
+                        {{ __('Recipient Name') }}
                     </button>
                     <button type="button" class="element-tab" data-element="number">
-                        Nomor Sertifikat
+                        {{ __('Certificate Number') }}
                     </button>
                     <div class="text-box-tabs" id="textBoxTabs"></div>
                 </div>
 
                 <div class="editor-empty" id="emptySelection" hidden>
-                    Belum ada elemen yang dipilih.
+                    {{ __('No element selected yet.') }}
                     <br>
-                    Klik nama, nomor, atau kotak teks pada preview untuk mulai mengedit.
+                    {{ __('Click the name, number, or a text box in the preview to start editing.') }}
                 </div>
 
                     <div id="nameSettings">
 
                         <div class="setting-section">
-                            <h3>Data Penerima</h3>
+                            <h3>{{ __('Recipient Details') }}</h3>
 
                             <div class="name-editor field">
-                                <label for="recipientNameInput">Nama Penerima</label>
+                                <label for="recipientNameInput">{{ __('Recipient Name') }}</label>
                                 <input type="text" id="recipientNameInput" maxlength="255">
                             </div>
                         </div>
@@ -129,31 +130,33 @@
 
                 <div id="numberSettingsPanel" hidden>
                     <div class="setting-section">
-                        <h3>Nomor Sertifikat</h3>
+                        <h3>{{ __('Certificate Number') }}</h3>
                         <div class="locked-value" id="numberValue"></div>
-                        <p class="muted">Isi nomor dikelola otomatis oleh sistem dan tidak dapat diedit.</p>
+                        <p class="muted">{{ __('The certificate number is managed automatically and cannot be edited.') }}</p>
                     </div>
                 </div>
 
                 <div id="textBoxSettings" hidden>
                     <div class="setting-section">
-                        <h3>Kotak Teks</h3>
+                        <h3>{{ __('Text Box') }}</h3>
                         <div class="field">
-                            <label for="textBoxContent">Isi Teks</label>
+                            <label for="textBoxContent">{{ __('Text') }}</label>
                             <textarea id="textBoxContent" maxlength="1000" rows="4"></textarea>
-                            <small>Maksimal 1.000 karakter. Geser teks pada preview untuk mengatur posisinya.</small>
+                            <small>{{ __('Up to 1,000 characters. Drag the text in the preview to position it.') }}</small>
                         </div>
                         <button type="button" class="action-button" id="removeTextBox">
-                            Hapus Kotak Teks
+                            {{ __('Remove Text Box') }}
                         </button>
                     </div>
                 </div>
 
-                    <div class="setting-section">
-                        <h3>Tipografi</h3>
+                    <details class="editor-advanced-settings">
+                        <summary>{{ __('Typography & alignment') }}</summary>
+                        <div class="setting-section">
+                        <h3>{{ __('Customize text style') }}</h3>
 
                         <div class="field">
-                            <label for="fontFamily">Jenis Font</label>
+                            <label for="fontFamily">{{ __('Font Family') }}</label>
                             <select id="fontFamily">
                                 <option value="Manrope">Manrope</option>
                                 <option value="Poppins">Poppins</option>
@@ -177,33 +180,33 @@
 
                         <div class="two-columns">
                             <div class="field">
-                                <label for="fontSize">Ukuran Font</label>
+                                <label for="fontSize">{{ __('Font Size') }}</label>
                                 <input type="number" id="fontSize" min="8" max="150" value="24">
                             </div>
 
                             <div class="field">
-                                <label for="fontColor">Warna</label>
+                                <label for="fontColor">{{ __('Color') }}</label>
                                 <input type="color" id="fontColor" value="#4042a4">
                             </div>
                         </div>
 
                         <div class="field">
-                            <label>Gaya Teks</label>
+                            <label>{{ __('Text Style') }}</label>
                             <div class="style-buttons">
-                                <button type="button" class="style-toggle" id="boldButton" title="Bold" aria-label="Bold">
+                                <button type="button" class="style-toggle" id="boldButton" title="{{ __('Bold') }}" aria-label="{{ __('Bold') }}">
                                     <svg viewBox="0 0 24 24">
                                         <path d="M7 5h6a4 4 0 0 1 0 8H7z"/>
                                         <path d="M7 13h7a4 4 0 0 1 0 8H7z"/>
                                     </svg>
                                 </button>
 
-                                <button type="button" class="style-toggle" id="italicButton" title="Italic" aria-label="Italic">
+                                <button type="button" class="style-toggle" id="italicButton" title="{{ __('Italic') }}" aria-label="{{ __('Italic') }}">
                                     <svg viewBox="0 0 24 24">
                                         <path d="M19 4H10M14 20H5M15 4 9 20"/>
                                     </svg>
                                 </button>
 
-                                <button type="button" class="style-toggle" id="underlineButton" title="Underline" aria-label="Underline">
+                                <button type="button" class="style-toggle" id="underlineButton" title="{{ __('Underline') }}" aria-label="{{ __('Underline') }}">
                                     <svg viewBox="0 0 24 24">
                                         <path d="M7 4v7a5 5 0 0 0 10 0V4"/>
                                         <path d="M5 21h14"/>
@@ -213,27 +216,27 @@
                         </div>
 
                         <div class="field">
-                            <label>Alignment</label>
+                            <label>{{ __('Alignment') }}</label>
                             <div class="alignment-buttons">
-                                <button type="button" data-align="left" title="Rata kiri">
+                                <button type="button" data-align="left" title="{{ __('Align left') }}" aria-label="{{ __('Align left') }}">
                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M4 5h16M4 9h10M4 13h16M4 17h10"/>
                                     </svg>
                                 </button>
 
-                                <button type="button" data-align="center" title="Rata tengah">
+                                <button type="button" data-align="center" title="{{ __('Align center') }}" aria-label="{{ __('Align center') }}">
                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M4 5h16M7 9h10M4 13h16M7 17h10"/>
                                     </svg>
                                 </button>
 
-                                <button type="button" data-align="right" title="Rata kanan">
+                                <button type="button" data-align="right" title="{{ __('Align right') }}" aria-label="{{ __('Align right') }}">
                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M4 5h16M10 9h10M4 13h16M10 17h10"/>
                                     </svg>
                                 </button>
 
-                                <button type="button" data-align="justify" title="Rata kanan kiri">
+                                <button type="button" data-align="justify" title="{{ __('Justify') }}" aria-label="{{ __('Justify') }}">
                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M4 5h16M4 9h16M4 13h16M4 17h16"/>
                                     </svg>
@@ -241,26 +244,27 @@
                             </div>
                         </div>
                     </div>
+                    </details>
 
                     <div class="editor-actions">
                         <button type="button"
                             class="action-button primary-button full-width"
                             id="applyAll">
-                            Terapkan ke Semua Sertifikat
+                            {{ __('Apply to All Certificates') }}
                         </button>
                     </div>
 
                     <div class="editor-actions editor-navigation">
-                        <a href="{{ route('certificate-number.index') }}"
+                        <a href="{{ route('certificate-number.index', ['back' => 1]) }}"
                         class="action-button">
                             <span>←</span>
-                            Kembali
+                            {{ __('Back') }}
                         </a>
 
                         <button type="button"
                                 class="action-button primary-button"
                                 id="saveButton">
-                            Lanjut
+                            {{ __('Continue') }}
                             <span>→</span>
                         </button>
                     </div>
@@ -275,10 +279,25 @@
         </main>
     </div>
 
+    @php
+        $editorMessages = [
+            'text' => __('Text'),
+            'limit' => __('You can add up to 50 text boxes.'),
+            'newText' => __('Type text here'),
+            'applied' => __('Settings applied to all certificates.'),
+            'synced' => __('Text boxes synced across all certificates.'),
+            'separate' => __('Text boxes can be edited separately for each certificate.'),
+            'saving' => __('Saving...'),
+            'continue' => __('Continue'),
+            'failed' => __('Failed to save changes.'),
+        ];
+    @endphp
+
     <script>
         const recipients = @json($recipients);
         const numberSettings = @json($numberSettings);
         const savedSettings = @json($editSettings);
+        const editorMessages = {{ \Illuminate\Support\Js::from($editorMessages) }};
 
         const romanMonths = {
             1: 'I', 2: 'II', 3: 'III', 4: 'IV',
@@ -380,11 +399,9 @@
     }
 
         // NOMOR SERTIFIKAT
-        function buildNumber(index) {
-            const sequence = Number(numberSettings.start_number) + index;
-
+        function buildNumber() {
             return [
-                String(sequence).padStart(3, '0'),
+                String(numberSettings.start_number).padStart(3, '0'),
                 'UP-DKN2.2',
                 'SERTIFIKAT',
                 'PP05',
@@ -478,7 +495,7 @@
             tab.type = 'button';
             tab.className = 'element-tab';
             tab.dataset.textBoxId = textBox.id;
-            tab.textContent = `Teks ${index + 1}`;
+            tab.textContent = `${editorMessages.text} ${index + 1}`;
             tab.classList.toggle('active', selectedElement === textBox.id);
             tab.addEventListener('click', () => {
                 selectedElement = textBox.id;
@@ -556,10 +573,10 @@
         }
 
             document.getElementById('recipientNameInput').value = recipient.name;
-            document.getElementById('numberValue').textContent = buildNumber(currentIndex);
+            document.getElementById('numberValue').textContent = buildNumber();
 
         renderElement(nameElement, getStyle('name'), recipient.name);
-        renderElement(numberElement, getStyle('number'), buildNumber(currentIndex));
+        renderElement(numberElement, getStyle('number'), buildNumber());
         renderTextBoxes();
 
         nameElement.classList.toggle('selected', selectedElement === 'name');
@@ -672,7 +689,7 @@
 
         if (textBoxes.length >= 50) {
             document.getElementById('statusMessage').textContent =
-                'Maksimal 50 kotak teks dapat ditambahkan.';
+                editorMessages.limit;
 
             return;
         }
@@ -682,7 +699,7 @@
         const textBox = {
             ...defaultTextBoxStyle,
             id: `text-${crypto.randomUUID()}`,
-            content: 'Tulis teks di sini'
+            content: editorMessages.newText
         };
         textBoxes.push(textBox);
         setCurrentTextBoxes(textBoxes);
@@ -948,7 +965,7 @@
             render();
 
         document.getElementById('statusMessage').textContent =
-            'Pengaturan berhasil diterapkan ke semua sertifikat.';
+            editorMessages.applied;
     });
 
     document.getElementById('syncTextBoxes').addEventListener('change', event => {
@@ -973,8 +990,8 @@
         render();
         document.getElementById('statusMessage').textContent =
             settings.syncTextBoxes
-                ? 'Kotak teks disinkronkan untuk semua sertifikat.'
-                : 'Kotak teks dapat diedit terpisah untuk setiap sertifikat.';
+                ? editorMessages.synced
+                : editorMessages.separate;
     });
 
 
@@ -984,7 +1001,7 @@
             const status = document.getElementById('statusMessage');
 
             button.disabled = true;
-            button.textContent = 'Menyimpan...';
+            button.textContent = editorMessages.saving;
             status.textContent = '';
 
             const payload = {
@@ -1013,7 +1030,7 @@
                 const validationErrors = Object.values(result.errors ?? {}).flat();
                 const message = validationErrors.length > 0
                     ? validationErrors.join(' ')
-                    : (result.message || 'Gagal menyimpan perubahan.');
+                    : (result.message || editorMessages.failed);
 
                 throw new Error(message);
             }
@@ -1023,7 +1040,7 @@
                 status.textContent = error.message;
             } finally {
                 button.disabled = false;
-                button.textContent = 'Lanjut →';
+                button.textContent = `${editorMessages.continue} →`;
             }
         });
 

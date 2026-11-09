@@ -130,7 +130,7 @@ class CertificatePdfGenerator
                 $pdf->Image($templatePath, 0, 0, $pageWidth, $pageHeight);
             }
 
-            $sequence = $numberSettings['start_number'] + $recipientIndex;
+            $sequence = $numberSettings['start_number'];
             $certificateNumber = implode('/', [
                 str_pad((string) $sequence, 3, '0', STR_PAD_LEFT),
                 'UP-DKN2.2',
