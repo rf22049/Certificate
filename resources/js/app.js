@@ -2,6 +2,7 @@ const uploadForm = document.querySelector('[data-upload-form]');
 const templateInput = document.querySelector('[data-template-input]');
 const dropzone = document.querySelector('[data-dropzone]');
 const selectedFile = document.querySelector('[data-selected-file]');
+const translations = window.procertTranslations ?? {};
 
 const formatFileSize = (size) => {
 	if (size < 1024 * 1024) {
@@ -19,7 +20,7 @@ const displaySelectedFile = (file) => {
 	selectedFile.hidden = false;
 	selectedFile.querySelector('[data-file-name]').textContent = file.name;
 	selectedFile.querySelector('[data-file-size]').textContent = formatFileSize(file.size);
-	selectedFile.querySelector('[data-file-status]').textContent = 'Mengunggah...';
+	selectedFile.querySelector('[data-file-status]').textContent = translations.uploading;
 	uploadForm.requestSubmit();
 };
 
@@ -96,7 +97,7 @@ const createRecipientRow = (index) => {
     nameInput.name = `recipients[${index}][name]`;
     nameInput.maxLength = 255;
     nameInput.dataset.recipientName = '';
-    nameInput.setAttribute('aria-label', `Nama penerima baris ${index + 1}`);
+    nameInput.setAttribute('aria-label', translations.recipientName.replace(':number', index + 1));
 
     nameCell.append(nameInput);
     row.append(nameCell);
@@ -110,14 +111,14 @@ const createRecipientRow = (index) => {
     noteInput.name = `recipients[${index}][note]`;
     noteInput.maxLength = 255;
     noteInput.dataset.recipientNote = '';
-    noteInput.setAttribute('aria-label', `Keterangan baris ${index + 1}`);
+    noteInput.setAttribute('aria-label', translations.note.replace(':number', index + 1));
 
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
     deleteButton.className = 'delete-row-button';
     deleteButton.dataset.deleteRow = '';
-    deleteButton.setAttribute('aria-label', `Hapus baris ${index + 1}`);
-    deleteButton.title = 'Hapus baris';
+    deleteButton.setAttribute('aria-label', translations.deleteRowNumber.replace(':number', index + 1));
+    deleteButton.title = translations.deleteRow;
 
     deleteButton.innerHTML = `
         <svg viewBox="0 0 20 20" fill="none"
@@ -152,12 +153,12 @@ const renumberRecipientRows = () => {
 
         rowNumber.textContent = number;
         nameInput.name = `recipients[${index}][name]`;
-        nameInput.setAttribute('aria-label', `Nama penerima baris ${number}`);
+        nameInput.setAttribute('aria-label', translations.recipientName.replace(':number', number));
 
         noteInput.name = `recipients[${index}][note]`;
-        noteInput.setAttribute('aria-label', `Keterangan baris ${number}`);
+        noteInput.setAttribute('aria-label', translations.note.replace(':number', number));
 
-        deleteButton?.setAttribute('aria-label', `Hapus baris ${number}`);
+        deleteButton?.setAttribute('aria-label', translations.deleteRowNumber.replace(':number', number));
     });
 };
 
@@ -216,7 +217,7 @@ const submitRecipientFile = (file) => {
 
 	if (uploadStatus) {
 		uploadStatus.hidden = false;
-		uploadStatus.textContent = `Mengunggah ${file.name}...`;
+		uploadStatus.textContent = translations.recipientUploading.replace(':name', file.name);
 	}
 
 	importForm.requestSubmit();
@@ -258,5 +259,48 @@ previewToggle?.addEventListener('click', () => {
 		row.hidden = !previewExpanded && index >= 10;
 	});
 	previewToggle.setAttribute('aria-expanded', String(previewExpanded));
-	previewToggle.querySelector('[data-preview-label]').textContent = previewExpanded ? 'Tampilkan Lebih Sedikit' : 'Tampilkan Semua';
+	previewToggle.querySelector('[data-preview-label]').textContent = previewExpanded
+		? translations.showLess
+		: translations.showAll;
 });
+
+const themeToggle = document.querySelector('[data-theme-toggle]');
+const themePreferenceKey = 'procert-theme';
+const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+const syncThemeToggle = () => {
+	if (!themeToggle) {
+		return;
+	}
+
+	const isDark = document.documentElement.dataset.theme === 'dark';
+	const actionLabel = isDark
+		? themeToggle.dataset.labelLight
+		: themeToggle.dataset.labelDark;
+
+	themeToggle.setAttribute('aria-pressed', String(isDark));
+	themeToggle.setAttribute('aria-label', actionLabel);
+	themeToggle.setAttribute('title', actionLabel);
+	themeToggle.querySelectorAll('[data-theme-icon]').forEach((icon) => {
+		icon.hidden = icon.dataset.themeIcon === (isDark ? 'moon' : 'sun');
+	});
+};
+
+themeToggle?.addEventListener('click', () => {
+	const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+
+	document.documentElement.dataset.theme = nextTheme;
+	localStorage.setItem(themePreferenceKey, nextTheme);
+	syncThemeToggle();
+});
+
+systemTheme.addEventListener('change', (event) => {
+	if (localStorage.getItem(themePreferenceKey)) {
+		return;
+	}
+
+	document.documentElement.dataset.theme = event.matches ? 'dark' : 'light';
+	syncThemeToggle();
+});
+
+syncThemeToggle();

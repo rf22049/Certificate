@@ -12,13 +12,16 @@ class CertificateEditController extends Controller
 {
     public function index(Request $request): View|RedirectResponse
     {
+        if ($request->boolean('back')) {
+            $request->session()->flash('previous_wizard_step', 5);
+        }
 
         // TEMPLATE
         $template = $request->session()->get('template');
 
         if (! is_array($template) || empty($template['path'])) {
             return redirect()->route('home')
-                ->with('status', 'Silakan pilih atau unggah template sertifikat terlebih dahulu.');
+                ->with('status', __('Please select or upload a certificate template first.'));
         }
 
         // CEK TEMPLATE BAWAAN ATAU TEMPLATE UPLOAD
@@ -34,7 +37,7 @@ class CertificateEditController extends Controller
             $request->session()->forget('template');
 
             return redirect()->route('home')
-                ->with('status', 'File template tidak ditemukan. Silakan pilih template kembali.');
+                ->with('status', __('The template file was not found. Please choose a template again.'));
         }
 
         // DATA PENERIMA
@@ -43,7 +46,7 @@ class CertificateEditController extends Controller
         if (empty($recipients)) {
             return redirect()->route('recipients.index')
                 ->withErrors([
-                    'recipients' => 'Tambahkan minimal satu penerima terlebih dahulu.',
+                    'recipients' => __('Add at least one recipient first.'),
                 ]);
         }
 
@@ -53,7 +56,7 @@ class CertificateEditController extends Controller
         if (! is_array($numberSettings)) {
             return redirect()->route('certificate-number.index')
                 ->withErrors([
-                    'certificate_number' => 'Silakan atur nomor sertifikat terlebih dahulu.',
+                    'certificate_number' => __('Set the certificate number first.'),
                 ]);
         }
 
@@ -319,11 +322,12 @@ class CertificateEditController extends Controller
         foreach ($individual as $index => $elements) {
             if (! isset($validated['recipients'][$index])) {
                 return response()->json([
-                    'message' => 'Pengaturan sertifikat tidak valid.',
+                    'message' => __('Certificate settings are invalid.'),
                     'errors' => [
                         "settings.individual.{$index}" => [
-                            'Pengaturan untuk penerima nomor '.((int) $index + 1)
-                                .' tidak cocok dengan daftar penerima. Muat ulang halaman lalu coba lagi.',
+                            __('Settings for recipient :number do not match the recipient list. Reload the page and try again.', [
+                                'number' => (int) $index + 1,
+                            ]),
                         ],
                     ],
                 ], 422);
@@ -333,10 +337,10 @@ class CertificateEditController extends Controller
 
             if (count($textBoxIds) !== count(array_unique($textBoxIds))) {
                 return response()->json([
-                    'message' => 'Pengaturan sertifikat tidak valid.',
+                    'message' => __('Certificate settings are invalid.'),
                     'errors' => [
                         "settings.individual.{$index}.textBoxes" => [
-                            'Setiap kotak teks pada satu sertifikat harus memiliki ID yang berbeda.',
+                            __('Each text box on a certificate must have a unique ID.'),
                         ],
                     ],
                 ], 422);
@@ -379,7 +383,7 @@ class CertificateEditController extends Controller
             fn ($recipient) => $recipient['name'] === ''
         )) {
             return response()->json([
-                'message' => 'Nama penerima tidak boleh kosong.',
+                'message' => __('Recipient names cannot be empty.'),
             ], 422);
         }
 
@@ -405,16 +409,18 @@ class CertificateEditController extends Controller
             'individual' => $individual,
         ]);
 
+        $request->session()->flash('previous_wizard_step', 4);
+
         // RESPONS UNTUK JAVASCRIPT FETCH
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Perubahan sertifikat berhasil disimpan.',
+                'message' => __('Certificate changes saved successfully.'),
             ]);
         }
 
         return redirect()->route('certificate-edit.index')
-            ->with('status', 'Perubahan sertifikat berhasil disimpan.');
+            ->with('status', __('Certificate changes saved successfully.'));
     }
 
     /**

@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Pengaturan Nomor Sertifikat | ProCert</title>
+    <title>{{ __('Certificate Number Settings') }} | ProCert</title>
     @include('partials.favicon')
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    @include('partials.theme-init')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -50,10 +51,9 @@
         <main class="number-page">
 
             <header class="number-heading">
-                <h1>Pengaturan Nomor Sertifikat</h1>
+                <h1>{{ __('Certificate Number Settings') }}</h1>
                 <p>
-                    Atur penomoran sertifikat sesuai ketentuan program studi.
-                    Preview akan diperbarui secara otomatis.
+                    {{ __('Set certificate numbering according to your program requirements. The preview updates automatically.') }}
                 </p>
             </header>
 
@@ -141,21 +141,34 @@
                     <p class="number-preview-next" id="previewNext"></p>
                 </section>
 
+                <p
+                    id="usedNumberNotice"
+                    class="number-notice is-warning"
+                    role="status"
+                    aria-live="polite"
+                    @if (! $selectedNumberWasUsed) hidden @endif
+                >{{ __('Number :number has already been used in :year. You can still reuse it.', [
+                    'number' => str_pad((string) $initialStartNumber, 3, '0', STR_PAD_LEFT),
+                    'year' => $selectedYear,
+                ]) }}</p>
+
                 <section class="number-reminder">
                     <div class="number-reminder-icon" aria-hidden="true">↻</div>
 
                     <div>
-                        <h2>Pengingat Nomor Sertifikat</h2>
+                        <h2>{{ __('Certificate Number Reminder') }}</h2>
                         <p id="reminderText">
                             @if ($lastNumber === 0)
-                                Belum ada sertifikat yang diterbitkan pada tahun {{ $selectedYear }}.
-                                Nomor berikutnya yang disarankan adalah
-                                <strong>{{ str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT) }}</strong>.
+                                {{ __('No certificates have been recorded for :year yet. The suggested next number is :number.', [
+                                    'year' => $selectedYear,
+                                    'number' => str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT),
+                                ]) }}
                             @else
-                                Nomor terakhir yang digunakan pada tahun {{ $selectedYear }} adalah
-                                <strong>{{ str_pad((string) $lastNumber, 3, '0', STR_PAD_LEFT) }}</strong>.
-                                Nomor berikutnya yang disarankan adalah
-                                <strong>{{ str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT) }}</strong>.
+                                {{ __('The highest number assigned or used in :year is :number. The suggested next number is :next.', [
+                                    'year' => $selectedYear,
+                                    'number' => str_pad((string) $lastNumber, 3, '0', STR_PAD_LEFT),
+                                    'next' => str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT),
+                                ]) }}
                             @endif
                         </p> 
                     </div>
@@ -171,13 +184,13 @@
                 </div>
 
                 <footer class="number-actions">
-                    <a class="number-button" href="{{ route('recipients.index') }}">
+                    <a class="number-button" href="{{ route('recipients.index', ['back' => 1]) }}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             aria-hidden="true">
                             <path d="M19 12H5M12 19l-7-7 7-7"/>
                         </svg>
-                        Kembali
+                        {{ __('Back') }}
                     </a>
 
                     <button
@@ -185,7 +198,7 @@
                         id="continueButton"
                         type="submit"
                     >
-                        Lanjut
+                        {{ __('Continue') }}
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             aria-hidden="true">
@@ -196,6 +209,12 @@
             </form>
         </main>
     </div>
+
+    @php
+        $numberUsedMessage = __('Number :number has already been used in :year. You can still reuse it.');
+        $invalidNumberMessage = __('Enter a valid starting number and year');
+        $sameNumberMessage = __('This number will be used for every recipient.');
+    @endphp
 
     <script>
         const romanMonths = {
@@ -216,7 +235,11 @@
         const startNumberInput = document.getElementById('startNumber');
         const monthInput = document.getElementById('month');
         const yearInput = document.getElementById('year');
-        const lastNumbersByYear = @json($lastNumbersByYear);
+        const suggestedNumbersByYear = @json($suggestedNumbersByYear);
+        const usedNumbersByYear = @json($usedNumbersByYear);
+        const usedNumberMessage = {{ \Illuminate\Support\Js::from($numberUsedMessage) }};
+        const invalidNumberMessage = {{ \Illuminate\Support\Js::from($invalidNumberMessage) }};
+        const sameNumberMessage = {{ \Illuminate\Support\Js::from($sameNumberMessage) }};
 
         const previewCode = document.getElementById('previewCode');
         const previewNext = document.getElementById('previewNext');
@@ -267,8 +290,10 @@
         }
 
         function updatePreview() {
+            updateUsedNumberNotice();
+
             if (!isValidInput()) {
-                previewCode.textContent = 'Masukkan nomor awal dan tahun yang valid';
+                previewCode.textContent = invalidNumberMessage;
                 previewNext.textContent = '';
                 return;
             }
@@ -276,8 +301,21 @@
             const number = Number(startNumberInput.value);
 
             previewCode.textContent = buildCertificateNumber(number);
-            previewNext.textContent = 'Nomor berikutnya: ' +
-                buildCertificateNumber(number + 1);
+            previewNext.textContent = sameNumberMessage;
+        }
+
+        function updateUsedNumberNotice() {
+            const number = Number(startNumberInput.value);
+            const usedNumbers = usedNumbersByYear[yearInput.value] ?? [];
+            const hasBeenUsed = usedNumbers.includes(number);
+
+            usedNumberNotice.hidden = !hasBeenUsed;
+
+            if (hasBeenUsed) {
+                usedNumberNotice.textContent = usedNumberMessage
+                    .replace(':number', formatNumber(number))
+                    .replace(':year', yearInput.value);
+            }
         }
 
         function showNotice(message, isError = false) {

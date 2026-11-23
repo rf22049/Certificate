@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Services\CertificatePdfGenerator;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use App\Services\CertificatePdfGenerator;
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tfpdf\Fpdi;
 use Tests\TestCase;
@@ -12,6 +13,8 @@ use ZipArchive;
 
 class CertificateExportTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_pdf_export_downloads_one_unicode_pdf_page_per_recipient(): void
     {
         $this->withImageTemplate();
@@ -26,6 +29,10 @@ class CertificateExportTest extends TestCase
 
         $pdf = new Fpdi('P', 'pt');
         $this->assertSame(2, $pdf->setSourceFile(StreamReader::createByString($content)));
+        $this->assertDatabaseHas('certificate_number_usages', [
+            'year' => 2025,
+            'number' => 21,
+        ]);
     }
 
     public function test_pdf_generator_uses_the_recipient_specific_text_box(): void
@@ -81,6 +88,21 @@ class CertificateExportTest extends TestCase
         $this->assertNotSame($original, $changed);
     }
 
+    public function test_pdf_generator_uses_the_same_certificate_number_for_each_recipient_index(): void
+    {
+        $this->withImageTemplate();
+        $template = session('template');
+        $template['path'] = Storage::disk('local')->path($template['path']);
+        $recipient = ['name' => 'Ayu Lestari', 'note' => ''];
+        $numberSettings = ['year' => 2025, 'month' => 7, 'start_number' => 21];
+        $generator = app(CertificatePdfGenerator::class);
+
+        $firstCertificate = $generator->generateOne($template, $recipient, 0, $numberSettings, []);
+        $secondCertificate = $generator->generateOne($template, $recipient, 1, $numberSettings, []);
+
+        $this->assertSame($firstCertificate, $secondCertificate);
+    }
+
     public function test_zip_export_contains_a_pdf_for_each_recipient(): void
     {
         $this->withImageTemplate();
@@ -89,6 +111,10 @@ class CertificateExportTest extends TestCase
 
         $response->assertOk();
         $response->assertDownload('certificates.zip');
+        $this->assertDatabaseHas('certificate_number_usages', [
+            'year' => 2025,
+            'number' => 21,
+        ]);
 
         $archive = new ZipArchive;
         $archivePath = $response->baseResponse->getFile()->getPathname();

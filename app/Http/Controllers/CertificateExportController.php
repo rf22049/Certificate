@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\CertificatePdfGenerator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -22,6 +23,7 @@ class CertificateExportController extends Controller
             $export['numberSettings'],
             $export['editSettings'],
         );
+        $this->recordNumberUsage($export['numberSettings']);
 
         return response()->streamDownload(
             static function () use ($content): void {
@@ -67,7 +69,7 @@ class CertificateExportController extends Controller
                     '-',
                     $recipient['name'],
                 );
-                $directoryName = trim(mb_substr($recipientName ?? '', 0, 80), " .-_");
+                $directoryName = trim(mb_substr($recipientName ?? '', 0, 80), ' .-_');
                 $directoryName = $directoryName !== '' ? $directoryName : 'Recipient';
                 $directoryKey = $directoryName;
                 $suffix = 2;
@@ -90,6 +92,8 @@ class CertificateExportController extends Controller
             if (! $archive->close()) {
                 throw new RuntimeException('Arsip sertifikat tidak dapat disimpan.');
             }
+
+            $this->recordNumberUsage($export['numberSettings']);
         } catch (Throwable $exception) {
             if (is_file($archivePath)) {
                 unlink($archivePath);
@@ -159,7 +163,8 @@ class CertificateExportController extends Controller
                 && (int) $numberSettings['month'] >= 1
                 && (int) $numberSettings['month'] <= 12
                 && is_numeric($numberSettings['start_number'] ?? null)
-                && (int) $numberSettings['start_number'] >= 1,
+                && (int) $numberSettings['start_number'] >= 1
+                && (int) $numberSettings['start_number'] <= 4294967295,
             422,
             'Pengaturan nomor sertifikat tidak valid.',
         );
@@ -179,5 +184,17 @@ class CertificateExportController extends Controller
             ],
             'editSettings' => is_array($editSettings) ? $editSettings : [],
         ];
+    }
+
+    /**
+     * @param  array{year: int, start_number: int}  $numberSettings
+     */
+    private function recordNumberUsage(array $numberSettings): void
+    {
+        DB::table('certificate_number_usages')->insertOrIgnore([
+            'year' => $numberSettings['year'],
+            'number' => $numberSettings['start_number'],
+            'used_at' => now(),
+        ]);
     }
 }

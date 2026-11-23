@@ -1,18 +1,19 @@
 
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Review & Download | ProCert</title>
+    <title>{{ __('Review & Download') }} | ProCert</title>
     @include('partials.favicon')
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Manrope:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Lato:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Oswald:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto+Slab:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
         
+        @include('partials.theme-init')
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -26,15 +27,15 @@
             {{-- JUDUL DAN TOMBOL --}}
             <div class="review-heading">
                 <div class="heading-text">
-                    <h1>Review & Download</h1>
-                    <p>Periksa kembali seluruh sertifikat sebelum mengunduh.</p>
+                    <h1>{{ __('Review & Download') }}</h1>
+                    <p>{{ __('Review all certificates before downloading.') }}</p>
                 </div>
 
                 {{-- KELOMPOK TOMBOL --}}
                 <div class="actions">
-                    <a href="{{ route('certificate-edit.index') }}"
+                    <a href="{{ route('certificate-edit.index', ['back' => 1]) }}"
                     class="review-back-button"
-                    aria-label="Kembali ke Edit Sertifikat">
+                    aria-label="{{ __('Back to Certificate Editor') }}">
                         
                     <svg viewBox="0 0 24 24"
                             fill="none"
@@ -48,11 +49,11 @@
                     </a>
 
                     <a href="{{ route('certificate-export.zip') }}" class="download-button zip">
-                        Download (ZIP)
+                        {{ __('Download (ZIP)') }}
                     </a>
 
                     <a href="{{ route('certificate-export.pdf') }}" class="download-button pdf">
-                        Download PDF
+                        {{ __('Download PDF') }}
                     </a>
                 </div>
             </div> 
@@ -65,8 +66,8 @@
                 <div class="recipient-panel">
                     <div class="recipient-header">
                         <div>
-                            <h3>Daftar Penerima</h3>
-                                <p>Pilih nama untuk melihat sertifikat</p>
+                            <h3>{{ __('Recipient List') }}</h3>
+                                <p>{{ __('Select a name to preview the certificate') }}</p>
                         </div>
 
                         <span class="recipient-count">
@@ -81,7 +82,7 @@
                             type="text"
                             class="search-input"
                             id="searchName"
-                            placeholder="Cari nama penerima..."
+                            placeholder="{{ __('Search recipient names...') }}"
                         >
                     </div>
 
@@ -115,12 +116,12 @@
                             @if(str_starts_with($template['mime'], 'image/'))
                                 <img
                                     src="{{ route('templates.preview') }}"
-                                    alt="Template Sertifikat"
+                                    alt="{{ __('Certificate Template') }}"
                                 >
                                 @elseif($template['mime'] === 'application/pdf')
                                 <iframe
                                     src="{{ route('templates.preview') }}"
-                                    title="Template Sertifikat"
+                                    title="{{ __('Certificate Template') }}"
                                 ></iframe>
                             @endif
 
@@ -133,14 +134,14 @@
             </div>
 
                     <div class="pagination">
-                        <button type="button" id="previousPage">‹</button>
+                        <button type="button" id="previousPage" aria-label="{{ __('Previous certificate') }}">‹</button>
                         <span>
                             <span id="currentPage">1</span>
                             /
                             <span id="totalPage">{{ count($recipients) }}</span>
                         </span>
                         
-                        <button type="button" id="nextPage">›</button>
+                        <button type="button" id="nextPage" aria-label="{{ __('Next certificate') }}">›</button>
                     </div>
                 </div>
             </div>
@@ -165,12 +166,9 @@
         };
 
         // MENGHASILKAN NOMOR SERTIFIKAT
-        function buildNumber(index) {
-            const sequence =
-                Number(numberSettings.start_number) + index;
-
+        function buildNumber() {
             return [
-                String(sequence).padStart(3, '0'),
+                String(numberSettings.start_number).padStart(3, '0'),
                 'UP-DKN2.2',
                 'SERTIFIKAT',
                 'PP05',
@@ -224,7 +222,7 @@
             renderElement(
                 numberElement,
                 getStyle('number'),
-                buildNumber(currentIndex)
+                buildNumber()
             );
 
             textBoxLayer.replaceChildren();

@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Throwable;
@@ -20,6 +21,10 @@ class RecipientController extends Controller
             return redirect()->route('home');
         }
 
+        if ($request->boolean('back')) {
+            $request->session()->flash('previous_wizard_step', 3);
+        }
+
         $mode = $request->query('mode', $request->session()->get('recipient_mode', 'manual'));
         $mode = in_array($mode, ['manual', 'import'], true) ? $mode : 'manual';
         $request->session()->put('recipient_mode', $mode);
@@ -27,6 +32,8 @@ class RecipientController extends Controller
         return view('recipients.index', [
             'mode' => $mode,
             'recipients' => $request->session()->get('recipients', []),
+            'canAdvanceImport' => $request->session()->get('recipient_data_source') === 'import'
+                && $request->session()->get('recipients', []) !== [],
         ]);
     }
 
@@ -55,28 +62,56 @@ class RecipientController extends Controller
 
             return back()
                 ->withInput()
-                ->withErrors(['recipients_file' => 'File tidak dapat dibaca. Pastikan formatnya XLS, XLSX, atau CSV.']);
+                ->withErrors(['recipients_file' => __('The file could not be read. Make sure its format is XLS, XLSX, or CSV.')]);
         }
 
         $worksheet = $spreadsheet->getActiveSheet();
         $lastRow = $worksheet->getHighestDataRow();
+        $headerCells = $worksheet->rangeToArray(
+            'A1:'.$worksheet->getHighestDataColumn().'1',
+            null,
+            true,
+            false
+        )[0];
+        $nameColumn = null;
+        $noteColumn = null;
 
-        if ($lastRow > self::MAX_RECIPIENTS + 1) {
-            $spreadsheet->disconnectWorksheets();
+        foreach ($headerCells as $index => $headerCell) {
+            $header = mb_strtolower(trim((string) $headerCell));
+            $column = Coordinate::stringFromColumnIndex($index + 1);
 
-            return back()->withErrors(['recipients_file' => 'File hanya boleh berisi maksimal 1.000 penerima.']);
+            if (in_array($header, ['nama', 'nama penerima', 'name', 'recipient', 'recipient name'], true)) {
+                $nameColumn = $column;
+            }
+
+            if (in_array($header, ['ket', 'keterangan', 'catatan', 'note', 'notes', 'description'], true)) {
+                $noteColumn = $column;
+            }
         }
 
-        $firstColumn = mb_strtolower($this->cellText($worksheet, 'A1'));
-        $hasHeader = in_array($firstColumn, ['nama', 'nama penerima', 'name', 'recipient'], true);
+        if ($lastRow > 10000) {
+            $spreadsheet->disconnectWorksheets();
+
+            return back()->withErrors(['recipients_file' => __('The file has too many rows to process.')]);
+        }
+
+        $hasHeader = $nameColumn !== null;
         $firstDataRow = $hasHeader ? 2 : 1;
+        $nameColumn ??= 'A';
+        $noteColumn ??= Coordinate::stringFromColumnIndex(
+            Coordinate::columnIndexFromString($nameColumn) + 1
+        );
         $recipients = [];
 
         for ($row = $firstDataRow; $row <= $lastRow; $row++) {
-            $name = $this->cellText($worksheet, 'A'.$row);
-            $note = $this->cellText($worksheet, 'B'.$row);
+            $name = $this->cellText($worksheet, $nameColumn.$row);
+            $note = $this->cellText($worksheet, $noteColumn.$row);
 
             if ($name === '' && $note === '') {
+                continue;
+            }
+
+            if ($note === '' && in_array($name, ['…', '...'], true)) {
                 continue;
             }
 
@@ -84,7 +119,9 @@ class RecipientController extends Controller
                 $spreadsheet->disconnectWorksheets();
 
                 return back()->withErrors([
-                    'recipients_file' => 'Periksa baris '.$row.'. Nama wajib diisi dan setiap kolom maksimal 255 karakter.',
+                    'recipients_file' => __('Check row :row. A name is required and each column may contain at most 255 characters.', [
+                        'row' => $row,
+                    ]),
                 ]);
             }
 
@@ -92,7 +129,7 @@ class RecipientController extends Controller
                 $spreadsheet->disconnectWorksheets();
 
                 return back()->withErrors([
-                    'recipients_file' => 'File hanya boleh berisi maksimal 1.000 penerima.',
+                    'recipients_file' => __('The file may contain at most 1,000 recipients.'),
                 ]);
             }
 
@@ -102,7 +139,7 @@ class RecipientController extends Controller
         $spreadsheet->disconnectWorksheets();
 
         if ($recipients === []) {
-            return back()->withErrors(['recipients_file' => 'Tidak ada data penerima yang ditemukan di file.']);
+            return back()->withErrors(['recipients_file' => __('No recipient data was found in the file.')]);
         }
 
         $request->session()->put('recipients', $recipients);
@@ -134,7 +171,7 @@ class RecipientController extends Controller
             ->all();
 
         if ($recipients === []) {
-            return back()->withErrors(['recipients' => 'Tambahkan minimal satu nama penerima.']);
+            return back()->withErrors(['recipients' => __('Add at least one recipient name.')]);
         }
 
         $request->session()->put('recipients', $recipients);
@@ -143,7 +180,7 @@ class RecipientController extends Controller
 
         $request->session()->flash('previous_wizard_step', 2);
 
-        return redirect()->route('certificate-number.index')->with('status', 'Data penerima berhasil disimpan.');
+        return redirect()->route('certificate-number.index')->with('status', __('Recipient data saved successfully.'));
     }
 
     public function next(Request $request): RedirectResponse
@@ -157,13 +194,13 @@ class RecipientController extends Controller
             || $request->session()->get('recipient_data_source') !== 'import'
         ) {
             return back()->withErrors([
-                'recipients_file' => 'Unggah file Excel atau CSV terlebih dahulu.',
+                'recipients_file' => __('Upload an Excel or CSV file first.'),
             ]);
         }
 
         if ($request->session()->get('recipients', []) === []) {
             return back()->withErrors([
-                'recipients' => 'Tambahkan atau unggah minimal satu penerima.',
+                'recipients' => __('Add or upload at least one recipient.'),
             ]);
         }
 
