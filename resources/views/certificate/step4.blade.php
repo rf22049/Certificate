@@ -339,7 +339,11 @@
     <script>
         const recipients = @json($recipients);
         const numberSettings = @json($numberSettings);
-        const savedSettings = @json($editSettings);
+        const rawSavedSettings = @json($editSettings);
+        const savedSettings = rawSavedSettings && typeof rawSavedSettings === 'object'
+            && !Array.isArray(rawSavedSettings)
+            ? rawSavedSettings
+            : {};
         const editorMessages = {{ \Illuminate\Support\Js::from($editorMessages) }};
 
         const romanMonths = {
@@ -373,13 +377,51 @@
         y: 80
     };
 
+    const defaultGlobalSettings = {
+        name: { ...defaultNameStyle },
+        number: { ...defaultNumberStyle },
+        textBoxes: [],
+        imageBoxes: []
+    };
+
+    const savedGlobalSettings = savedSettings.global;
+    const normalizedGlobalSettings = savedGlobalSettings
+        && typeof savedGlobalSettings === 'object'
+        && !Array.isArray(savedGlobalSettings)
+        ? savedGlobalSettings
+        : {};
+
+    const savedIndividualSettings = savedSettings.individual;
+    const normalizedIndividualSettings = savedIndividualSettings
+        && typeof savedIndividualSettings === 'object'
+        && !Array.isArray(savedIndividualSettings)
+        ? savedIndividualSettings
+        : {};
+
     const settings = {
-        global: savedSettings.global ?? {
-            name: { ...defaultNameStyle },
-            number: { ...defaultNumberStyle },
-            textBoxes: []
+        global: {
+            ...defaultGlobalSettings,
+            ...normalizedGlobalSettings,
+            name: {
+                ...defaultNameStyle,
+                ...(normalizedGlobalSettings.name && typeof normalizedGlobalSettings.name === 'object'
+                    ? normalizedGlobalSettings.name
+                    : {})
+            },
+            number: {
+                ...defaultNumberStyle,
+                ...(normalizedGlobalSettings.number && typeof normalizedGlobalSettings.number === 'object'
+                    ? normalizedGlobalSettings.number
+                    : {})
+            },
+            textBoxes: Array.isArray(normalizedGlobalSettings.textBoxes)
+                ? normalizedGlobalSettings.textBoxes
+                : [],
+            imageBoxes: Array.isArray(normalizedGlobalSettings.imageBoxes)
+                ? normalizedGlobalSettings.imageBoxes
+                : []
         },
-        individual: savedSettings.individual ?? {},
+        individual: { ...normalizedIndividualSettings },
         syncTextBoxes: savedSettings.syncTextBoxes === true
     };
     settings.global.textBoxes = Array.isArray(settings.global.textBoxes)
@@ -1218,10 +1260,18 @@
             button.textContent = editorMessages.saving;
             status.textContent = '';
 
-            const payload = {
-                recipients,
-                settings
-            };
+        const payload = {
+            recipients,
+            settings: {
+                global: {
+                    name: settings.global.name,
+                    number: settings.global.number,
+                    textBoxes: settings.global.textBoxes
+                },
+                individual: settings.individual,
+                syncTextBoxes: settings.syncTextBoxes
+            }
+        };
 
             try {
                 const response = await fetch(
