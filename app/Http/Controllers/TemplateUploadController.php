@@ -133,7 +133,7 @@ private const BUILT_IN_TEMPLATES = [
             'id' => $id,
             'path' => $selected['path'],
             'name' => $selected['name'],
-            'mime' => 'image/jpeg',
+            'mime' => 'image/png',
             'size' => filesize(public_path($selected['path'])),
             'extension' => 'JPEG',
         ]);

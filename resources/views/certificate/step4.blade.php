@@ -13,6 +13,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Lato:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Oswald:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Roboto+Slab:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <style>
+      #certificateStage { position: relative; }
+      #imageLayer { position:absolute; inset:0; pointer-events:none; z-index:4; }
+      .image-box-wrapper { position:absolute; pointer-events:auto; cursor:move; box-sizing:border-box; }
+      .image-box-wrapper.selected { outline:2px dashed #5b5bd6; outline-offset:2px; }
+      .image-box-wrapper img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; user-select:none; }
+      .image-resize-handle { position:absolute; right:-7px; bottom:-7px; width:14px; height:14px; border:2px solid white; background:#5b5bd6; border-radius:3px; cursor:nwse-resize; box-shadow:0 0 0 1px #5b5bd6; }
+      .custom-element-actions { display:grid; gap:8px; }
+      #imageSettingsPanel { display:none; }
+      #imageSettingsPanel.active { display:block; }
+      #selectedImagePreview { max-width:100%; max-height:120px; object-fit:contain; display:block; margin:8px auto; }
+      .image-setting-actions { display:flex; gap:8px; flex-wrap:wrap; }
+      .image-setting-actions button { flex:1; }
+    </style>
+
 </head>
 
 <body>
@@ -62,6 +78,7 @@
                         <div class="certificate-text recipient-name" id="nameElement"></div>
                         <div class="certificate-text certificate-number" id="numberElement"></div>
                         <div id="textBoxLayer"></div>
+                        <div id="imageLayer"></div>
 
                         </div>
                     </div>
@@ -86,6 +103,20 @@
                 <h2>Pengaturan Elemen</h2>
                 <p class="muted">Pilih elemen pada sertifikat untuk mengatur tampilannya.</p>
 
+                <div class="custom-element-actions">
+                    <button type="button" class="action-button full-width" id="addTextBox">+ Tambah Kotak Teks</button>
+                    <button type="button" class="action-button full-width" id="addImageButton">+ Tambah Gambar / Logo</button>
+                    <input type="file" id="imageUploadInput" accept="image/png,image/jpeg,image/webp" hidden>
+                </div>
+                <p class="muted">Gambar PNG, JPG, atau WebP. Gambar dapat digeser dan diubah ukurannya.</p>
+                <p class="muted">Anda dapat menambahkan hingga 50 kotak teks.</p>
+                <label class="text-box-sync">
+                    <input type="checkbox" id="syncTextBoxes">
+                    <span>
+
+                        <strong>Sinkronkan kotak teks di semua sertifikat</strong>
+                        <small>Nonaktif secara default. Jika dipilih, teks dan posisinya akan sama untuk semua penerima.</small>
+
                 <button type="button" class="action-button full-width" id="addTextBox">
                     Tambah Kotak Teks
                 </button>
@@ -93,6 +124,7 @@
                 <label class="text-box-sync">
                     <input type="checkbox" id="syncTextBoxes">
                     <span>
+
                         <strong>Sinkronkan kotak teks di semua sertifikat</strong>
                         <small>Nonaktif secara default. Jika dipilih, teks dan posisinya akan sama untuk semua penerima.</small>
                     </span>
@@ -148,6 +180,19 @@
                         </button>
                     </div>
                 </div>
+
+
+
+                <div id="imageSettingsPanel" class="setting-section">
+                    <h3>Pengaturan Gambar</h3>
+                    <img id="selectedImagePreview" alt="Preview gambar terpilih">
+                    <p class="muted">Geser gambar pada preview. Tarik titik di pojok untuk mengubah ukuran.</p>
+                    <div class="image-setting-actions">
+                        <button type="button" class="action-button" id="replaceImageButton">Ganti Gambar</button>
+                        <button type="button" class="action-button" id="deleteImageButton">Hapus Gambar</button>
+                    </div>
+                </div>
+
 
                     <div class="setting-section">
                         <h3>Tipografi</h3>
@@ -323,6 +368,9 @@
     settings.global.textBoxes = Array.isArray(settings.global.textBoxes)
         ? settings.global.textBoxes
         : [];
+    settings.global.imageBoxes = Array.isArray(settings.global.imageBoxes)
+        ? settings.global.imageBoxes
+        : [];
     recipients.forEach((_, index) => {
         settings.individual[index] ??= {};
         if (!Array.isArray(settings.individual[index].textBoxes)) {
@@ -353,6 +401,8 @@
     const numberElement = document.getElementById('numberElement');
     const stage = document.getElementById('certificateStage');
     const textBoxLayer = document.getElementById('textBoxLayer');
+    const imageLayer = document.getElementById('imageLayer');
+    const imageSettingsPanel = document.getElementById('imageSettingsPanel');
     const textBoxTabs = document.getElementById('textBoxTabs');
     const previewCanvas = document.getElementById('previewCanvas');
 
@@ -488,6 +538,170 @@
         });
     }
 
+    // IMAGE / LOGO ELEMENTS (stored as data URLs in settings.global.imageBoxes)
+    let selectedImageId = null;
+    let imageDragState = null;
+
+    function renderImageBoxes() {
+        const boxes = settings.global.imageBoxes;
+        const validIds = boxes.map(box => box.id);
+        [...imageLayer.children].forEach(node => {
+            if (!validIds.includes(node.dataset.imageBoxId)) node.remove();
+        });
+        boxes.forEach(box => {
+            let wrapper = [...imageLayer.children].find(node => node.dataset.imageBoxId === box.id);
+            if (!wrapper) {
+                wrapper = document.createElement('div');
+                wrapper.className = 'image-box-wrapper';
+                wrapper.dataset.imageBoxId = box.id;
+                const img = document.createElement('img');
+                img.alt = box.name || 'Gambar sertifikat';
+                const handle = document.createElement('span');
+                handle.className = 'image-resize-handle';
+                handle.title = 'Tarik untuk mengubah ukuran';
+                wrapper.append(img, handle);
+                wrapper.addEventListener('pointerdown', startImageInteraction);
+                wrapper.addEventListener('pointermove', moveImageInteraction);
+                wrapper.addEventListener('pointerup', endImageInteraction);
+                wrapper.addEventListener('pointercancel', endImageInteraction);
+                imageLayer.append(wrapper);
+            }
+            const img = wrapper.querySelector('img');
+            if (img.src !== box.src) img.src = box.src;
+            wrapper.style.left = `${box.x}%`;
+            wrapper.style.top = `${box.y}%`;
+            wrapper.style.width = `${box.width}%`;
+            wrapper.style.height = `${box.height}%`;
+            wrapper.classList.toggle('selected', selectedImageId === box.id);
+        });
+    }
+    function updateImagePanel() {
+        const image = settings.global.imageBoxes.find(box => box.id === selectedImageId);
+        imageSettingsPanel.classList.toggle('active', Boolean(image));
+        if (image) document.getElementById('selectedImagePreview').src = image.src;
+    }
+    function startImageInteraction(event) {
+        if (event.button !== 0) return;
+        const wrapper = event.currentTarget;
+        const boxId = wrapper.dataset.imageBoxId;
+        const box = settings.global.imageBoxes.find(item => item.id === boxId);
+        if (!box) return;
+        saveHistory();
+        selectedImageId = boxId;
+        const stageRect = stage.getBoundingClientRect();
+        const isResize = event.target.classList.contains('image-resize-handle');
+        imageDragState = {
+            pointerId: event.pointerId,
+            mode: isResize ? 'resize' : 'move',
+            startX: event.clientX,
+            startY: event.clientY,
+            originalX: box.x,
+            originalY: box.y,
+            originalWidth: box.width,
+            originalHeight: box.height,
+            stageWidth: stageRect.width,
+            stageHeight: stageRect.height
+        };
+        wrapper.setPointerCapture(event.pointerId);
+        event.stopPropagation();
+        renderImageBoxes();
+        updateImagePanel();
+        event.preventDefault();
+    }
+
+    function moveImageInteraction(event) {
+        if (!imageDragState || event.pointerId !== imageDragState.pointerId) return;
+        const box = settings.global.imageBoxes.find(item => item.id === selectedImageId);
+        if (!box) return;
+        const dx = event.clientX - imageDragState.startX;
+        const dy = event.clientY - imageDragState.startY;
+        const dxPct = dx / imageDragState.stageWidth * 100;
+        const dyPct = dy / imageDragState.stageHeight * 100;
+        if (imageDragState.mode === 'move') {
+            box.x = Math.max(0, Math.min(100 - box.width, imageDragState.originalX + dxPct));
+            box.y = Math.max(0, Math.min(100 - box.height, imageDragState.originalY + dyPct));
+        } else {
+            box.width = Math.max(2, Math.min(100 - box.x, imageDragState.originalWidth + dxPct));
+            box.height = Math.max(2, Math.min(100 - box.y, imageDragState.originalHeight + dyPct));
+        }
+        renderImageBoxes();
+    }
+
+    function endImageInteraction(event) {
+        if (!imageDragState || event.pointerId !== imageDragState.pointerId) return;
+        imageDragState = null;
+    }
+
+    function loadImageFile(file) {
+        if (!file) return;
+        if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+            alert('Format gambar harus PNG, JPG, atau WebP.');
+            return;
+        }
+        if (file.size > 3 * 1024 * 1024) {
+            alert('Ukuran gambar maksimal 3 MB.');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            saveHistory();
+            const box = {
+                id: `image-${crypto.randomUUID()}`,
+                name: file.name,
+                src: reader.result,
+                x: 8, y: 8, width: 16, height: 16
+            };
+            settings.global.imageBoxes.push(box);
+            selectedImageId = box.id;
+            render();
+        };
+        reader.onerror = () => alert('Gagal membaca file gambar. Silakan coba lagi.');
+        reader.readAsDataURL(file);
+    }
+
+    document.getElementById('addImageButton').addEventListener('click', () => {
+        document.getElementById('imageUploadInput').click();
+    });
+    document.getElementById('imageUploadInput').addEventListener('change', event => {
+        const input = event.target;
+        const file = input.files[0];
+        const replaceId = input.dataset.replaceId;
+        input.dataset.replaceId = '';
+        if (!file) return;
+        if (!replaceId) {
+            loadImageFile(file);
+            input.value = '';
+            return;
+        }
+        if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+            alert('Format gambar harus PNG, JPG, atau WebP.');
+            input.value = '';
+            return;
+        }
+        if (file.size > 3 * 1024 * 1024) {
+            alert('Ukuran gambar maksimal 3 MB.');
+            input.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            saveHistory();
+            const box = settings.global.imageBoxes.find(item => item.id === replaceId);
+            if (box) { box.src = reader.result; box.name = file.name; }
+            render();
+        };
+        reader.onerror = () => alert('Gagal membaca file gambar.');
+        reader.readAsDataURL(file);
+        input.value = '';
+    });
+    document.getElementById('deleteImageButton').addEventListener('click', () => {
+        if (!selectedImageId) return;
+        saveHistory();
+        settings.global.imageBoxes = settings.global.imageBoxes.filter(box => box.id !== selectedImageId);
+        selectedImageId = null;
+        render();
+    });
+
         // UNDO / REDO
         function createSnapshot() {
             return JSON.stringify({
@@ -561,6 +775,8 @@
         renderElement(nameElement, getStyle('name'), recipient.name);
         renderElement(numberElement, getStyle('number'), buildNumber(currentIndex));
         renderTextBoxes();
+        renderImageBoxes();
+        updateImagePanel();
 
         nameElement.classList.toggle('selected', selectedElement === 'name');
         numberElement.classList.toggle('selected', selectedElement === 'number');

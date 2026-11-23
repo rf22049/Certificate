@@ -50,9 +50,13 @@
                         && $previousStep !== null
                         && $stepNumber === (int) $previousStep;
 
-                    $animateConnector = $previousStep !== null
+                    $animateConnectorForward = $previousStep !== null
                         && $stepNumber === (int) $previousStep
                         && $stepNumber < $currentStep;
+
+                    $animateConnectorBackward = $previousStep !== null
+                        && $stepNumber === (int) $currentStep
+                        && $currentStep < (int) $previousStep;
                 @endphp
 
                 <li
@@ -80,11 +84,12 @@
                     <span class="step-label">{{ $stepLabel }}</span>
                 </li>
 
-                @if ($stepNumber < count($wizardSteps))
+                @if ($stepNumber < count($wizardSteps))    
                     <li
                         class="step-connector
                             {{ $stepNumber < $currentStep ? 'is-complete' : '' }}
-                            {{ $animateConnector ? 'just-completed' : '' }}"
+                            {{ $animateConnectorForward ? 'just-completed' : '' }}
+                            {{ $animateConnectorBackward ? 'just-reversed' : '' }}"
                         aria-hidden="true"
                     >
                         <span></span>
