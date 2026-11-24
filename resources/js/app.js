@@ -1,3 +1,5 @@
+const translations = window.procertTranslations ?? {};
+
 const uploadForm = document.querySelector('[data-upload-form]');
 const templateInput = document.querySelector('[data-template-input]');
 const dropzone = document.querySelector('[data-dropzone]');
@@ -278,23 +280,46 @@ const themeToggle = document.querySelector('[data-theme-toggle]');
 const themePreferenceKey = 'procert-theme';
 const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
 
+
+
 const syncThemeToggle = () => {
-	if (!themeToggle) {
-		return;
-	}
+    if (!themeToggle) {
+        return;
+    }
 
-	const isDark = document.documentElement.dataset.theme === 'dark';
-	const actionLabel = isDark
-		? themeToggle.dataset.labelLight
-		: themeToggle.dataset.labelDark;
+    const isDark = document.documentElement.dataset.theme === 'dark';
 
-	themeToggle.setAttribute('aria-pressed', String(isDark));
-	themeToggle.setAttribute('aria-label', actionLabel);
-	themeToggle.setAttribute('title', actionLabel);
-	themeToggle.querySelectorAll('[data-theme-icon]').forEach((icon) => {
-		icon.hidden = icon.dataset.themeIcon === (isDark ? 'moon' : 'sun');
-	});
+    const actionLabel = isDark
+        ? themeToggle.dataset.labelLight
+        : themeToggle.dataset.labelDark;
+
+    themeToggle.setAttribute('aria-pressed', String(isDark));
+    themeToggle.setAttribute('aria-label', actionLabel);
+    themeToggle.setAttribute('title', actionLabel);
+
+    const moonIcon = themeToggle.querySelector('[data-theme-icon="moon"]');
+    const sunIcon = themeToggle.querySelector('[data-theme-icon="sun"]');
+
+    // Moon hanya tampil pada Dark Mode
+    if (moonIcon) {
+        if (isDark) {
+            moonIcon.removeAttribute('hidden');
+        } else {
+            moonIcon.setAttribute('hidden', '');
+        }
+    }
+
+    // Sun hanya tampil pada Light Mode
+    if (sunIcon) {
+        if (isDark) {
+            sunIcon.setAttribute('hidden', '');
+        } else {
+            sunIcon.removeAttribute('hidden');
+        }
+    }
 };
+
+
 
 themeToggle?.addEventListener('click', () => {
 	const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';

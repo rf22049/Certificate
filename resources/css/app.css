@@ -5762,3 +5762,121 @@ body.template-upload-page
     background: #f5f7ff;
     border-color: #aebdff;
 }
+
+
+/* =========================================================
+   PROCERT — DARK MODE FINAL OVERRIDES
+   Fix: Sidebar, buttons, template cards and theme icons
+========================================================= */
+
+/* 1. Sidebar */
+html[data-theme="dark"] body.template-upload-page .template-sidebar {
+    background: #141d2c !important;
+    border-right: 1px solid #30394b;
+    box-shadow: 12px 0 36px rgba(0, 0, 0, .28);
+    color: #edf1fa;
+}
+
+/* 2. Sidebar heading */
+html[data-theme="dark"] body.template-upload-page .sidebar-eyebrow {
+    color: #8fa0bb;
+}
+
+html[data-theme="dark"] body.template-upload-page .sidebar-title {
+    color: #f3f6fd;
+}
+
+html[data-theme="dark"] body.template-upload-page .sidebar-subtitle {
+    color: #aab3c5;
+}
+
+/* 3. Close button */
+html[data-theme="dark"] body.template-upload-page .sidebar-close {
+    border: 1px solid #39445a;
+    background: #182235;
+    color: #dce5f8;
+}
+
+html[data-theme="dark"] body.template-upload-page .sidebar-close:hover {
+    border-color: #647fae;
+    background: #263754;
+    color: #ffffff;
+}
+
+/* 4. Search input */
+html[data-theme="dark"] body.template-upload-page .template-search {
+    border-color: #39445a;
+    background: #101827;
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] body.template-upload-page .template-search::placeholder {
+    color: #8794aa;
+}
+
+html[data-theme="dark"] body.template-upload-page .template-search:focus {
+    border-color: #8aa7ff;
+    box-shadow: 0 0 0 3px rgba(138, 167, 255, .12);
+}
+
+html[data-theme="dark"] body.template-upload-page .sidebar-search-icon {
+    color: #aab3c5;
+}
+
+/* 5. Template cards */
+html[data-theme="dark"] body.template-upload-page .template-card {
+    border-color: #30394b;
+    background: #182235;
+}
+
+html[data-theme="dark"] body.template-upload-page .template-option {
+    border-color: #30394b;
+    background: #182235;
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] body.template-upload-page .template-option span {
+    background: #182235;
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] body.template-upload-page .template-option:hover,
+html[data-theme="dark"] body.template-upload-page .template-option.is-selected {
+    border-color: #8aa7ff;
+}
+
+/* 6. Preview button */
+html[data-theme="dark"] body.template-upload-page .template-preview-button {
+    border-color: #39445a;
+    background: #202e45;
+    color: #a9c0ff;
+}
+
+html[data-theme="dark"] body.template-upload-page .template-preview-button:hover {
+    background: #304463;
+    color: #ffffff;
+}
+
+/* 7. Empty search result */
+html[data-theme="dark"] body.template-upload-page .template-empty {
+    color: #aab3c5;
+}
+
+/* 8. Open sidebar button */
+html[data-theme="dark"] body.template-upload-page .sidebar-open {
+    border-color: #39445a !important;
+    background: #182235 !important;
+    color: #a9c0ff !important;
+}
+
+html[data-theme="dark"] body.template-upload-page .sidebar-open:hover {
+    background: #263754 !important;
+    color: #ffffff !important;
+}
+
+/* 9. Sidebar open label */
+html[data-theme="dark"] body.template-upload-page .sidebar-open-label {
+    border-color: #39445a;
+    background: #182235;
+    color: #edf1fa;
+}
