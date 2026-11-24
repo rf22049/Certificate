@@ -1,67 +1,77 @@
 const uploadForm = document.querySelector('[data-upload-form]');
 const templateInput = document.querySelector('[data-template-input]');
 const dropzone = document.querySelector('[data-dropzone]');
-const selectedFile = document.querySelector('[data-selected-file]');
-const translations = window.procertTranslations ?? {};
 
-const formatFileSize = (size) => {
-	if (size < 1024 * 1024) {
-		return `${Math.max(1, Math.round(size / 1024))} KB`;
-	}
+const uploadContent = document.querySelector('[data-upload-content]');
+const uploadLoading = document.querySelector('[data-upload-loading]');
+const uploadLoadingName = document.querySelector('[data-upload-loading-name]');
 
-	return `${(size / 1024 / 1024).toFixed(1)} MB`;
-};
+const showUploadLoading = (file) => {
+    if (!file || !uploadForm || !uploadContent || !uploadLoading) {
+        return;
+    }
 
-const displaySelectedFile = (file) => {
-	if (!file || !selectedFile || !uploadForm) {
-		return;
-	}
+    // Ganti tampilan upload menjadi loading.
+    uploadContent.hidden = true;
+    uploadLoading.hidden = false;
 
-	selectedFile.hidden = false;
-	selectedFile.querySelector('[data-file-name]').textContent = file.name;
-	selectedFile.querySelector('[data-file-size]').textContent = formatFileSize(file.size);
-	selectedFile.querySelector('[data-file-status]').textContent = translations.uploading;
-	uploadForm.requestSubmit();
+    // Tampilkan nama file yang sedang diunggah.
+    if (uploadLoadingName) {
+        uploadLoadingName.textContent = file.name;
+    }
+
+    dropzone.classList.remove('is-dragging');
+    dropzone.classList.add('is-uploading');
+
+    uploadForm.setAttribute('aria-busy', 'true');
 };
 
 if (uploadForm && templateInput && dropzone) {
-	const filePicker = document.querySelector('[data-file-picker]');
+    const filePicker = document.querySelector('[data-file-picker]');
 
-	filePicker?.addEventListener('click', () => templateInput.click());
-	templateInput.addEventListener('change', () => {
-		const [file] = templateInput.files;
+    filePicker?.addEventListener('click', () => {
+        templateInput.click();
+    });
 
-		if (file) {
-			displaySelectedFile(file);
-		}
-	});
+    templateInput.addEventListener('change', () => {
+        const [file] = templateInput.files;
 
-	uploadForm.addEventListener('submit', () => uploadForm.setAttribute('aria-busy', 'true'));
+        if (file) {
+            showUploadLoading(file);
+            uploadForm.requestSubmit();
+        }
+    });
 
-	dropzone.addEventListener('dragover', (event) => {
-		event.preventDefault();
-		dropzone.classList.add('is-dragging');
-	});
+    uploadForm.addEventListener('submit', () => {
+        uploadForm.setAttribute('aria-busy', 'true');
+    });
 
-	dropzone.addEventListener('dragleave', (event) => {
-		if (!dropzone.contains(event.relatedTarget)) {
-			dropzone.classList.remove('is-dragging');
-		}
-	});
+    dropzone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropzone.classList.add('is-dragging');
+    });
 
-	dropzone.addEventListener('drop', (event) => {
-		event.preventDefault();
-		dropzone.classList.remove('is-dragging');
+    dropzone.addEventListener('dragleave', (event) => {
+        if (!dropzone.contains(event.relatedTarget)) {
+            dropzone.classList.remove('is-dragging');
+        }
+    });
 
-		const [file] = event.dataTransfer.files;
+    dropzone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropzone.classList.remove('is-dragging');
 
-		if (file) {
-			const transfer = new DataTransfer();
-			transfer.items.add(file);
-			templateInput.files = transfer.files;
-			displaySelectedFile(file);
-		}
-	});
+        const [file] = event.dataTransfer.files;
+
+        if (file) {
+            const transfer = new DataTransfer();
+            transfer.items.add(file);
+            templateInput.files = transfer.files;
+
+            showUploadLoading(file);
+            uploadForm.requestSubmit();
+        }
+    });
 }
 
 const replaceInput = document.querySelector('[data-replace-input]');

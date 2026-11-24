@@ -278,63 +278,59 @@
 
                             @csrf
                             <div class="dropzone" data-dropzone>
-                                <span class="upload-symbol" aria-hidden="true">
-                                    <svg viewBox="0 0 48 48" fill="none"
-                                        stroke="currentColor" stroke-width="4.5"
-                                        stroke-linecap="round" stroke-linejoin="round">
 
-                                        <rect x="3.5" y="4.5" width="41" height="39" rx="3"/>
-                                        <path d="m9 35 10-11 7 8 5-6 8 9H9Z" fill="currentColor" stroke="none"/>
-                                    </svg>
-                                </span>
-
-                                <h2>{{ __('Drag & Drop File Here') }}</h2>
-                                <p class="or-copy">{{ __('or') }}</p>
-
-                                <input class="visually-hidden"
-                                    id="template-file"
-                                    name="template"
-                                    type="file"
-                                    accept="image/png,image/jpeg,application/pdf"
-                                    aria-hidden="true"
-                                    tabindex="-1"
-                                    data-template-input>
-
-                                <button class="file-picker"
-                                        type="button"
-                                        data-file-picker>
-
-                                        {{ __('Choose File') }}
-                                </button>
-
-                                <p class="format-copy">
-                                    {{ __('Formats: PNG, JPG, or PDF') }}<br>
-                                    {{ __('Maximum size: 10 MB') }}
-                                </p>
-
-                                <div class="selected-file"
-                                    data-selected-file
-                                    aria-live="polite"
-                                    hidden>
-
-                                    <span class="selected-file-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="1.8"
+                                {{-- Tampilan awal --}}
+                                <div class="upload-content" data-upload-content>
+                                    <span class="upload-symbol" aria-hidden="true">
+                                        <svg viewBox="0 0 48 48" fill="none"
+                                            stroke="currentColor" stroke-width="4.5"
                                             stroke-linecap="round" stroke-linejoin="round">
-
-                                            <path d="M13.5 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9.5L13.5 3Z"/>
-                                            <path d="M13 3v7h7M8 14h8M8 17.5h8"/>
+                                            <rect x="3.5" y="4.5" width="41" height="39" rx="3"/>
+                                            <path d="m9 35 10-11 7 8 5-6 8 9H9Z"
+                                                fill="currentColor" stroke="none"/>
                                         </svg>
                                     </span>
 
-                                    <span class="selected-file-copy">
-                                        <strong data-file-name></strong>
+                                    <h2>{{ __('Drag & Drop File Here') }}</h2>
+                                    <p class="or-copy">{{ __('or') }}</p>
 
-                                        <span>
-                                            <span data-file-size></span>
-                                            &middot;
-                                            <span data-file-status></span>
-                                        </span>
+                                    <input class="visually-hidden"
+                                        id="template-file"
+                                        name="template"
+                                        type="file"
+                                        accept="image/png,image/jpeg,application/pdf"
+                                        aria-hidden="true"
+                                        tabindex="-1"
+                                        data-template-input>
+
+                                    <button class="file-picker"
+                                        type="button"
+                                        data-file-picker>
+                                        {{ __('Choose File') }}
+                                    </button>
+
+                                    <p class="format-copy">
+                                        {{ __('Formats: PNG, JPG, or PDF') }}<br>
+                                        {{ __('Maximum size: 10 MB') }}
+                                    </p>
+                                </div>
+
+                                {{-- Tampilan loading --}}
+                                <div class="upload-loading" data-upload-loading hidden>
+                                    <span class="upload-spinner" aria-hidden="true"></span>
+
+                                    <h2>{{ __('Uploading certificate...') }}</h2>
+
+                                    <p data-upload-loading-name>
+                                        {{ __('Please wait while your file is being uploaded.') }}
+                                    </p>
+
+                                    <div class="upload-progress-track">
+                                        <span></span>
+                                    </div>
+
+                                    <span class="upload-loading-caption">
+                                        {{ __('Do not close this page.') }}
                                     </span>
                                 </div>
                             </div>
@@ -424,50 +420,6 @@
 
                     if (emptyMessage) {
                         emptyMessage.hidden = visibleCount !== 0;
-                    }
-                });
-            }
-
-            // Form upload template yang sudah ada
-            const fileInput = document.querySelector('[data-template-input]');
-            const filePicker = document.querySelector('[data-file-picker]');
-            const uploadForm = document.querySelector('[data-upload-form]');
-            const dropzone = document.querySelector('[data-dropzone]');
-
-            if (fileInput && filePicker) {
-                filePicker.addEventListener('click', function () {
-                    fileInput.click();
-                });
-
-                fileInput.addEventListener('change', function () {
-                    if (this.files.length > 0 && uploadForm) {
-                        uploadForm.submit();
-                    }
-                });
-            }
-
-            if (dropzone && fileInput && uploadForm) {
-                ['dragenter', 'dragover'].forEach(function (eventName) {
-                    dropzone.addEventListener(eventName, function (event) {
-                        event.preventDefault();
-                        dropzone.classList.add('is-dragging');
-                    });
-
-                });
-
-                ['dragleave', 'drop'].forEach(function (eventName) {
-                    dropzone.addEventListener(eventName, function (event) {
-                        event.preventDefault();
-                        dropzone.classList.remove('is-dragging');
-                    });
-                });
-
-                dropzone.addEventListener('drop', function (event) {
-                    const files = event.dataTransfer.files;
-
-                    if (files.length > 0) {
-                        fileInput.files = files;
-                        uploadForm.submit();
                     }
                 });
             }
