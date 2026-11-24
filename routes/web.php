@@ -38,6 +38,8 @@ Route::post('/recipients/continue', [RecipientController::class, 'next'])->name(
 Route::get('/certificate-number', [CertificateNumberController::class, 'index'])->name('certificate-number.index');
 Route::post('/certificate-number/continue', [CertificateNumberController::class, 'store'])
     ->name('certificate-number.store');
+Route::post('/certificate-number/formats', [CertificateNumberController::class, 'saveFormat'])
+    ->name('certificate-number.formats.store');
 
 Route::get('/certificate-edit', [CertificateEditController::class, 'index'])
     ->name('certificate-edit.index');

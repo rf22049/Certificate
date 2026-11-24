@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CertificateNumberSequence;
+use App\Models\CertificateNumberFormat;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -103,6 +104,8 @@ class CertificateNumberController extends Controller
             'usedNumbersByYear' => $usedNumbersByYear,
             'selectedNumberWasUsed' => $selectedNumberWasUsed,
             'initialStartNumber' => $initialStartNumber,
+            'numberSettings' => $numberSettings,
+            'savedFormats' => CertificateNumberFormat::query()->latest()->get(['id', 'name', 'fields', 'separator']),
         ]);
     }
 
@@ -125,19 +128,24 @@ class CertificateNumberController extends Controller
                 ]);
         }
 
+        $decodedFields = json_decode((string) $request->input('fields', '[]'), true);
+        $request->merge(['fields' => is_array($decodedFields) ? $decodedFields : []]);
+
         $validated = $request->validate([
-            'month' => ['required', 'integer', 'between:1,12'],
             'year' => ['required', 'integer', 'between:2000,2100'],
-            'start_number' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:4294967295',
-            ],
+            'month' => ['required', 'integer', 'between:1,12'],
+            'start_number' => ['required', 'integer', 'min:1', 'max:4294967295'],
+            'format_name' => ['nullable', 'string', 'max:120'],
+            'separator' => ['nullable', 'string', 'max:20'],
+            'fields' => ['required', 'array', 'min:1', 'max:12'],
+            'fields.*.label' => ['required', 'string', 'max:80'],
+            'fields.*.type' => ['required', 'in:text,number,month,roman_month,month_name,year'],
+            'fields.*.value' => ['nullable', 'string', 'max:120'],
         ]);
 
         $selectedYear = (int) $validated['year'];
         $startNumber = (int) $validated['start_number'];
+        $fields = array_values($validated['fields']);
 
         DB::transaction(function () use ($selectedYear, $startNumber): void {
             CertificateNumberSequence::query()->insertOrIgnore([
@@ -160,6 +168,9 @@ class CertificateNumberController extends Controller
             'year' => $selectedYear,
             'month' => (int) $validated['month'],
             'start_number' => $startNumber,
+            'fields' => $fields,
+            'separator' => (string) ($validated['separator'] ?? '/'),
+            'format_name' => (string) ($validated['format_name'] ?? 'Format tanpa nama'),
         ]);
 
         $request->session()->flash('previous_wizard_step', 3);
@@ -167,5 +178,29 @@ class CertificateNumberController extends Controller
         return redirect()
             ->route('certificate-edit.index')
             ->with('status', __('Certificate number settings saved successfully.'));
+    }
+
+
+    public function saveFormat(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'separator' => ['nullable', 'string', 'max:20'],
+            'fields' => ['required', 'array', 'min:1', 'max:12'],
+            'fields.*.label' => ['required', 'string', 'max:80'],
+            'fields.*.type' => ['required', 'in:text,number,month,roman_month,month_name,year'],
+            'fields.*.value' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $format = CertificateNumberFormat::query()->create([
+            'name' => $validated['name'],
+            'fields' => array_values($validated['fields']),
+            'separator' => (string) ($validated['separator'] ?? '/'),
+        ]);
+
+        return response()->json([
+            'message' => 'Format berhasil disimpan.',
+            'format' => $format->only(['id', 'name', 'fields', 'separator']),
+        ]);
     }
 }

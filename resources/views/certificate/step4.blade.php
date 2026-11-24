@@ -80,6 +80,10 @@
                         <div class="certificate-text certificate-number" id="numberElement"></div>
                         <div id="textBoxLayer"></div>
                         <div id="imageLayer"></div>
+                            <div class="alignment-guides" id="alignmentGuides" aria-hidden="true">
+                                <span class="alignment-guide alignment-guide-vertical" id="verticalGuide" hidden></span>
+                                <span class="alignment-guide alignment-guide-horizontal" id="horizontalGuide" hidden></span>
+                            </div>
 
                         </div>
                     </div>
@@ -99,222 +103,238 @@
                 </div>
 
                 {{-- EDITOR TOOLS --}}
-                <aside class="editor-panel">
+                <aside class="editor-panel" aria-label="Pengaturan elemen sertifikat">
+    <div class="editor-panel-heading">
+        <div>
+            <span class="editor-eyebrow">DESIGN WORKSPACE</span>
+            <h2>Editor Elemen</h2>
+            <p class="muted">Pilih elemen pada sertifikat untuk mengeditnya.</p>
+        </div>
+    </div>
 
-                <h2>Pengaturan Elemen</h2>
-                <p class="muted">Pilih elemen pada sertifikat untuk mengatur tampilannya.</p>
+    <div class="editor-add-actions">
+        <button type="button" class="editor-add-card" id="addTextBox">
+            <span class="editor-add-icon">T</span>
+            <span class="editor-add-copy">
+                <strong>Tambah Teks</strong>
+                <small>Buat teks baru pada sertifikat</small>
+            </span>
+            <span class="editor-add-plus">+</span>
+        </button>
 
-                <div class="custom-element-actions">
-                    <button type="button" class="action-button full-width" id="addTextBox">+ Tambah Kotak Teks</button>
-                    <button type="button" class="action-button full-width" id="addImageButton">+ Tambah Gambar / Logo</button>
-                    <input type="file" id="imageUploadInput" accept="image/png,image/jpeg,image/webp" hidden>
+        <button type="button" class="editor-add-card" id="addImageButton">
+            <span class="editor-add-icon editor-add-icon-image">▧</span>
+            <span class="editor-add-copy">
+                <strong>Tambah Logo / Gambar</strong>
+                <small>PNG, JPG, atau WebP · Maks. 3 MB</small>
+            </span>
+            <span class="editor-add-plus">+</span>
+        </button>
+        <input type="file" id="imageUploadInput" accept="image/png,image/jpeg,image/webp" hidden>
+    </div>
+
+    <div class="editor-elements">
+        <div class="editor-section-heading">
+            <div>
+                <h3>Elemen</h3>
+                <p>Pilih nama, nomor, atau objek di kanvas.</p>
+            </div>
+        </div>
+
+        <div class="element-tabs">
+            <button type="button" class="element-tab" data-element="name">
+                <span class="element-tab-symbol">T</span>
+                <span>Nama penerima</span>
+            </button>
+            <button type="button" class="element-tab" data-element="number">
+                <span class="element-tab-symbol">#</span>
+                <span>Nomor sertifikat</span>
+            </button>
+            <div class="text-box-tabs" id="textBoxTabs"></div>
+        </div>
+    </div>
+
+    <div class="editor-empty" id="emptySelection">
+        <span class="editor-empty-icon">↖</span>
+        <strong>Belum ada elemen dipilih</strong>
+        <p>Klik teks atau logo pada preview untuk membuka pengaturannya.</p>
+    </div>
+
+    <div id="nameSettings" hidden>
+        <section class="setting-section">
+            <div class="editor-section-heading">
+                <div>
+                    <span class="editor-eyebrow">TEXT CONTENT</span>
+                    <h3>Nama Penerima</h3>
                 </div>
-                <p class="muted">Gambar PNG, JPG, atau WebP. Gambar dapat digeser dan diubah ukurannya.</p>
-                <p class="muted">Anda dapat menambahkan hingga 50 kotak teks.</p>
-                <label class="text-box-sync">
-                    <input type="checkbox" id="syncTextBoxes">
-                    <span>
+            </div>
+            <div class="field">
+                <label for="recipientNameInput">Nama penerima</label>
+                <input type="text" id="recipientNameInput" maxlength="255">
+            </div>
+        </section>
+    </div>
 
-                        <strong>Sinkronkan kotak teks di semua sertifikat</strong>
-                        <small>Nonaktif secara default. Jika dipilih, teks dan posisinya akan sama untuk semua penerima.</small>
-
-                <button type="button" class="action-button full-width" id="addTextBox">
-                    {{ __('Add Text Box') }}
-                </button>
-                <p class="muted">{{ __('You can add up to 50 text boxes.') }}</p>
-                <label class="text-box-sync">
-                    <input type="checkbox" id="syncTextBoxes">
-                    <span>
-
-                        <strong>Sinkronkan kotak teks di semua sertifikat</strong>
-                        <small>Nonaktif secara default. Jika dipilih, teks dan posisinya akan sama untuk semua penerima.</small>
-                    </span>
-                </label>
-
-                <div class="element-tabs">
-                    <button type="button" class="element-tab active" data-element="name">
-                        {{ __('Recipient Name') }}
-                    </button>
-                    <button type="button" class="element-tab" data-element="number">
-                        {{ __('Certificate Number') }}
-                    </button>
-                    <div class="text-box-tabs" id="textBoxTabs"></div>
+    <div id="numberSettingsPanel" hidden>
+        <section class="setting-section">
+            <div class="editor-section-heading">
+                <div>
+                    <span class="editor-eyebrow">AUTO GENERATED</span>
+                    <h3>Nomor Sertifikat</h3>
                 </div>
+            </div>
+            <div class="locked-value" id="numberValue"></div>
+            <p class="muted">Nomor dibuat otomatis berdasarkan pengaturan penomoran Step 3.</p>
+        </section>
+    </div>
 
-                <div class="editor-empty" id="emptySelection" hidden>
-                    {{ __('No element selected yet.') }}
-                    <br>
-                    {{ __('Click the name, number, or a text box in the preview to start editing.') }}
+    <div id="textBoxSettings" hidden>
+        <section class="setting-section">
+            <div class="editor-section-heading">
+                <div>
+                    <span class="editor-eyebrow">TEXT ELEMENT</span>
+                    <h3>Konten Teks</h3>
                 </div>
+                <button type="button" class="editor-danger-button" id="removeTextBox">Hapus</button>
+            </div>
+            <div class="field">
+                <label for="textBoxContent">Isi teks</label>
+                <textarea id="textBoxContent" maxlength="1000" rows="3" placeholder="Tulis sesuatu..."></textarea>
+                <small>Maksimal 1.000 karakter. Posisi dapat diatur langsung pada preview.</small>
+            </div>
+            <label class="text-box-sync">
+                <input type="checkbox" id="syncTextBoxes">
+                <span>
+                    <strong>Samakan di semua sertifikat</strong>
+                    <small>Gunakan teks dan posisi yang sama untuk seluruh penerima.</small>
+                </span>
+            </label>
+        </section>
+    </div>
 
-                    <div id="nameSettings">
-
-                        <div class="setting-section">
-                            <h3>{{ __('Recipient Details') }}</h3>
-
-                            <div class="name-editor field">
-                                <label for="recipientNameInput">{{ __('Recipient Name') }}</label>
-                                <input type="text" id="recipientNameInput" maxlength="255">
-                            </div>
-                        </div>
-
-                    </div>
-
-                <div id="numberSettingsPanel" hidden>
-                    <div class="setting-section">
-                        <h3>{{ __('Certificate Number') }}</h3>
-                        <div class="locked-value" id="numberValue"></div>
-                        <p class="muted">{{ __('The certificate number is managed automatically and cannot be edited.') }}</p>
-                    </div>
-                </div>
-
-                <div id="textBoxSettings" hidden>
-                    <div class="setting-section">
-                        <h3>{{ __('Text Box') }}</h3>
-                        <div class="field">
-                            <label for="textBoxContent">{{ __('Text') }}</label>
-                            <textarea id="textBoxContent" maxlength="1000" rows="4"></textarea>
-                            <small>{{ __('Up to 1,000 characters. Drag the text in the preview to position it.') }}</small>
-                        </div>
-                        <button type="button" class="action-button" id="removeTextBox">
-                            {{ __('Remove Text Box') }}
-                        </button>
-                    </div>
-                </div>
-
-
-
-                <div id="imageSettingsPanel" class="setting-section">
+    <div id="imageSettingsPanel" hidden>
+        <section class="setting-section">
+            <div class="editor-section-heading">
+                <div>
+                    <span class="editor-eyebrow">IMAGE ELEMENT</span>
                     <h3>Pengaturan Gambar</h3>
-                    <img id="selectedImagePreview" alt="Preview gambar terpilih">
-                    <p class="muted">Geser gambar pada preview. Tarik titik di pojok untuk mengubah ukuran.</p>
-                    <div class="image-setting-actions">
-                        <button type="button" class="action-button" id="replaceImageButton">Ganti Gambar</button>
-                        <button type="button" class="action-button" id="deleteImageButton">Hapus Gambar</button>
-                    </div>
                 </div>
+                <button type="button" class="editor-danger-button" id="deleteImageButton">Hapus</button>
+            </div>
+            <img id="selectedImagePreview" alt="Preview gambar terpilih">
+            <p class="muted">Geser gambar pada kanvas. Tarik titik di pojok untuk mengubah ukurannya.</p>
+            <div class="image-setting-actions">
+                <button type="button" class="action-button full-width" id="replaceImageButton">Ganti Gambar</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="styleSettings" hidden>
+        <section class="setting-section">
+            <div class="editor-section-heading">
+                <div>
+                    <span class="editor-eyebrow">APPEARANCE</span>
+                    <h3>Tampilan Teks</h3>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="fontFamily">Jenis font</label>
+                <select id="fontFamily">
+                    <option value="Manrope">Manrope</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Lato">Lato</option>
+                    <option value="Open Sans">Open Sans</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Nunito">Nunito</option>
+                    <option value="Raleway">Raleway</option>
+                    <option value="Oswald">Oswald</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="Lora">Lora</option>
+                    <option value="Roboto Slab">Roboto Slab</option>
+                    <option value="DM Sans">DM Sans</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                </select>
+            </div>
+
+            <div class="two-columns">
+                <div class="field">
+                    <label for="fontSize">Ukuran font</label>
+                    <input type="number" id="fontSize" min="8" max="150" value="24">
+                </div>
+                <div class="field">
+                    <label for="fontColor">Warna</label>
+                    <input type="color" id="fontColor" value="#4042a4">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Gaya teks</label>
+                <div class="style-buttons">
+                    <button type="button" class="style-toggle" id="boldButton" title="Bold" aria-label="Bold">
+                        <svg viewBox="0 0 24 24"><path d="M7 5h6a4 4 0 0 1 0 8H7z"/><path d="M7 13h7a4 4 0 0 1 0 8H7z"/></svg>
+                    </button>
+                    <button type="button" class="style-toggle" id="italicButton" title="Italic" aria-label="Italic">
+                        <svg viewBox="0 0 24 24"><path d="M19 4H10M14 20H5M15 4 9 20"/></svg>
+                    </button>
+                    <button type="button" class="style-toggle" id="underlineButton" title="Underline" aria-label="Underline">
+                        <svg viewBox="0 0 24 24"><path d="M7 4v7a5 5 0 0 0 10 0V4"/><path d="M5 21h14"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Perataan teks</label>
+                <div class="alignment-buttons">
+                    <button type="button" data-align="left" title="Rata kiri" aria-label="Rata kiri">☰</button>
+                    <button type="button" data-align="center" title="Rata tengah" aria-label="Rata tengah">≡</button>
+                    <button type="button" data-align="right" title="Rata kanan" aria-label="Rata kanan">☷</button>
+                </div>
+            </div>
+
+            <div class="editor-position-fields">
+                <div class="field">
+                    <label for="positionX">Posisi horizontal (%)</label>
+                    <input type="number" id="positionX" min="0" max="100" step="0.1">
+                </div>
+                <div class="field">
+                    <label for="positionY">Posisi vertikal (%)</label>
+                    <input type="number" id="positionY" min="0" max="100" step="0.1">
+                </div>
+            </div>
+
+            <button type="button" class="action-button full-width" id="applyAll">
+                Terapkan ke semua sertifikat
+            </button>
+        </section>
+    </div>
 
 
-                    <div class="setting-section">
-                        <h3>Tipografi</h3>
 
-                        <div class="field">
-                            <label for="fontFamily">{{ __('Font Family') }}</label>
-                            <select id="fontFamily">
-                                <option value="Manrope">Manrope</option>
-                                <option value="Poppins">Poppins</option>
-                                <option value="Montserrat">Montserrat</option>
-                                <option value="Lato">Lato</option>
-                                <option value="Open Sans">Open Sans</option>
-                                <option value="Roboto">Roboto</option>
-                                <option value="Nunito">Nunito</option>
-                                <option value="Raleway">Raleway</option>
-                                <option value="Oswald">Oswald</option>
-                                <option value="Playfair Display">Playfair Display</option>
-                                <option value="Merriweather">Merriweather</option>
-                                <option value="Lora">Lora</option>
-                                <option value="Roboto Slab">Roboto Slab</option>
-                                <option value="DM Sans">DM Sans</option>
-                                <option value="Georgia">Georgia</option>
-                                <option value="Arial">Arial</option>
-                                <option value="Times New Roman">Times New Roman</option>
-                            </select>
-                        </div>
-
-                        <div class="two-columns">
-                            <div class="field">
-                                <label for="fontSize">{{ __('Font Size') }}</label>
-                                <input type="number" id="fontSize" min="8" max="150" value="24">
-                            </div>
-
-                            <div class="field">
-                                <label for="fontColor">{{ __('Color') }}</label>
-                                <input type="color" id="fontColor" value="#4042a4">
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label>{{ __('Text Style') }}</label>
-                            <div class="style-buttons">
-                                <button type="button" class="style-toggle" id="boldButton" title="{{ __('Bold') }}" aria-label="{{ __('Bold') }}">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M7 5h6a4 4 0 0 1 0 8H7z"/>
-                                        <path d="M7 13h7a4 4 0 0 1 0 8H7z"/>
-                                    </svg>
-                                </button>
-
-                                <button type="button" class="style-toggle" id="italicButton" title="{{ __('Italic') }}" aria-label="{{ __('Italic') }}">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M19 4H10M14 20H5M15 4 9 20"/>
-                                    </svg>
-                                </button>
-
-                                <button type="button" class="style-toggle" id="underlineButton" title="{{ __('Underline') }}" aria-label="{{ __('Underline') }}">
-                                    <svg viewBox="0 0 24 24">
-                                        <path d="M7 4v7a5 5 0 0 0 10 0V4"/>
-                                        <path d="M5 21h14"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label>{{ __('Alignment') }}</label>
-                            <div class="alignment-buttons">
-                                <button type="button" data-align="left" title="{{ __('Align left') }}" aria-label="{{ __('Align left') }}">
-                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M4 5h16M4 9h10M4 13h16M4 17h10"/>
-                                    </svg>
-                                </button>
-
-                                <button type="button" data-align="center" title="{{ __('Align center') }}" aria-label="{{ __('Align center') }}">
-                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M4 5h16M7 9h10M4 13h16M7 17h10"/>
-                                    </svg>
-                                </button>
-
-                                <button type="button" data-align="right" title="{{ __('Align right') }}" aria-label="{{ __('Align right') }}">
-                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M4 5h16M10 9h10M4 13h16M10 17h10"/>
-                                    </svg>
-                                </button>
-
-                                <button type="button" data-align="justify" title="{{ __('Justify') }}" aria-label="{{ __('Justify') }}">
-                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M4 5h16M4 9h16M4 13h16M4 17h16"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    </details>
-
-                    <div class="editor-actions">
-                        <button type="button"
-                            class="action-button primary-button full-width"
-                            id="applyAll">
-                            {{ __('Apply to All Certificates') }}
-                        </button>
-                    </div>
-
-                    <div class="editor-actions editor-navigation">
-                        <a href="{{ route('certificate-number.index', ['back' => 1]) }}"
-                        class="action-button">
-                            <span>←</span>
-                            {{ __('Back') }}
-                        </a>
-
-                        <button type="button"
-                                class="action-button primary-button"
-                                id="saveButton">
-                            {{ __('Continue') }}
-                            <span>→</span>
-                        </button>
-                    </div>
-
-                    <div class="status-message" id="statusMessage" role="status"></div>
-                </aside>
+    <div class="status-message" id="statusMessage" role="status" aria-live="polite"></div>
+</aside>
             </section>
+
+            <div class="editor-page-navigation">
+<div class="editor-actions editor-navigation">
+                    <a href="{{ route('certificate-number.index', ['back' => 1]) }}"
+                    class="action-button">
+                        <span>←</span>
+                        {{ __('Back') }}
+                    </a>
+
+                    <button type="button"
+                            class="action-button primary-button"
+                            id="saveButton">
+                        {{ __('Continue') }}
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
 
             <form id="saveForm" method="POST" action="{{ route('certificate-edit.save') }}" hidden>
                 @csrf
@@ -440,7 +460,7 @@
     });
 
         let currentIndex = 0;
-        let selectedElement = 'name';
+        let selectedElement = null;
         let zoom = 1;
 
         let dragging = false;
@@ -464,6 +484,10 @@
     const imageSettingsPanel = document.getElementById('imageSettingsPanel');
     const textBoxTabs = document.getElementById('textBoxTabs');
     const previewCanvas = document.getElementById('previewCanvas');
+    const verticalGuide = document.getElementById('verticalGuide');
+    const horizontalGuide = document.getElementById('horizontalGuide');
+    const styleSettingsPanel = document.getElementById('styleSettings');
+
 
         const fontFamily = document.getElementById('fontFamily');
         const fontSize = document.getElementById('fontSize');
@@ -490,14 +514,44 @@
 
         // NOMOR SERTIFIKAT
         function buildNumber() {
-            return [
-                String(numberSettings.start_number).padStart(3, '0'),
-                'UP-DKN2.2',
-                'SERTIFIKAT',
-                'PP05',
-                romanMonths[numberSettings.month],
-                numberSettings.year
-            ].join('/');
+            const fields = Array.isArray(numberSettings.fields) ? numberSettings.fields : [];
+            const month = Number(numberSettings.month);
+            const sequenceNumber = Number(numberSettings.start_number || 1) + currentIndex;
+
+            const romanMonths = {
+                1: 'I', 2: 'II', 3: 'III', 4: 'IV',
+                5: 'V', 6: 'VI', 7: 'VII', 8: 'VIII',
+                9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'
+            };
+            const monthNames = {
+                1: 'Januari', 2: 'Februari', 3: 'Maret', 4: 'April',
+                5: 'Mei', 6: 'Juni', 7: 'Juli', 8: 'Agustus',
+                9: 'September', 10: 'Oktober', 11: 'November', 12: 'Desember'
+            };
+
+            // Step 4 hanya merender bagian yang benar-benar dibuat di Step 3.
+            // Tidak ada lagi format default/hardcoded universitas.
+            if (fields.length === 0) return '';
+
+            const values = fields.map(field => {
+                switch (field.type) {
+                    case 'number':
+                        return String(sequenceNumber).padStart(3, '0');
+                    case 'month':
+                        return String(month);
+                    case 'roman_month':
+                        return romanMonths[month] || '';
+                    case 'month_name':
+                        return monthNames[month] || '';
+                    case 'year':
+                        return String(numberSettings.year || '');
+                    case 'text':
+                    default:
+                        return String(field.value ?? '');
+                }
+            });
+
+            return values.join(numberSettings.separator || '/');
         }
 
     // STYLE ELEMENT
@@ -589,6 +643,7 @@
             tab.classList.toggle('active', selectedElement === textBox.id);
             tab.addEventListener('click', () => {
                 selectedElement = textBox.id;
+                selectedImageId = null;
                 render();
             });
             textBoxTabs.append(tab);
@@ -634,6 +689,7 @@
     }
     function updateImagePanel() {
         const image = settings.global.imageBoxes.find(box => box.id === selectedImageId);
+        imageSettingsPanel.hidden = !image;
         imageSettingsPanel.classList.toggle('active', Boolean(image));
         if (image) document.getElementById('selectedImagePreview').src = image.src;
     }
@@ -645,6 +701,7 @@
         if (!box) return;
         saveHistory();
         selectedImageId = boxId;
+        selectedElement = null;
         const stageRect = stage.getBoundingClientRect();
         const isResize = event.target.classList.contains('image-resize-handle');
         imageDragState = {
@@ -661,8 +718,7 @@
         };
         wrapper.setPointerCapture(event.pointerId);
         event.stopPropagation();
-        renderImageBoxes();
-        updateImagePanel();
+        render();
         event.preventDefault();
     }
 
@@ -675,9 +731,13 @@
         const dxPct = dx / imageDragState.stageWidth * 100;
         const dyPct = dy / imageDragState.stageHeight * 100;
         if (imageDragState.mode === 'move') {
-            box.x = Math.max(0, Math.min(100 - box.width, imageDragState.originalX + dxPct));
-            box.y = Math.max(0, Math.min(100 - box.height, imageDragState.originalY + dyPct));
+            const nextX = Math.max(0, Math.min(100 - box.width, imageDragState.originalX + dxPct));
+            const nextY = Math.max(0, Math.min(100 - box.height, imageDragState.originalY + dyPct));
+            const snapped = snapToStageCenter(nextX, nextY, box.width, box.height, true);
+            box.x = snapped.x;
+            box.y = snapped.y;
         } else {
+            clearAlignmentGuides();
             box.width = Math.max(2, Math.min(100 - box.x, imageDragState.originalWidth + dxPct));
             box.height = Math.max(2, Math.min(100 - box.y, imageDragState.originalHeight + dyPct));
         }
@@ -687,6 +747,7 @@
     function endImageInteraction(event) {
         if (!imageDragState || event.pointerId !== imageDragState.pointerId) return;
         imageDragState = null;
+        clearAlignmentGuides();
     }
 
     function loadImageFile(file) {
@@ -710,6 +771,7 @@
             };
             settings.global.imageBoxes.push(box);
             selectedImageId = box.id;
+            selectedElement = null;
             render();
         };
         reader.onerror = () => alert('Gagal membaca file gambar. Silakan coba lagi.');
@@ -863,7 +925,13 @@
         document.getElementById('textBoxSettings').hidden =
             !selectedTextBox;
 
-        document.getElementById('emptySelection').hidden = hasSelection;
+        document.getElementById('styleSettings').hidden =
+            !hasSelection || selectedElement === 'number';
+
+        document.getElementById('emptySelection').hidden =
+            hasSelection || Boolean(selectedImageId);
+
+        document.getElementById('syncTextBoxes').checked = settings.syncTextBoxes;
 
             document.querySelectorAll('.element-tab').forEach(button => {
                 button.classList.toggle(
@@ -872,9 +940,7 @@
                 );
             });
 
-            document.querySelectorAll('.setting-section').forEach(section => {
-                section.hidden = !hasSelection;
-            });
+
 
         document.getElementById('applyAll').disabled = !hasSelection || Boolean(selectedTextBox);
 
@@ -926,6 +992,7 @@
         document.querySelectorAll('.element-tab').forEach(button => {
             button.addEventListener('click', () => {
                 selectedElement = button.dataset.element;
+                selectedImageId = null;
                 render();
             });
         });
@@ -960,6 +1027,7 @@
         textBoxes.push(textBox);
         setCurrentTextBoxes(textBoxes);
         selectedElement = textBox.id;
+        selectedImageId = null;
         render();
         document.getElementById('textBoxContent').focus();
         document.getElementById('textBoxContent').select();
@@ -1033,6 +1101,14 @@
             updateCurrentStyle('color', event.target.value);
         });
 
+        [positionX, positionY].forEach((input, index) => {
+            if (!input) return;
+            input.addEventListener('change', event => {
+                const value = Math.max(0, Math.min(100, Number(event.target.value)));
+                updateCurrentStyle(index === 0 ? 'x' : 'y', value);
+            });
+        });
+
         document.getElementById('boldButton').addEventListener('click', () => {
             if (!selectedElement) return;
             updateCurrentStyle('bold', !getStyle(selectedElement).bold);
@@ -1054,6 +1130,35 @@
             });
         });
 
+        // SMART ALIGNMENT GUIDES — snap text to the certificate center.
+        function updateAlignmentGuides(showVertical, showHorizontal) {
+            if (verticalGuide) verticalGuide.hidden = !showVertical;
+            if (horizontalGuide) horizontalGuide.hidden = !showHorizontal;
+        }
+
+        function snapToStageCenter(x, y, width = 0, height = 0, useTopLeft = false) {
+            const threshold = 0.9;
+            let showVertical = false;
+            let showHorizontal = false;
+            const centerX = useTopLeft ? x + width / 2 : x;
+            const centerY = useTopLeft ? y + height / 2 : y;
+
+            if (Math.abs(centerX - 50) <= threshold) {
+                x = useTopLeft ? 50 - width / 2 : 50;
+                showVertical = true;
+            }
+            if (Math.abs(centerY - 50) <= threshold) {
+                y = useTopLeft ? 50 - height / 2 : 50;
+                showHorizontal = true;
+            }
+            updateAlignmentGuides(showVertical, showHorizontal);
+            return { x, y };
+        }
+
+        function clearAlignmentGuides() {
+            updateAlignmentGuides(false, false);
+        }
+
         // DRAG NAMA DAN NOMOR
         function startDrag(event) {
             if (event.button !== 0) return;
@@ -1062,6 +1167,7 @@
             const element = event.currentTarget;
 
         selectedElement = element.dataset.elementKey;
+        selectedImageId = null;
         render();
 
             dragging = true;
@@ -1089,10 +1195,14 @@
             const dx = (event.clientX - dragStart.pointerX) / dragStart.width * 100;
             const dy = (event.clientY - dragStart.pointerY) / dragStart.height * 100;
 
+            let nextX = Math.max(0, Math.min(100, dragStart.x + dx));
+            let nextY = Math.max(0, Math.min(100, dragStart.y + dy));
+            const snapped = snapToStageCenter(nextX, nextY);
+
             const style = {
                 ...getStyle(selectedElement),
-                x: Math.max(0, Math.min(100, dragStart.x + dx)),
-                y: Math.max(0, Math.min(100, dragStart.y + dy))
+                x: snapped.x,
+                y: snapped.y
             };
 
             setStyle(selectedElement, style);
@@ -1104,6 +1214,7 @@
 
         dragging = false;
         dragPointerId = null;
+        clearAlignmentGuides();
     }
 
     nameElement.dataset.elementKey = 'name';

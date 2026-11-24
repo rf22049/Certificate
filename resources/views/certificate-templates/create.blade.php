@@ -396,8 +396,10 @@
                 });
 
                 closeButton.addEventListener('click', function () {
+                    // Mulai tutup sidebar
                     sidebar.classList.remove('is-open');
 
+                    // Mulai munculkan tombol secara bersamaan
                     openButton.classList.add('is-visible');
 
                     sidebar.setAttribute('aria-hidden', 'true');
