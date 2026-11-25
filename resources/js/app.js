@@ -356,3 +356,236 @@ systemTheme.addEventListener('change', (event) => {
 });
 
 syncThemeToggle();
+
+
+ // =========================================================
+ // STEP 1 — CERTIFICATE WORKSPACE
+ // =========================================================
+
+const canvasViewport = document.querySelector('[data-canvas-viewport]');
+const canvasStage = document.querySelector('[data-canvas-stage]');
+const canvasImage = document.querySelector('[data-canvas-image]');
+const canvasPdf = document.querySelector('[data-canvas-pdf]');
+const zoomValue = document.querySelector('[data-zoom-value]');
+const dimensionsLabel = document.querySelector('[data-canvas-dimensions]');
+
+if (canvasViewport && canvasStage && (canvasImage || canvasPdf)) {
+    const MIN_ZOOM = 0.1;
+    const MAX_ZOOM = 3;
+    const ZOOM_STEP = 0.1;
+
+    let zoom = 1;
+    let originalWidth = 0;
+    let originalHeight = 0;
+
+    const getCanvasContent = () => canvasImage || canvasPdf;
+
+    // Read the original dimensions before applying any zoom.
+    const measureCanvas = () => {
+        if (canvasImage) {
+            originalWidth = canvasImage.naturalWidth;
+            originalHeight = canvasImage.naturalHeight;
+        } else if (canvasPdf) {
+            originalWidth = 1100;
+            originalHeight = 780;
+        }
+
+        return originalWidth > 0 && originalHeight > 0;
+    };
+
+    // Keep the content centered inside a stage that matches its
+    // scaled visual dimensions. This prevents layout/transform mismatch.
+    const updateZoom = (keepCenter = true) => {
+        const content = getCanvasContent();
+
+        if (!content || !originalWidth || !originalHeight) {
+            return;
+        }
+
+        const previousCenterX =
+            canvasViewport.scrollLeft + canvasViewport.clientWidth / 2;
+
+        const previousCenterY =
+            canvasViewport.scrollTop + canvasViewport.clientHeight / 2;
+
+        const scaledWidth = originalWidth * zoom;
+        const scaledHeight = originalHeight * zoom;
+
+        canvasStage.style.width = `${scaledWidth}px`;
+        canvasStage.style.height = `${scaledHeight}px`;
+
+        content.style.position = 'absolute';
+        content.style.left = '50%';
+        content.style.top = '50%';
+        content.style.width = `${originalWidth}px`;
+        content.style.height = `${originalHeight}px`;
+        content.style.maxWidth = 'none';
+        content.style.maxHeight = 'none';
+        content.style.transform =
+            `translate(-50%, -50%) scale(${zoom})`;
+        content.style.transformOrigin = 'center center';
+
+        if (zoomValue) {
+            zoomValue.textContent = `${Math.round(zoom * 100)}%`;
+        }
+
+        if (keepCenter) {
+            requestAnimationFrame(() => {
+                const maxScrollLeft =
+                    canvasViewport.scrollWidth - canvasViewport.clientWidth;
+
+                const maxScrollTop =
+                    canvasViewport.scrollHeight - canvasViewport.clientHeight;
+
+                canvasViewport.scrollLeft = Math.max(
+                    0,
+                    Math.min(
+                        maxScrollLeft,
+                        previousCenterX - canvasViewport.clientWidth / 2
+                    )
+                );
+
+                canvasViewport.scrollTop = Math.max(
+                    0,
+                    Math.min(
+                        maxScrollTop,
+                        previousCenterY - canvasViewport.clientHeight / 2
+                    )
+                );
+            });
+        }
+    };
+
+    // Calculate a zoom level that displays the complete file.
+    const fitCanvas = () => {
+        if (!measureCanvas()) {
+            return;
+        }
+
+        const availableWidth = Math.max(
+            100,
+            canvasViewport.clientWidth - 60
+        );
+
+        const availableHeight = Math.max(
+            100,
+            canvasViewport.clientHeight - 60
+        );
+
+        zoom = Math.min(
+            availableWidth / originalWidth,
+            availableHeight / originalHeight,
+            1
+        );
+
+        updateZoom(false);
+
+        requestAnimationFrame(() => {
+            canvasViewport.scrollLeft = 0;
+            canvasViewport.scrollTop = 0;
+        });
+    };
+
+    // Zoom in while preserving the current viewport center.
+    document.querySelector('[data-zoom-in]')?.addEventListener('click', () => {
+        zoom = Math.min(MAX_ZOOM, zoom + ZOOM_STEP);
+        updateZoom(true);
+    });
+
+    // Zoom out while preserving the current viewport center.
+    document.querySelector('[data-zoom-out]')?.addEventListener('click', () => {
+        zoom = Math.max(MIN_ZOOM, zoom - ZOOM_STEP);
+        updateZoom(true);
+    });
+
+    // Fit the complete file inside the available workspace.
+    document.querySelector('[data-zoom-fit]')?.addEventListener('click', fitCanvas);
+
+    // Initialize image workspace after the original image is ready.
+    if (canvasImage) {
+        const initializeImage = () => {
+            if (!measureCanvas()) {
+                return;
+            }
+
+            if (dimensionsLabel) {
+                dimensionsLabel.textContent =
+                    `${originalWidth} × ${originalHeight} px`;
+            }
+
+            fitCanvas();
+        };
+
+        if (canvasImage.complete && canvasImage.naturalWidth > 0) {
+            initializeImage();
+        } else {
+            canvasImage.addEventListener('load', initializeImage, {
+                once: true
+            });
+        }
+    }
+
+    // Initialize PDF workspace.
+    if (canvasPdf) {
+        const initializePdf = () => {
+            if (!measureCanvas()) {
+                return;
+            }
+
+            if (dimensionsLabel) {
+                dimensionsLabel.textContent = 'PDF document';
+            }
+
+            fitCanvas();
+        };
+
+        initializePdf();
+    }
+
+    // Recalculate Fit only when the viewport size changes.
+    let resizeTimer;
+
+    window.addEventListener('resize', () => {
+        window.clearTimeout(resizeTimer);
+
+        resizeTimer = window.setTimeout(() => {
+            fitCanvas();
+        }, 150);
+    });
+}
+
+
+// =========================================================
+// STEP 1 — PROCERT CHAT NOTIFICATION
+// =========================================================
+
+const procertNotification = document.querySelector(
+    '[data-procert-notification]'
+);
+
+if (procertNotification) {
+    const closeButton = procertNotification.querySelector(
+        '[data-notification-close]'
+    );
+
+    let notificationTimer;
+
+    const closeNotification = () => {
+        if (!procertNotification.isConnected) return;
+
+        window.clearTimeout(notificationTimer);
+
+        procertNotification.classList.add('is-hiding');
+
+        window.setTimeout(() => {
+            procertNotification.remove();
+        }, 260);
+    };
+
+    closeButton?.addEventListener('click', closeNotification);
+
+    notificationTimer = window.setTimeout(
+        closeNotification,
+        5000
+    );
+}

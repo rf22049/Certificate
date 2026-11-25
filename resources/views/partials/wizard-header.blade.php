@@ -22,15 +22,72 @@
         >
     </a>
 
+    @if (($template ?? false) && session('template_toast'))
+        <div
+            class="procert-notification"
+            data-procert-notification
+            role="status"
+            aria-live="polite"
+        >
+            <div class="procert-notification-bubble">
+                <p>{{ session('template_toast') }}</p>
+
+                <span class="procert-notification-time">Just now</span>
+            </div>
+
+            <button
+                type="button"
+                class="procert-notification-close"
+                data-notification-close
+                aria-label="{{ __('Close notification') }}"
+            >
+                &times;
+            </button>
+        </div>
+    @endif
+
     <div class="topbar-actions">
         @if ($showExcel)
             <a
                 class="excel-button"
                 href="{{ asset('images/templates/template_sertif.xlsx') }}"
                 download
+                aria-label="{{ __('Download Excel Template') }}"
+                title="{{ __('Download Excel Template') }}"
             >
-                <span>▤</span>
-                {{ __('Excel Template') }}
+                <svg
+                    class="excel-button-icon"
+                    viewBox="0 0 32 32"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M7 3.5H19L26 10.5V27
+                        C26 28.1 25.1 29 24 29H7
+                        C5.9 29 5 28.1 5 27V5.5
+                        C5 4.4 5.9 3.5 7 3.5Z"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linejoin="round"
+                    />
+
+                    <path
+                        d="M19 3.5V10.5H26"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linejoin="round"
+                    />
+
+                    <path
+                        d="M11 15L19 24M19 15L11 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                    />
+                </svg>
+
+                <span>{{ __('Excel Template') }}</span>
             </a>
         @endif
 
@@ -42,25 +99,79 @@
         >
             @csrf
 
-            <label class="visually-hidden" for="locale">
-                {{ __('Language') }}
-            </label>
+            <details class="language-dropdown">
+                <summary
+                    class="language-dropdown-trigger"
+                    aria-label="{{ __('Select language') }}"
+                >
+                    <span class="language-current">
+                        {{ app()->getLocale() === 'id' ? 'Bahasa Indonesia' : 'English' }}
+                    </span>
 
-            <select
-                id="locale"
-                name="locale"
-                aria-label="{{ __('Language') }}"
-                onchange="this.form.submit()"
-            >
-                <option value="id" @selected(app()->getLocale() === 'id')>
-                    Bahasa Indonesia
-                </option>
+                    <svg
+                        class="language-chevron"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="m6 9 6 6 6-6"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </summary>
 
-                <option value="en" @selected(app()->getLocale() === 'en')>
-                    English
-                </option>
-            </select>
+                <div class="language-dropdown-menu">
+                    <button
+                        type="submit"
+                        name="locale"
+                        value="id"
+                        class="language-option {{ app()->getLocale() === 'id' ? 'is-active' : '' }}"
+                        @if (app()->getLocale() === 'id') aria-current="true" @endif
+                    >
+                        <span>Bahasa Indonesia</span>
+
+                        @if (app()->getLocale() === 'id')
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path
+                                    d="m5 12 4 4L19 6"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        @endif
+                    </button>
+
+                    <button
+                        type="submit"
+                        name="locale"
+                        value="en"
+                        class="language-option {{ app()->getLocale() === 'en' ? 'is-active' : '' }}"
+                        @if (app()->getLocale() === 'en') aria-current="true" @endif
+                    >
+                        <span>English</span>
+
+                        @if (app()->getLocale() === 'en')
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path
+                                    d="m5 12 4 4L19 6"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        @endif
+                    </button>
+                </div>
+            </details>
         </form>
+
 
         {{-- Dark Mode Toggle --}}
         <button
@@ -121,6 +232,9 @@
         'showLess' => __('Show Less'),
 
         'previewPrefix' => __('Preview'),
+
+        'switchTemplateTip' => __('You can switch to another template from the template library.'),
+        'checkTemplateTip' => __('Make sure your certificate design is clear and readable.'),
     ];
 @endphp
 
