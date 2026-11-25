@@ -23,21 +23,35 @@ Route::post('/language', function (Request $request) {
 Route::post('/templates', [TemplateUploadController::class, 'store'])
     ->middleware('throttle:10,1')
     ->name('templates.store');
+
+Route::post('/templates/save', [TemplateUploadController::class, 'save'])
+    ->middleware('throttle:10,1')
+    ->name('templates.save');
+
+Route::post('/templates/gallery/{id}', [TemplateUploadController::class, 'selectSaved'])
+    ->name('templates.gallery.select');
+
+Route::get('/templates/gallery/{id}/preview', [TemplateUploadController::class, 'previewSaved'])
+    ->name('templates.gallery.preview');
+
 Route::get('/templates/preview', [TemplateUploadController::class, 'preview'])->name('templates.preview');
 Route::post('/templates/select/{id}', [TemplateUploadController::class, 'select'])
     ->name('templates.select');
+    
 Route::delete('/templates', [TemplateUploadController::class, 'destroy'])->name('templates.destroy');
 
 Route::get('/recipients', [RecipientController::class, 'index'])->name('recipients.index');
 Route::post('/recipients/import', [RecipientController::class, 'import'])
     ->middleware('throttle:10,1')
     ->name('recipients.import');
+
 Route::post('/recipients/manual', [RecipientController::class, 'store'])->name('recipients.store');
 Route::post('/recipients/continue', [RecipientController::class, 'next'])->name('recipients.next');
 
 Route::get('/certificate-number', [CertificateNumberController::class, 'index'])->name('certificate-number.index');
 Route::post('/certificate-number/continue', [CertificateNumberController::class, 'store'])
     ->name('certificate-number.store');
+    
 Route::post('/certificate-number/formats', [CertificateNumberController::class, 'saveFormat'])
     ->name('certificate-number.formats.store');
 
