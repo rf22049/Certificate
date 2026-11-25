@@ -1290,6 +1290,12 @@ a:focus-visible {
     margin-top: 12px;
 }
 
+/* Spacing between import navigation and validation message */
+.recipient-import-preview > .import-actions + .form-error {
+    width: 100%;
+    margin: 16px 0 0;
+}
+
 .outline-action,
 .quiet-action {
     display: flex;
@@ -4411,6 +4417,12 @@ html[data-theme="dark"] #certificate-editor .editor-advanced-settings {
     border-color: #30394b;
 }
 
+
+/* =========================================================
+   STEP 2 — RECIPIENT PAGE DARK MODE
+   ========================================================= */
+
+/* Recipient tables */
 html[data-theme="dark"] .recipient-table th,
 html[data-theme="dark"] .recipient-table td {
     border-color: #30394b;
@@ -4418,17 +4430,41 @@ html[data-theme="dark"] .recipient-table td {
 }
 
 html[data-theme="dark"] .recipient-table th {
-    background: #1b2638;
+    background: #202c41;
+    color: #dce5f8;
 }
 
-html[data-theme="dark"] .recipient-table tbody tr {
+html[data-theme="dark"] .recipient-table tbody td {
     background: #141d2c;
 }
 
-html[data-theme="dark"] .recipient-table tbody tr:nth-child(even) {
+html[data-theme="dark"] .recipient-table tbody tr:nth-child(even) td {
     background: #182235;
 }
 
+html[data-theme="dark"] .recipient-table tbody tr:hover td {
+    background: #202e45;
+}
+
+html[data-theme="dark"] .recipient-table--manual .recipient-number {
+    color: #c2ccdd;
+}
+
+/* Manual input fields */
+html[data-theme="dark"] .recipient-table--manual td input {
+    border-color: #39445a;
+    background: #101827;
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] .recipient-table--manual td input:focus {
+    border-color: #8aa7ff;
+    background: #182235;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(138, 167, 255, .12);
+}
+
+/* Import workspace and dropzone */
 html[data-theme="dark"] .recipient-dropzone,
 html[data-theme="dark"] .recipient-import-preview,
 html[data-theme="dark"] .recipient-preview-scroll {
@@ -4437,10 +4473,108 @@ html[data-theme="dark"] .recipient-preview-scroll {
     color: #dce5f8;
 }
 
-html[data-theme="dark"] .recipient-status,
-html[data-theme="dark"] .form-error {
-    color: #ff9a9a;
+html[data-theme="dark"] .recipient-dropzone h2,
+html[data-theme="dark"] .recipient-import-preview > h2 {
+    color: #edf1fa;
 }
+
+html[data-theme="dark"] .recipient-dropzone > p:not(.format-copy),
+html[data-theme="dark"] .recipient-dropzone .format-copy {
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] .spreadsheet-symbol {
+    border-color: #39445a;
+    background: #202c41;
+    color: #69e985;
+}
+
+html[data-theme="dark"] .recipient-uploading {
+    color: #a8bcff;
+}
+
+/* Preview table */
+html[data-theme="dark"] .recipient-table--preview th {
+    background: #263552;
+    color: #dce5f8;
+}
+
+html[data-theme="dark"] .recipient-table--preview td {
+    background: #141d2c;
+    color: #e2e8f4;
+}
+
+html[data-theme="dark"] .recipient-table--preview tbody tr:nth-child(even) td {
+    background: #182235;
+}
+
+html[data-theme="dark"] .recipient-table--preview .preview-empty td {
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] .preview-toggle {
+    background: transparent;
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] .preview-toggle:hover {
+    color: #a8bcff;
+}
+
+/* Input mode selector */
+html[data-theme="dark"] .recipient-mode {
+    border-color: #30394b;
+    background: #101827;
+}
+
+html[data-theme="dark"] .recipient-mode-button {
+    border-color: transparent;
+    background: transparent;
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] .recipient-mode-button.is-selected {
+    border-color: #455b7c;
+    background: #263552;
+    color: #edf1fa;
+}
+
+/* Navigation buttons */
+html[data-theme="dark"] .recipient-page .secondary-button,
+html[data-theme="dark"] .recipient-page .outline-action,
+html[data-theme="dark"] .recipient-page .quiet-action {
+    border-color: #39445a;
+    background: #202c41;
+    color: #c9d5f0;
+}
+
+html[data-theme="dark"] .recipient-page .secondary-button:hover,
+html[data-theme="dark"] .recipient-page .outline-action:hover,
+html[data-theme="dark"] .recipient-page .quiet-action:hover {
+    border-color: #6178a5;
+    background: #293958;
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] .recipient-page .primary-button:disabled {
+    border: 1px solid #39445a;
+    background: #29364b;
+    color: #8997b0;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+/* Validation and status messages */
+html[data-theme="dark"] .recipient-status {
+    color: #8ed6a9;
+}
+
+html[data-theme="dark"] .form-error {
+    border-color: #68404a;
+    background: #2b1d25;
+    color: #ffb4ae;
+}
+
 
 html[data-theme="dark"] .review-page,
 html[data-theme="dark"] .review-layout {
