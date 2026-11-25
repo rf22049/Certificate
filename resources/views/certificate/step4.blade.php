@@ -103,215 +103,369 @@
                 </div>
 
                 {{-- EDITOR TOOLS --}}
-                <aside class="editor-panel" aria-label="Pengaturan elemen sertifikat">
-    <div class="editor-panel-heading">
-        <div>
-            <span class="editor-eyebrow">DESIGN WORKSPACE</span>
-            <h2>Editor Elemen</h2>
-            <p class="muted">Pilih elemen pada sertifikat untuk mengeditnya.</p>
-        </div>
-    </div>
-
-    <div class="editor-add-actions">
-        <button type="button" class="editor-add-card" id="addTextBox">
-            <span class="editor-add-icon">T</span>
-            <span class="editor-add-copy">
-                <strong>Tambah Teks</strong>
-                <small>Buat teks baru pada sertifikat</small>
-            </span>
-            <span class="editor-add-plus">+</span>
-        </button>
-
-        <button type="button" class="editor-add-card" id="addImageButton">
-            <span class="editor-add-icon editor-add-icon-image">▧</span>
-            <span class="editor-add-copy">
-                <strong>Tambah Logo / Gambar</strong>
-                <small>PNG, JPG, atau WebP · Maks. 3 MB</small>
-            </span>
-            <span class="editor-add-plus">+</span>
-        </button>
-        <input type="file" id="imageUploadInput" accept="image/png,image/jpeg,image/webp" hidden>
-    </div>
-
-    <div class="editor-elements">
-        <div class="editor-section-heading">
-            <div>
-                <h3>Elemen</h3>
-                <p>Pilih nama, nomor, atau objek di kanvas.</p>
-            </div>
-        </div>
-
-        <div class="element-tabs">
-            <button type="button" class="element-tab" data-element="name">
-                <span class="element-tab-symbol">T</span>
-                <span>Nama penerima</span>
-            </button>
-            <button type="button" class="element-tab" data-element="number">
-                <span class="element-tab-symbol">#</span>
-                <span>Nomor sertifikat</span>
-            </button>
-            <div class="text-box-tabs" id="textBoxTabs"></div>
-        </div>
-    </div>
-
-    <div class="editor-empty" id="emptySelection">
-        <span class="editor-empty-icon">↖</span>
-        <strong>Belum ada elemen dipilih</strong>
-        <p>Klik teks atau logo pada preview untuk membuka pengaturannya.</p>
-    </div>
-
-    <div id="nameSettings" hidden>
-        <section class="setting-section">
-            <div class="editor-section-heading">
-                <div>
-                    <span class="editor-eyebrow">TEXT CONTENT</span>
-                    <h3>Nama Penerima</h3>
+                <aside class="editor-panel" aria-label="{{ __('Certificate element settings') }}">
+                <div class="editor-panel-heading">
+                    <div>
+                        <span class="editor-eyebrow">{{ __('Design Workspace') }}</span>
+                        <h2>{{ __('Element Editor') }}</h2>
+                        <p class="muted">
+                            {{ __('Select an element on the certificate to edit it.') }}
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <div class="field">
-                <label for="recipientNameInput">Nama penerima</label>
-                <input type="text" id="recipientNameInput" maxlength="255">
-            </div>
-        </section>
-    </div>
 
-    <div id="numberSettingsPanel" hidden>
-        <section class="setting-section">
-            <div class="editor-section-heading">
-                <div>
-                    <span class="editor-eyebrow">AUTO GENERATED</span>
-                    <h3>Nomor Sertifikat</h3>
-                </div>
-            </div>
-            <div class="locked-value" id="numberValue"></div>
-            <p class="muted">Nomor dibuat otomatis berdasarkan pengaturan penomoran Step 3.</p>
-        </section>
-    </div>
-
-    <div id="textBoxSettings" hidden>
-        <section class="setting-section">
-            <div class="editor-section-heading">
-                <div>
-                    <span class="editor-eyebrow">TEXT ELEMENT</span>
-                    <h3>Konten Teks</h3>
-                </div>
-                <button type="button" class="editor-danger-button" id="removeTextBox">Hapus</button>
-            </div>
-            <div class="field">
-                <label for="textBoxContent">Isi teks</label>
-                <textarea id="textBoxContent" maxlength="1000" rows="3" placeholder="Tulis sesuatu..."></textarea>
-                <small>Maksimal 1.000 karakter. Posisi dapat diatur langsung pada preview.</small>
-            </div>
-            <label class="text-box-sync">
-                <input type="checkbox" id="syncTextBoxes">
-                <span>
-                    <strong>Samakan di semua sertifikat</strong>
-                    <small>Gunakan teks dan posisi yang sama untuk seluruh penerima.</small>
-                </span>
-            </label>
-        </section>
-    </div>
-
-    <div id="imageSettingsPanel" hidden>
-        <section class="setting-section">
-            <div class="editor-section-heading">
-                <div>
-                    <span class="editor-eyebrow">IMAGE ELEMENT</span>
-                    <h3>Pengaturan Gambar</h3>
-                </div>
-                <button type="button" class="editor-danger-button" id="deleteImageButton">Hapus</button>
-            </div>
-            <img id="selectedImagePreview" alt="Preview gambar terpilih">
-            <p class="muted">Geser gambar pada kanvas. Tarik titik di pojok untuk mengubah ukurannya.</p>
-            <div class="image-setting-actions">
-                <button type="button" class="action-button full-width" id="replaceImageButton">Ganti Gambar</button>
-            </div>
-        </section>
-    </div>
-
-    <div id="styleSettings" hidden>
-        <section class="setting-section">
-            <div class="editor-section-heading">
-                <div>
-                    <span class="editor-eyebrow">APPEARANCE</span>
-                    <h3>Tampilan Teks</h3>
-                </div>
-            </div>
-
-            <div class="field">
-                <label for="fontFamily">Jenis font</label>
-                <select id="fontFamily">
-                    <option value="Manrope">Manrope</option>
-                    <option value="Poppins">Poppins</option>
-                    <option value="Montserrat">Montserrat</option>
-                    <option value="Lato">Lato</option>
-                    <option value="Open Sans">Open Sans</option>
-                    <option value="Roboto">Roboto</option>
-                    <option value="Nunito">Nunito</option>
-                    <option value="Raleway">Raleway</option>
-                    <option value="Oswald">Oswald</option>
-                    <option value="Playfair Display">Playfair Display</option>
-                    <option value="Merriweather">Merriweather</option>
-                    <option value="Lora">Lora</option>
-                    <option value="Roboto Slab">Roboto Slab</option>
-                    <option value="DM Sans">DM Sans</option>
-                    <option value="Georgia">Georgia</option>
-                    <option value="Arial">Arial</option>
-                    <option value="Times New Roman">Times New Roman</option>
-                </select>
-            </div>
-
-            <div class="two-columns">
-                <div class="field">
-                    <label for="fontSize">Ukuran font</label>
-                    <input type="number" id="fontSize" min="8" max="150" value="24">
-                </div>
-                <div class="field">
-                    <label for="fontColor">Warna</label>
-                    <input type="color" id="fontColor" value="#4042a4">
-                </div>
-            </div>
-
-            <div class="field">
-                <label>Gaya teks</label>
-                <div class="style-buttons">
-                    <button type="button" class="style-toggle" id="boldButton" title="Bold" aria-label="Bold">
-                        <svg viewBox="0 0 24 24"><path d="M7 5h6a4 4 0 0 1 0 8H7z"/><path d="M7 13h7a4 4 0 0 1 0 8H7z"/></svg>
+                <div class="editor-add-actions">
+                    <button type="button" class="editor-add-card" id="addTextBox">
+                        <span class="editor-add-icon">T</span>
+                        <span class="editor-add-copy">
+                            <strong>{{ __('Add Text') }}</strong>
+                            <small>{{ __('Add a new text element to the certificate.') }}</small>
+                        </span>
+                        <span class="editor-add-plus">+</span>
                     </button>
-                    <button type="button" class="style-toggle" id="italicButton" title="Italic" aria-label="Italic">
-                        <svg viewBox="0 0 24 24"><path d="M19 4H10M14 20H5M15 4 9 20"/></svg>
+
+                    <button type="button" class="editor-add-card" id="addImageButton">
+                        <span class="editor-add-icon editor-add-icon-image">▧</span>
+                        <span class="editor-add-copy">
+                            <strong>{{ __('Add Logo / Image') }}</strong>
+                            <small>{{ __('PNG, JPG, or WebP · Max. 3 MB') }}</small>
+                        </span>
+                        <span class="editor-add-plus">+</span>
                     </button>
-                    <button type="button" class="style-toggle" id="underlineButton" title="Underline" aria-label="Underline">
-                        <svg viewBox="0 0 24 24"><path d="M7 4v7a5 5 0 0 0 10 0V4"/><path d="M5 21h14"/></svg>
-                    </button>
-                </div>
-            </div>
 
-            <div class="field">
-                <label>Perataan teks</label>
-                <div class="alignment-buttons">
-                    <button type="button" data-align="left" title="Rata kiri" aria-label="Rata kiri">☰</button>
-                    <button type="button" data-align="center" title="Rata tengah" aria-label="Rata tengah">≡</button>
-                    <button type="button" data-align="right" title="Rata kanan" aria-label="Rata kanan">☷</button>
+                    <input
+                        type="file"
+                        id="imageUploadInput"
+                        accept="image/png,image/jpeg,image/webp"
+                        hidden
+                    >
                 </div>
-            </div>
 
-            <div class="editor-position-fields">
-                <div class="field">
-                    <label for="positionX">Posisi horizontal (%)</label>
-                    <input type="number" id="positionX" min="0" max="100" step="0.1">
-                </div>
-                <div class="field">
-                    <label for="positionY">Posisi vertikal (%)</label>
-                    <input type="number" id="positionY" min="0" max="100" step="0.1">
-                </div>
-            </div>
+                <div class="editor-elements">
+                    <div class="editor-section-heading">
+                        <h3>{{ __('Elements') }}</h3>
 
-            <button type="button" class="action-button full-width" id="applyAll">
-                Terapkan ke semua sertifikat
-            </button>
-        </section>
-    </div>
+                        <p class="muted">
+                            {{ __('Select a name, number, or object on the canvas.') }}
+                        </p>
+                    </div>
+
+                    <div class="element-tabs">
+                        <button
+                            type="button"
+                            class="element-tab"
+                            data-element="name"
+                        >
+                            <span class="element-tab-symbol">T</span>
+                            <span>{{ __('Recipient Name') }}</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="element-tab"
+                            data-element="number"
+                        >
+                            <span class="element-tab-symbol">#</span>
+                            <span>{{ __('Certificate Number') }}</span>
+                        </button>
+
+                        <div class="text-box-tabs" id="textBoxTabs"></div>
+                    </div>
+                </div>
+
+                <div class="editor-empty">
+                    <div class="editor-empty-icon">↖</div>
+                    <h3>{{ __('No element selected') }}</h3>
+
+                    <p> {{ __('Select text or a logo in the preview to open its settings.') }} </p>
+                </div>
+
+                <div id="nameSettings" hidden>
+                    <section class="setting-section">
+                        <div class="editor-section-heading">
+                            <div>
+                                <span class="editor-eyebrow">{{ __('Text Content') }}</span>
+                                <h3>{{ __('Recipient Name') }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="recipientNameInput">
+                                {{ __('Recipient Name') }}
+                            </label>
+
+                            <input
+                                type="text"
+                                id="recipientNameInput"
+                                maxlength="255"
+                            >
+                        </div>
+                    </section>
+                </div>
+
+                <div id="numberSettingsPanel" hidden>
+                    <section class="setting-section">
+                        <div class="editor-section-heading">
+                            <div>
+                                <span class="editor-eyebrow">{{ __('Auto Generated') }}</span>
+                                <h3>{{ __('Certificate Number') }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="locked-value" id="numberValue"></div>
+
+                        <p class="muted">
+                            {{ __('The certificate number is generated automatically based on Step 3 settings.') }}
+                        </p>
+                    </section>
+                </div>
+
+                <div id="textBoxSettings" hidden>
+                    <section class="setting-section">
+                        <div class="editor-section-heading">
+                            <div>
+                                <span class="editor-eyebrow">{{ __('Text Element') }}</span>
+                                <h3>{{ __('Text Content') }}</h3>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="editor-danger-button"
+                                id="removeTextBox"
+                            >
+                                {{ __('Delete') }}
+                            </button>
+                        </div>
+
+                        <div class="field">
+                            <label for="textBoxContent">{{ __('Text Content') }}</label>
+
+                            <textarea
+                                id="textBoxContent"
+                                maxlength="1000"
+                                rows="3"
+                                placeholder="{{ __('Type something...') }}"
+                            ></textarea>
+
+                            <small>
+                                {{ __('Maximum 1,000 characters. You can adjust the position directly in the preview.') }}
+                            </small>
+                        </div>
+
+                        <label class="text-box-sync">
+                            <input type="checkbox" id="syncTextBoxes">
+
+                            <span>
+                                <strong>{{ __('Sync across all certificates') }}</strong>
+
+                                <small>
+                                    {{ __('Use the same text and position for all recipients.') }}
+                                </small>
+                            </span>
+                        </label>
+                    </section>
+                </div>
+
+                <div id="imageSettingsPanel" hidden>
+                    <section class="setting-section">
+                        <div class="editor-section-heading">
+                            <div>
+                                <span class="editor-eyebrow">{{ __('Image Element') }}</span>
+                                <h3>{{ __('Image Settings') }}</h3>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="editor-danger-button"
+                                id="deleteImageButton"
+                            >
+                                {{ __('Delete') }}
+                            </button>
+                        </div>
+
+                        <img
+                            id="selectedImagePreview"
+                            alt="{{ __('Selected image preview') }}"
+                        >
+
+                        <p class="muted">
+                            {{ __('Drag the image on the canvas. Drag the corner handle to resize it.') }}
+                        </p>
+
+                        <div class="image-setting-actions">
+                            <button
+                                type="button"
+                                class="action-button full-width"
+                                id="replaceImageButton"
+                            >
+                                {{ __('Replace Image') }}
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <div id="styleSettings" hidden>
+                    <section class="setting-section">
+                         <div class="editor-section-heading">
+                            <div>
+                                <span class="editor-eyebrow">
+                                    {{ __('Appearance') }}
+                                </span>
+
+                                <h3>{{ __('Text Appearance') }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="fontFamily">
+                                {{ __('Font Family') }}
+                            </label>
+
+                            <select id="fontFamily">
+                                <option value="Manrope">Manrope</option>
+                                <option value="Poppins">Poppins</option>
+                                <option value="Montserrat">Montserrat</option>
+                                <option value="Lato">Lato</option>
+                                <option value="Open Sans">Open Sans</option>
+                                <option value="Roboto">Roboto</option>
+                                <option value="Nunito">Nunito</option>
+                                <option value="Raleway">Raleway</option>
+                                <option value="Oswald">Oswald</option>
+                                <option value="Playfair Display">Playfair Display</option>
+                                <option value="Merriweather">Merriweather</option>
+                                <option value="Lora">Lora</option>
+                                <option value="Roboto Slab">Roboto Slab</option>
+                                <option value="DM Sans">DM Sans</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                            </select>
+                        </div>
+
+                        <div class="two-columns">
+                            <div class="field">
+                                <label for="fontSize">
+                                    {{ __('Font Size') }}
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="fontSize"
+                                >
+                            </div>
+
+                            <div class="field">
+                                <label for="fontColor">
+                                    {{ __('Color') }}
+                                </label>
+
+                                <input
+                                    type="color"
+                                    id="fontColor"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>{{ __('Text Style') }}</label>
+                            <div class="style-buttons">
+                                <button
+                                        type="button"
+                                        class="style-toggle"
+                                        id="boldButton"
+                                        title="{{ __('Bold') }}"
+                                        aria-label="{{ __('Bold') }}"
+                                    >
+                                    <svg viewBox="0 0 24 24"><path d="M7 5h6a4 4 0 0 1 0 8H7z"/><path d="M7 13h7a4 4 0 0 1 0 8H7z"/></svg>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="style-toggle"
+                                    id="italicButton"
+                                    title="{{ __('Italic') }}"
+                                    aria-label="{{ __('Italic') }}"
+                                >
+                                    <svg viewBox="0 0 24 24"><path d="M19 4H10M14 20H5M15 4 9 20"/></svg>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="style-toggle"
+                                    id="underlineButton"
+                                    title="{{ __('Underline') }}"
+                                    aria-label="{{ __('Underline') }}"
+                                >
+                                    <svg viewBox="0 0 24 24"><path d="M7 4v7a5 5 0 0 0 10 0V4"/><path d="M5 21h14"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>{{ __('Text Alignment') }}</label>
+                            <div class="alignment-buttons">
+                                <button
+                                    type="button"
+                                    data-align="left"
+                                    title="{{ __('Align left') }}"
+                                    aria-label="{{ __('Align left') }}"
+                                >☰</button>
+
+                                <button
+                                    type="button"
+                                    data-align="center"
+                                    title="{{ __('Align center') }}"
+                                    aria-label="{{ __('Align center') }}"
+                                >≡</button>
+
+                                <button
+                                    type="button"
+                                    data-align="right"
+                                    title="{{ __('Align right') }}"
+                                    aria-label="{{ __('Align right') }}"
+                                >☷</button>
+                            </div>
+                        </div>
+
+                        <div class="editor-position-fields">
+                            <div class="field">
+                                <label for="positionX">
+                                    {{ __('Horizontal Position (%)') }}
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="positionX"
+                                    min="0"
+                                    max="100"
+                                    step="0.1"
+                                >
+                            </div>
+
+                            <div class="field">
+                                <label for="positionY">
+                                    {{ __('Vertical Position (%)') }}
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="positionY"
+                                    min="0"
+                                    max="100"
+                                    step="0.1"
+                                >
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="editor-apply-button"
+                            id="applyAllButton"
+                        >
+                            {{ __('Apply to All Certificates') }}
+                        </button>
+                    </section>
+                </div>
 
 
 
@@ -344,15 +498,45 @@
 
     @php
         $editorMessages = [
+            // General editor
             'text' => __('Text'),
             'limit' => __('You can add up to 50 text boxes.'),
             'newText' => __('Type text here'),
+
+            // Image
+            'imageAlt' => __('Certificate image'),
+            'resizeImage' => __('Drag to resize'),
+            'invalidImageFormat' => __('Image format must be PNG, JPG, or WebP.'),
+            'imageTooLarge' => __('Maximum image size is 3 MB.'),
+            'imageReadFailed' => __('Failed to read the image file. Please try again.'),
+            'confirmDeleteImage' => __('Delete this image?'),
+
+            // Apply settings
             'applied' => __('Settings applied to all certificates.'),
+            'confirmApplyAll' => __('Apply this element settings to all certificates?'),
             'synced' => __('Text boxes synced across all certificates.'),
             'separate' => __('Text boxes can be edited separately for each certificate.'),
+
+            // Save
             'saving' => __('Saving...'),
             'continue' => __('Continue'),
             'failed' => __('Failed to save changes.'),
+            'saveSuccess' => __('Certificate changes saved successfully.'),
+        ];
+
+        $monthNames = [
+            1 => __('January'),
+            2 => __('February'),
+            3 => __('March'),
+            4 => __('April'),
+            5 => __('May'),
+            6 => __('June'),
+            7 => __('July'),
+            8 => __('August'),
+            9 => __('September'),
+            10 => __('October'),
+            11 => __('November'),
+            12 => __('December'),
         ];
     @endphp
 
@@ -488,6 +672,9 @@
     const horizontalGuide = document.getElementById('horizontalGuide');
     const styleSettingsPanel = document.getElementById('styleSettings');
 
+    const emptySelection = document.querySelector('.editor-empty');
+    const applyAllButton = document.getElementById('applyAllButton');
+
 
         const fontFamily = document.getElementById('fontFamily');
         const fontSize = document.getElementById('fontSize');
@@ -518,16 +705,7 @@
             const month = Number(numberSettings.month);
             const sequenceNumber = Number(numberSettings.start_number || 1) + currentIndex;
 
-            const romanMonths = {
-                1: 'I', 2: 'II', 3: 'III', 4: 'IV',
-                5: 'V', 6: 'VI', 7: 'VII', 8: 'VIII',
-                9: 'IX', 10: 'X', 11: 'XI', 12: 'XII'
-            };
-            const monthNames = {
-                1: 'Januari', 2: 'Februari', 3: 'Maret', 4: 'April',
-                5: 'Mei', 6: 'Juni', 7: 'Juli', 8: 'Agustus',
-                9: 'September', 10: 'Oktober', 11: 'November', 12: 'Desember'
-            };
+            const monthNames = {{ Illuminate\Support\Js::from($monthNames) }};
 
             // Step 4 hanya merender bagian yang benar-benar dibuat di Step 3.
             // Tidak ada lagi format default/hardcoded universitas.
@@ -667,10 +845,11 @@
                 wrapper.className = 'image-box-wrapper';
                 wrapper.dataset.imageBoxId = box.id;
                 const img = document.createElement('img');
-                img.alt = box.name || 'Gambar sertifikat';
+                img.alt = box.name || editorMessages.imageAlt;
                 const handle = document.createElement('span');
                 handle.className = 'image-resize-handle';
-                handle.title = 'Tarik untuk mengubah ukuran';
+                handle.title = editorMessages.resizeImage;
+                handle.setAttribute('aria-label', editorMessages.resizeImage);
                 wrapper.append(img, handle);
                 wrapper.addEventListener('pointerdown', startImageInteraction);
                 wrapper.addEventListener('pointermove', moveImageInteraction);
@@ -688,11 +867,23 @@
         });
     }
     function updateImagePanel() {
-        const image = settings.global.imageBoxes.find(box => box.id === selectedImageId);
+        const image = settings.global.imageBoxes.find(
+            box => box.id === selectedImageId
+        );
+
         imageSettingsPanel.hidden = !image;
         imageSettingsPanel.classList.toggle('active', Boolean(image));
-        if (image) document.getElementById('selectedImagePreview').src = image.src;
+
+        if (!image) {
+            return;
+        }
+
+        const preview = document.getElementById('selectedImagePreview');
+
+        preview.src = image.src;
+        preview.alt = image.name || editorMessages.imageAlt;
     }
+
     function startImageInteraction(event) {
         if (event.button !== 0) return;
         const wrapper = event.currentTarget;
@@ -752,29 +943,43 @@
 
     function loadImageFile(file) {
         if (!file) return;
+
         if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-            alert('Format gambar harus PNG, JPG, atau WebP.');
+            alert(editorMessages.invalidImageFormat);
             return;
         }
+
         if (file.size > 3 * 1024 * 1024) {
-            alert('Ukuran gambar maksimal 3 MB.');
+            alert(editorMessages.imageTooLarge);
             return;
         }
+
         const reader = new FileReader();
+
         reader.onload = () => {
             saveHistory();
+
             const box = {
                 id: `image-${crypto.randomUUID()}`,
                 name: file.name,
                 src: reader.result,
-                x: 8, y: 8, width: 16, height: 16
+                x: 8,
+                y: 8,
+                width: 16,
+                height: 16
             };
+
             settings.global.imageBoxes.push(box);
             selectedImageId = box.id;
             selectedElement = null;
+
             render();
         };
-        reader.onerror = () => alert('Gagal membaca file gambar. Silakan coba lagi.');
+
+        reader.onerror = () => {
+            alert(editorMessages.imageReadFailed);
+        };
+
         reader.readAsDataURL(file);
     }
 
@@ -786,22 +991,26 @@
         const file = input.files[0];
         const replaceId = input.dataset.replaceId;
         input.dataset.replaceId = '';
+
         if (!file) return;
         if (!replaceId) {
             loadImageFile(file);
             input.value = '';
             return;
         }
+
         if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-            alert('Format gambar harus PNG, JPG, atau WebP.');
+            alert(editorMessages.invalidImageFormat);
             input.value = '';
             return;
         }
+
         if (file.size > 3 * 1024 * 1024) {
-            alert('Ukuran gambar maksimal 3 MB.');
+            alert(editorMessages.imageTooLarge);
             input.value = '';
             return;
         }
+
         const reader = new FileReader();
         reader.onload = () => {
             saveHistory();
@@ -809,7 +1018,11 @@
             if (box) { box.src = reader.result; box.name = file.name; }
             render();
         };
-        reader.onerror = () => alert('Gagal membaca file gambar.');
+
+        reader.onerror = () => {
+            alert(editorMessages.imageReadFailed);
+        };
+
         reader.readAsDataURL(file);
         input.value = '';
     });
@@ -827,7 +1040,8 @@
                 recipients,
                 settings,
                 currentIndex,
-                selectedElement
+                selectedElement,
+                selectedImageId
             });
         }
 
@@ -856,6 +1070,7 @@
 
             currentIndex = data.currentIndex;
             selectedElement = data.selectedElement;
+            selectedImageId = data.selectedImageId ?? null;
 
             render();
             updateHistoryButtons();
@@ -889,10 +1104,20 @@
         }
 
             document.getElementById('recipientNameInput').value = recipient.name;
-            document.getElementById('numberValue').textContent = buildNumber();
+
+            const certificateNumber = buildNumber();
+
+            document.getElementById('numberValue').textContent =
+                certificateNumber;
+
+            renderElement(
+                numberElement,
+                getStyle('number'),
+                certificateNumber
+            );
 
         renderElement(nameElement, getStyle('name'), recipient.name);
-        renderElement(numberElement, getStyle('number'), buildNumber());
+       
         renderTextBoxes();
         renderImageBoxes();
         updateImagePanel();
@@ -928,10 +1153,7 @@
         document.getElementById('styleSettings').hidden =
             !hasSelection || selectedElement === 'number';
 
-        document.getElementById('emptySelection').hidden =
-            hasSelection || Boolean(selectedImageId);
-
-        document.getElementById('syncTextBoxes').checked = settings.syncTextBoxes;
+        emptySelection.hidden = hasSelection || Boolean(selectedImageId);
 
             document.querySelectorAll('.element-tab').forEach(button => {
                 button.classList.toggle(
@@ -940,10 +1162,7 @@
                 );
             });
 
-
-
-        document.getElementById('applyAll').disabled = !hasSelection || Boolean(selectedTextBox);
-
+        applyAllButton.disabled = !hasSelection || Boolean(selectedTextBox);
             if (hasSelection) {
                 updateControls();
             }
@@ -1062,12 +1281,26 @@
         });
 
         // EDIT NAMA PENERIMA
-        document.getElementById('recipientNameInput').addEventListener('input', event => {
-            saveHistory();
+        let recipientInputHistorySaved = false;
+        const recipientNameInput = document.getElementById('recipientNameInput');
 
-        recipients[currentIndex].name = event.target.value;
-        nameElement.textContent = event.target.value;
-    });
+        recipientNameInput.addEventListener('focus', () => {
+            recipientInputHistorySaved = false;
+        });
+
+        recipientNameInput.addEventListener('input', event => {
+            if (!recipientInputHistorySaved) {
+                saveHistory();
+                recipientInputHistorySaved = true;
+            }
+
+            recipients[currentIndex].name = event.target.value;
+            nameElement.textContent = event.target.value;
+        });
+
+        recipientNameInput.addEventListener('blur', () => {
+            recipientInputHistorySaved = false;
+        });
 
     document.getElementById('textBoxContent').addEventListener('input', event => {
         const textBoxes = getTextBoxes();
@@ -1304,13 +1537,10 @@
         previewCanvas.addEventListener('pointercancel', stopPanning);
 
         // APPLY ALL
-        document.getElementById('applyAll').addEventListener('click', () => {
+        applyAllButton.addEventListener('click', () => {
             if (!selectedElement) return;
 
-            const confirmation = confirm(
-                'Terapkan pengaturan elemen ini ke seluruh sertifikat?'
-            );
-
+            const confirmation = confirm(editorMessages.confirmApplyAll);
             if (!confirmation) return;
 
             saveHistory();
@@ -1365,11 +1595,15 @@
         // SIMPAN PERUBAHAN
         document.getElementById('saveButton').addEventListener('click', async () => {
             const button = document.getElementById('saveButton');
+            if (button.disabled) {
+                return;
+            }
             const status = document.getElementById('statusMessage');
 
             button.disabled = true;
             button.textContent = editorMessages.saving;
             status.textContent = '';
+            status.classList.remove('is-error', 'is-success');
 
         const payload = {
             recipients,
@@ -1377,12 +1611,26 @@
                 global: {
                     name: settings.global.name,
                     number: settings.global.number,
-                    textBoxes: settings.global.textBoxes
+                    textBoxes: settings.global.textBoxes,
+                    imageBoxes: settings.global.imageBoxes
                 },
                 individual: settings.individual,
                 syncTextBoxes: settings.syncTextBoxes
             }
         };
+
+        console.log('ProCert Step 4 Save Payload:', payload);
+        console.log(
+            'Global settings is object:',
+            payload.settings.global !== null
+                && typeof payload.settings.global === 'object'
+                && !Array.isArray(payload.settings.global)
+        );
+
+        console.log(
+            'Global settings keys:',
+            Object.keys(payload.settings.global)
+        );
 
             try {
                 const response = await fetch(
@@ -1402,10 +1650,15 @@
 
             if (!response.ok) {
                 const result = await response.json().catch(() => ({}));
+
                 const validationErrors = Object.values(result.errors ?? {}).flat();
+
                 const message = validationErrors.length > 0
                     ? validationErrors.join(' ')
                     : (result.message || editorMessages.failed);
+
+                status.classList.remove('is-success');
+                status.classList.add('is-error');
 
                 throw new Error(message);
             }
@@ -1413,10 +1666,12 @@
                 window.location.href = "{{ route('certificate-review.index') }}";
             } catch (error) {
                 status.textContent = error.message;
+                status.classList.remove('is-success');
+                status.classList.add('is-error');
             } finally {
                 button.disabled = false;
                 button.textContent = `${editorMessages.continue} →`;
-            }
+            } 
         });
 
         // MULAI EDITOR

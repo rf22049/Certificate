@@ -88,19 +88,54 @@ class CertificateExportTest extends TestCase
         $this->assertNotSame($original, $changed);
     }
 
-    public function test_pdf_generator_uses_the_same_certificate_number_for_each_recipient_index(): void
+    public function test_pdf_generator_uses_a_different_certificate_number_for_each_recipient_index(): void
     {
         $this->withImageTemplate();
+
         $template = session('template');
         $template['path'] = Storage::disk('local')->path($template['path']);
-        $recipient = ['name' => 'Ayu Lestari', 'note' => ''];
-        $numberSettings = ['year' => 2025, 'month' => 7, 'start_number' => 21];
+
+        $recipient = [
+            'name' => 'Ayu Lestari',
+            'note' => '',
+        ];
+
+        $numberSettings = [
+            'year' => 2025,
+            'month' => 7,
+            'start_number' => 21,
+            'fields' => [
+                [
+                    'label' => 'Number',
+                    'type' => 'number',
+                    'value' => '',
+                ],
+            ],
+            'separator' => '/',
+        ];
+
         $generator = app(CertificatePdfGenerator::class);
 
-        $firstCertificate = $generator->generateOne($template, $recipient, 0, $numberSettings, []);
-        $secondCertificate = $generator->generateOne($template, $recipient, 1, $numberSettings, []);
+        $firstCertificate = $generator->generateOne(
+            $template,
+            $recipient,
+            0,
+            $numberSettings,
+            [],
+        );
 
-        $this->assertSame($firstCertificate, $secondCertificate);
+        $secondCertificate = $generator->generateOne(
+            $template,
+            $recipient,
+            1,
+            $numberSettings,
+            [],
+        );
+
+        $this->assertNotSame(
+            $firstCertificate,
+            $secondCertificate,
+        );
     }
 
     public function test_zip_export_contains_a_pdf_for_each_recipient(): void

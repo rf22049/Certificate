@@ -244,12 +244,95 @@ class CertificateEditController extends Controller
             'recipients.*.name' => ['required', 'string', 'max:255'],
             'recipients.*.note' => ['nullable', 'string', 'max:255'],
 
-            'settings' => ['required', 'array:global,individual,syncTextBoxes'],
-            'settings.syncTextBoxes' => ['required', 'boolean'],
-            'settings.global' => ['required', 'array:name,number,textBoxes'],
-            'settings.global.name' => ['required', 'array'],
-            'settings.global.number' => ['required', 'array'],
-            'settings.global.textBoxes' => ['present', 'array', 'list', 'max:50'],
+            'settings' => [
+                'required',
+                'array:global,individual,syncTextBoxes',
+            ],
+
+            'settings.syncTextBoxes' => [
+                'required',
+                'boolean',
+            ],
+
+            'settings.global' => [
+                'required',
+                'array:name,number,textBoxes,imageBoxes',
+            ],
+
+            'settings.global.name' => [
+                'required',
+                'array',
+            ],
+
+            'settings.global.number' => [
+                'required',
+                'array',
+            ],
+
+            'settings.global.textBoxes' => [
+                'present',
+                'array',
+                'list',
+                'max:50',
+            ],
+
+            'settings.global.imageBoxes' => [
+                'present',
+                'array',
+                'list',
+                'max:20',
+            ],
+
+            'settings.global.imageBoxes.*' => [
+                'required',
+                'array:id,name,src,x,y,width,height',
+            ],
+
+            'settings.global.imageBoxes.*.id' => [
+                'required',
+                'string',
+                'max:80',
+                'regex:/^image-[a-zA-Z0-9-]+$/',
+                'distinct',
+            ],
+
+            'settings.global.imageBoxes.*.name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'settings.global.imageBoxes.*.src' => [
+                'required',
+                'string',
+                'max:4200000',
+                'regex:/^data:image\/(png|jpeg|webp);base64,/',
+            ],
+
+            'settings.global.imageBoxes.*.x' => [
+                'required',
+                'numeric',
+                'between:0,100',
+            ],
+
+            'settings.global.imageBoxes.*.y' => [
+                'required',
+                'numeric',
+                'between:0,100',
+            ],
+
+            'settings.global.imageBoxes.*.width' => [
+                'required',
+                'numeric',
+                'between:2,100',
+            ],
+
+            'settings.global.imageBoxes.*.height' => [
+                'required',
+                'numeric',
+                'between:2,100',
+            ],
+
             'settings.global.textBoxes.*' => [
                 'required',
                 'array:id,content,font_family,font_size,color,alignment,bold,italic,underline,x,y',

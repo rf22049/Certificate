@@ -146,8 +146,19 @@ class CertificateNumberController extends Controller
         $selectedYear = (int) $validated['year'];
         $startNumber = (int) $validated['start_number'];
         $fields = array_values($validated['fields']);
+        $recipientCount = count($recipients);
+        $endNumber = $startNumber + $recipientCount - 1;
 
-        DB::transaction(function () use ($selectedYear, $startNumber): void {
+        abort_unless(
+            $endNumber <= 4294967295,
+            422,
+            __('The certificate number range exceeds the allowed limit.'),
+        );
+
+        DB::transaction(function () use (
+            $selectedYear,
+            $endNumber,
+        ): void {
             CertificateNumberSequence::query()->insertOrIgnore([
                 'year' => $selectedYear,
                 'last_number' => 0,
@@ -160,7 +171,11 @@ class CertificateNumberController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $sequence->last_number = max($sequence->last_number, $startNumber);
+            $sequence->last_number = max(
+                (int) $sequence->last_number,
+                $endNumber,
+            );
+
             $sequence->save();
         });
 
@@ -170,7 +185,7 @@ class CertificateNumberController extends Controller
             'start_number' => $startNumber,
             'fields' => $fields,
             'separator' => (string) ($validated['separator'] ?? '/'),
-            'format_name' => (string) ($validated['format_name'] ?? 'Format tanpa nama'),
+            'format_name' => (string) ($validated['format_name'] ?? __('Untitled Format')),
         ]);
 
         $request->session()->flash('previous_wizard_step', 3);
@@ -199,7 +214,7 @@ class CertificateNumberController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Format berhasil disimpan.',
+            'message' => __('Format saved successfully.'),
             'format' => $format->only(['id', 'name', 'fields', 'separator']),
         ]);
     }

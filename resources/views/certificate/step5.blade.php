@@ -126,10 +126,9 @@
                             @endif
 
                     <div class="certificate-text" id="nameElement"></div>
-
                     <div class="certificate-text" id="numberElement"></div>
                     <div id="textBoxLayer"></div>
-
+                    <div id="imageLayer"></div>
                 </div>
             </div>
 
@@ -167,14 +166,57 @@
 
         // MENGHASILKAN NOMOR SERTIFIKAT
         function buildNumber() {
-            return [
-                String(numberSettings.start_number).padStart(3, '0'),
-                'UP-DKN2.2',
-                'SERTIFIKAT',
-                'PP05',
-                romanMonths[numberSettings.month],
-                numberSettings.year
-            ].join('/');
+            const fields = Array.isArray(numberSettings.fields)
+                ? numberSettings.fields
+                : [];
+
+            const month = Number(numberSettings.month);
+            const sequenceNumber =
+                Number(numberSettings.start_number || 1) + currentIndex;
+
+            const monthNames = {{ Illuminate\Support\Js::from([
+                1 => __('January'),
+                2 => __('February'),
+                3 => __('March'),
+                4 => __('April'),
+                5 => __('May'),
+                6 => __('June'),
+                7 => __('July'),
+                8 => __('August'),
+                9 => __('September'),
+                10 => __('October'),
+                11 => __('November'),
+                12 => __('December'),
+            ]) }};
+
+            if (fields.length === 0) {
+                return '';
+            }
+
+            const values = fields.map(field => {
+                switch (field.type) {
+                    case 'number':
+                        return String(sequenceNumber).padStart(3, '0');
+
+                    case 'month':
+                        return String(month);
+
+                    case 'roman_month':
+                        return romanMonths[month] || '';
+
+                    case 'month_name':
+                        return monthNames[month] || '';
+
+                    case 'year':
+                        return String(numberSettings.year || '');
+
+                    case 'text':
+                    default:
+                        return String(field.value ?? '');
+                }
+            });
+
+            return values.join(numberSettings.separator || '/');
         }
 
         // MENGAMBIL STYLE DARI STEP 4
@@ -226,10 +268,15 @@
             );
 
             textBoxLayer.replaceChildren();
-            const recipientTextBoxes = editSettings.individual?.[currentIndex]?.textBoxes;
-            const textBoxes = editSettings.syncTextBoxes
+            const recipientTextBoxes =
+                editSettings.individual?.[currentIndex]?.textBoxes;
+
+            const sourceTextBoxes = editSettings.syncTextBoxes
                 ? (editSettings.global?.textBoxes ?? [])
                 : (recipientTextBoxes ?? editSettings.global?.textBoxes ?? []);
+
+            const textBoxes = [...sourceTextBoxes];
+
             const legacyTextBox = editSettings.global?.customText;
 
             if (textBoxes.length === 0 && legacyTextBox?.content) {

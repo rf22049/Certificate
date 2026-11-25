@@ -23,7 +23,17 @@ class CertificateExportController extends Controller
             $export['numberSettings'],
             $export['editSettings'],
         );
-        $this->recordNumberUsage($export['numberSettings']);
+        $this->recordNumberUsage($export['numberSettings'], count($export['recipients']),);
+        $startNumber = (int) $numberSettings['start_number'];
+        $recipientCount = count($recipients);
+
+        $maximumNumber = 4294967295;
+
+        abort_unless(
+            $startNumber + $recipientCount - 1 <= $maximumNumber,
+            422,
+            __('The certificate number range exceeds the allowed limit.'),
+        );
 
         return response()->streamDownload(
             static function () use ($content): void {
@@ -43,7 +53,7 @@ class CertificateExportController extends Controller
         $archivePath = tempnam(sys_get_temp_dir(), 'procert-export-');
 
         if ($archivePath === false) {
-            throw new RuntimeException('Arsip sertifikat tidak dapat dibuat.');
+            throw new RuntimeException(__('Unable to create the certificate archive.'));
         }
 
         try {
@@ -51,7 +61,9 @@ class CertificateExportController extends Controller
             $result = $archive->open($archivePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
             if ($result !== true) {
-                throw new RuntimeException('Arsip sertifikat tidak dapat dibuka.');
+                throw new RuntimeException(
+                    __('Unable to open the certificate archive.')
+                );
             }
 
             $usedDirectoryNames = [];
@@ -81,16 +93,17 @@ class CertificateExportController extends Controller
 
                 $usedDirectoryNames[mb_strtolower($directoryKey)] = true;
 
-                if (
-                    ! $archive->addEmptyDir($directoryKey)
-                    || ! $archive->addFromString($directoryKey.'/certificate.pdf', $content)
-                ) {
-                    throw new RuntimeException('Sertifikat tidak dapat ditambahkan ke arsip.');
+                if (! $archive->addEmptyDir($directoryKey) || ! $archive->addFromString($directoryKey.'/certificate.pdf', $content)) {
+                    throw new RuntimeException(
+                        __('Unable to add a certificate to the archive.')
+                    );
                 }
             }
 
             if (! $archive->close()) {
-                throw new RuntimeException('Arsip sertifikat tidak dapat disimpan.');
+                throw new RuntimeException(
+                    __('Unable to save the certificate archive.')
+                );
             }
 
             $this->recordNumberUsage($export['numberSettings']);
@@ -122,22 +135,20 @@ class CertificateExportController extends Controller
         $numberSettings = $request->session()->get('certificate_number_settings');
 
         abort_unless(
-            is_array($template) && isset($template['path']),
+            is_file($templatePath),
             404,
-            'Template sertifikat tidak ditemukan.',
+            __('Template file not found.'),
         );
 
         $templatePath = ($template['source'] ?? 'upload') === 'builtin'
             ? public_path($template['path'])
             : Storage::disk('local')->path($template['path']);
 
-        abort_unless(is_file($templatePath), 404, 'File template tidak ditemukan.');
-
         $mime = mime_content_type($templatePath);
         abort_unless(
             in_array($mime, ['application/pdf', 'image/jpeg', 'image/png'], true),
             422,
-            'Format template tidak didukung untuk ekspor.',
+            __('The template format is not supported for export.'),
         );
 
         abort_unless(
@@ -151,7 +162,7 @@ class CertificateExportController extends Controller
                         && trim($recipient['name']) !== '',
                 ),
             422,
-            'Data penerima tidak valid.',
+            __('Recipient data is invalid.'),
         );
 
         abort_unless(
@@ -166,7 +177,7 @@ class CertificateExportController extends Controller
                 && (int) $numberSettings['start_number'] >= 1
                 && (int) $numberSettings['start_number'] <= 4294967295,
             422,
-            'Pengaturan nomor sertifikat tidak valid.',
+            __('Certificate number settings are invalid.'),
         );
 
         $editSettings = $request->session()->get('certificate_edit_settings', []);
@@ -187,14 +198,47 @@ class CertificateExportController extends Controller
     }
 
     /**
-     * @param  array{year: int, start_number: int}  $numberSettings
+     * Record every certificate number used in the exported batch.
+     *
+     * @param array{year: int, start_number: int} $numberSettings
      */
-    private function recordNumberUsage(array $numberSettings): void
-    {
-        DB::table('certificate_number_usages')->insertOrIgnore([
-            'year' => $numberSettings['year'],
-            'number' => $numberSettings['start_number'],
-            'used_at' => now(),
-        ]);
+    private function recordNumberUsage(
+        array $numberSettings,
+        int $recipientCount,
+    ): void {
+        $year = (int) $numberSettings['year'];
+        $startNumber = (int) $numberSettings['start_number'];
+        $endNumber = $startNumber + $recipientCount - 1;
+
+        DB::transaction(function () use (
+            $year,
+            $startNumber,
+            $endNumber,
+        ): void {
+            $usedAt = now();
+
+            $usages = [];
+
+            for ($number = $startNumber; $number <= $endNumber; $number++) {
+                $usages[] = [
+                    'year' => $year,
+                    'number' => $number,
+                    'used_at' => $usedAt,
+                ];
+            }
+
+            DB::table('certificate_number_usages')->insertOrIgnore(
+                $usages,
+            );
+
+            DB::table('certificate_number_sequences')
+                ->where('year', $year)
+                ->update([
+                    'last_number' => DB::raw(
+                        'MAX(last_number, '.$endNumber.')'
+                    ),
+                    'updated_at' => $usedAt,
+                ]);
+        });
     }
 }

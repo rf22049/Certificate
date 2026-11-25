@@ -264,12 +264,6 @@
                             <p class="form-error" role="alert">{{ $message }}</p>
                         @enderror
 
-                        @if ($errors->has('template'))
-                            <p class="template-error">
-                                {{ $errors->first('template') }}
-                            </p>
-                        @endif
-
                         <form class="upload-card"
                             method="POST"
                             action="{{ route('templates.store') }}"
@@ -420,18 +414,6 @@
 
                     if (emptyMessage) {
                         emptyMessage.hidden = visibleCount !== 0;
-                    }
-                });
-            }
-
-            // Form ganti template
-            const replaceInput = document.querySelector('[data-replace-input]');
-            const replaceForm = document.querySelector('[data-replace-form]');
-
-            if (replaceInput && replaceForm) {
-                replaceInput.addEventListener('change', function () {
-                    if (this.files.length > 0) {
-                        replaceForm.submit();
                     }
                 });
             }

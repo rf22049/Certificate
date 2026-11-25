@@ -34,6 +34,34 @@
             </a>
         @endif
 
+        {{-- Language Selector --}}
+        <form
+            class="language-picker"
+            method="POST"
+            action="{{ route('language.update') }}"
+        >
+            @csrf
+
+            <label class="visually-hidden" for="locale">
+                {{ __('Language') }}
+            </label>
+
+            <select
+                id="locale"
+                name="locale"
+                aria-label="{{ __('Language') }}"
+                onchange="this.form.submit()"
+            >
+                <option value="id" @selected(app()->getLocale() === 'id')>
+                    Bahasa Indonesia
+                </option>
+
+                <option value="en" @selected(app()->getLocale() === 'en')>
+                    English
+                </option>
+            </select>
+        </form>
+
         {{-- Dark Mode Toggle --}}
         <button
             class="theme-toggle"
@@ -81,13 +109,17 @@
 @php
     $procertTranslations = [
         'uploading' => __('Uploading...'),
-        'recipientUploading' => __('Uploading :name...'),
+        'uploadingFile' => __('Uploading :name...'),
+
         'recipientName' => __('Recipient name, row :number'),
         'note' => __('Note, row :number'),
+
         'deleteRow' => __('Delete row'),
         'deleteRowNumber' => __('Delete row :number'),
+
         'showAll' => __('Show All'),
         'showLess' => __('Show Less'),
+
         'previewPrefix' => __('Preview'),
     ];
 @endphp

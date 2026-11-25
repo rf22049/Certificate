@@ -1,5 +1,3 @@
-const translations = window.procertTranslations ?? {};
-
 const uploadForm = document.querySelector('[data-upload-form]');
 const templateInput = document.querySelector('[data-template-input]');
 const dropzone = document.querySelector('[data-dropzone]');
@@ -13,13 +11,16 @@ const showUploadLoading = (file) => {
         return;
     }
 
-    // Ganti tampilan upload menjadi loading.
+    // Switch the upload interface to loading state.
     uploadContent.hidden = true;
     uploadLoading.hidden = false;
 
-    // Tampilkan nama file yang sedang diunggah.
+    // Display the translated upload status with the file name.
     if (uploadLoadingName) {
-        uploadLoadingName.textContent = file.name;
+        uploadLoadingName.textContent = translations.uploadingFile.replace(
+            ':name',
+            file.name
+        );
     }
 
     dropzone.classList.remove('is-dragging');
@@ -27,6 +28,18 @@ const showUploadLoading = (file) => {
 
     uploadForm.setAttribute('aria-busy', 'true');
 };
+
+const translations = {
+    uploadingFile: 'Uploading :name...',
+    recipientName: 'Recipient name, row :number',
+    note: 'Note, row :number',
+    deleteRow: 'Delete row',
+    deleteRowNumber: 'Delete row :number',
+    showAll: 'Show All',
+    showLess: 'Show Less',
+    ...window.procertTranslations,
+};
+
 
 if (uploadForm && templateInput && dropzone) {
     const filePicker = document.querySelector('[data-file-picker]');
@@ -223,16 +236,20 @@ const recipientPicker = document.querySelector('[data-recipient-picker]');
 const uploadStatus = document.querySelector('[data-recipient-uploading]');
 
 const submitRecipientFile = (file) => {
-	if (!file || !importForm) {
-		return;
-	}
+    if (!file || !importForm) {
+        return;
+    }
 
-	if (uploadStatus) {
-		uploadStatus.hidden = false;
-		uploadStatus.textContent = translations.recipientUploading.replace(':name', file.name);
-	}
+    if (uploadStatus) {
+        uploadStatus.hidden = false;
 
-	importForm.requestSubmit();
+        uploadStatus.textContent = translations.uploadingFile.replace(
+            ':name',
+            file.name
+        );
+    }
+
+    importForm.requestSubmit();
 };
 
 recipientPicker?.addEventListener('click', () => recipientFileInput.click());

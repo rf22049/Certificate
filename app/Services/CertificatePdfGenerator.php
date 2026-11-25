@@ -130,15 +130,11 @@ class CertificatePdfGenerator
                 $pdf->Image($templatePath, 0, 0, $pageWidth, $pageHeight);
             }
 
-            $sequence = $numberSettings['start_number'];
-            $certificateNumber = implode('/', [
-                str_pad((string) $sequence, 3, '0', STR_PAD_LEFT),
-                'UP-DKN2.2',
-                'SERTIFIKAT',
-                'PP05',
-                $this->romanMonth($numberSettings['month']),
-                $numberSettings['year'],
-            ]);
+            $sequence = (int) $numberSettings['start_number'] + $recipientIndex;
+            $certificateNumber = $this->buildCertificateNumber(
+                $numberSettings,
+                $sequence,
+            );
 
             $this->renderText(
                 $pdf,
@@ -307,6 +303,70 @@ class CertificatePdfGenerator
             11 => 'XI',
             12 => 'XII',
         ][$month] ?? throw new InvalidArgumentException('Bulan sertifikat tidak valid.');
+    }
+
+    /**
+     * Build a certificate number using the format configured in Step 3.
+     *
+     * @param array{
+     *     year: int,
+     *     month: int,
+     *     start_number: int,
+     *     fields?: array,
+     *     separator?: string
+     * } $numberSettings
+     */
+    private function buildCertificateNumber(
+        array $numberSettings,
+        int $sequence,
+    ): string {
+        $fields = $numberSettings['fields'] ?? [];
+
+        if (! is_array($fields) || $fields === []) {
+            return '';
+        }
+
+        $month = (int) $numberSettings['month'];
+        $year = (int) $numberSettings['year'];
+
+        $monthName = \Illuminate\Support\Carbon::createFromDate(
+            $year,
+            $month,
+            1,
+        )
+            ->locale(app()->getLocale())
+            ->translatedFormat('F');
+
+        $values = [];
+
+        foreach ($fields as $field) {
+            if (! is_array($field)) {
+                continue;
+            }
+
+            $value = match ($field['type'] ?? '') {
+                'number' => str_pad(
+                    (string) $sequence,
+                    3,
+                    '0',
+                    STR_PAD_LEFT,
+                ),
+
+                'month' => (string) $month,
+                'roman_month' => $this->romanMonth($month),
+                'month_name' => $monthName,
+                'year' => (string) $year,
+                'text' => (string) ($field['value'] ?? ''),
+                default => '',
+            };
+
+            $values[] = $value;
+        }
+
+        return implode(
+            (string) ($numberSettings['separator'] ?? '/'),
+            $values,
+        );
     }
 
     /**
