@@ -1632,7 +1632,6 @@ a:focus-visible {
         max-height: 260px;
         overflow: auto;
     }
-    
 }
 
 @media (max-width: 600px) {
@@ -3597,8 +3596,29 @@ body.template-upload-page .template-sidebar .template-list {
     transition: background .2s ease;
 }
 
+/* Excel Template Icon */
+.excel-button {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.excel-button-icon {
+    display: block;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    flex: 0 0 18px;
+    overflow: hidden;
+}
+
 .excel-button:hover:not(:disabled) {
     background: #0b3f11;
+}
+
+.excel-button:focus-visible {
+    outline: 3px solid rgba(49, 87, 246, .25);
+    outline-offset: 3px;
 }
 
 .excel-button:disabled {
@@ -3924,6 +3944,237 @@ body.template-upload-page .template-sidebar .template-list {
     }
 }
 
+
+/* =========================================================
+   LANGUAGE SELECTOR — CUSTOM DROPDOWN
+========================================================= */
+
+.language-picker {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.language-dropdown {
+    position: relative;
+    width: 190px;
+    max-width: 100%;
+}
+
+/* Dropdown trigger */
+.language-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+
+    width: 100%;
+    min-height: 48px;
+    padding: 0 18px 0 20px;
+
+    border: 1px solid #dfe3eb;
+    border-radius: 999px;
+
+    background: #ffffff;
+    color: #34445d;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    list-style: none;
+
+    transition:
+        border-color 180ms ease,
+        background-color 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.language-dropdown-trigger::-webkit-details-marker {
+    display: none;
+}
+
+.language-dropdown-trigger::marker {
+    content: "";
+}
+
+.language-current {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Chevron */
+.language-chevron {
+    display: block;
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+
+    color: #52627b;
+
+    transition: transform 180ms ease;
+}
+
+.language-dropdown[open] .language-chevron {
+    transform: rotate(180deg);
+}
+
+/* Hover and focus */
+.language-dropdown-trigger:hover {
+    border-color: #b9c7e3;
+    background: #f9faff;
+}
+
+.language-dropdown-trigger:focus-visible {
+    outline: 3px solid rgba(49, 87, 246, .18);
+    outline-offset: 3px;
+}
+
+/* Dropdown menu */
+.language-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 9px);
+    right: 0;
+    z-index: 1000;
+
+    width: 100%;
+    min-width: 190px;
+
+    padding: 6px;
+
+    border: 1px solid #e1e5ed;
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 12px 32px rgba(24, 39, 75, .12),
+        0 3px 8px rgba(24, 39, 75, .05);
+
+    animation: languageDropdownIn 150ms ease-out;
+}
+
+@keyframes languageDropdownIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Individual language option */
+.language-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 12px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: transparent;
+    color: #34445d;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background-color 150ms ease,
+        color 150ms ease;
+}
+
+.language-option:hover {
+    background: #f1f4fa;
+    color: #3157f6;
+}
+
+.language-option.is-active {
+    background: #eef2ff;
+    color: #3157f6;
+    font-weight: 700;
+}
+
+.language-option svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+}
+
+/* =========================================================
+   LANGUAGE SELECTOR — DARK MODE
+========================================================= */
+
+html[data-theme="dark"] .language-dropdown-trigger {
+    border-color: #354158;
+    background: #182235;
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] .language-dropdown-trigger:hover {
+    border-color: #7189c4;
+    background: #202d43;
+}
+
+html[data-theme="dark"] .language-chevron {
+    color: #b9c7e3;
+}
+
+html[data-theme="dark"] .language-dropdown-menu {
+    border-color: #354158;
+    background: #182235;
+
+    box-shadow:
+        0 14px 36px rgba(0, 0, 0, .35),
+        0 3px 8px rgba(0, 0, 0, .2);
+}
+
+html[data-theme="dark"] .language-option {
+    color: #dce4f2;
+}
+
+html[data-theme="dark"] .language-option:hover {
+    background: #263550;
+    color: #a9bdff;
+}
+
+html[data-theme="dark"] .language-option.is-active {
+    background: #293d65;
+    color: #a9bdff;
+}
+
+@media (max-width: 520px) {
+    .language-dropdown {
+        width: 190px;
+    }
+
+    .language-dropdown-trigger {
+        min-height: 44px;
+        padding-right: 15px;
+        padding-left: 16px;
+        font-size: 13px;
+    }
+
+    .language-dropdown-menu {
+        min-width: 190px;
+    }
+}
+
 /* =========================================================
    THEME, SHARED COMPONENT POLISH & STEP 4/5 SUPPORT
 ========================================================= */
@@ -3935,22 +4186,6 @@ body.template-upload-page .template-sidebar .template-list {
     justify-content: flex-end;
     gap: 10px;
     margin-left: auto;
-}
-
-.language-picker {
-    display: flex;
-}
-
-.language-picker select {
-    min-height: 38px;
-    padding: 6px 28px 6px 10px;
-    border: 1px solid #dfe2e8;
-    border-radius: 999px;
-    background: #fff;
-    color: #34445d;
-    font: inherit;
-    font-size: 12px;
-    font-weight: 700;
 }
 
 .theme-toggle {
@@ -3986,7 +4221,7 @@ body.template-upload-page .template-sidebar .template-list {
     color: #76520a;
 }
 
-html[data-theme="dark"] .language-picker select,
+/* Dark mode — Language Selector */
 html[data-theme="dark"] .number-notice.is-warning {
     border-color: #67552a;
     background: #302816;
@@ -5947,4 +6182,769 @@ html[data-theme="dark"] body.template-upload-page .sidebar-open-label {
     border-color: #39445a;
     background: #182235;
     color: #edf1fa;
+}
+
+/* =========================================================
+   PROCERT STEP 1 — SUCCESS WORKSPACE DARK MODE
+========================================================= */
+
+html[data-theme="dark"] body.template-success-page {
+    background: #0c1220;
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] body.template-success-page .page-intro h1 {
+    color: #f3f6fd;
+}
+
+html[data-theme="dark"] body.template-success-page .page-intro p {
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] body.template-success-page .file-panel {
+    border-color: #30394b;
+    background: #141d2c;
+    color: #edf1fa;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .2);
+}
+
+html[data-theme="dark"] body.template-success-page .file-panel-header {
+    border-color: #30394b;
+}
+
+html[data-theme="dark"] body.template-success-page .file-panel-copy span {
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] body.template-success-page .file-thumbnail {
+    border-color: #39445a;
+    background: #101827;
+}
+
+html[data-theme="dark"] body.template-success-page .replace-picker {
+    border-color: #39445a;
+    background: #182235;
+    color: #a9c0ff;
+}
+
+html[data-theme="dark"] body.template-success-page .replace-picker:hover {
+    border-color: #8aa7ff;
+    background: #263754;
+}
+
+html[data-theme="dark"] body.template-success-page .certificate-preview {
+    border-color: #30394b;
+    background: #101827;
+}
+
+html[data-theme="dark"] body.template-success-page .icon-button {
+    border-color: #39445a;
+    background: #182235;
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] body.template-success-page .icon-button:hover {
+    border-color: #e06b75;
+    background: #3b202b;
+    color: #ff9ca5;
+}
+
+
+
+
+
+
+
+/* =========================================================
+   STEP 1 — CERTIFICATE DESIGN WORKSPACE
+========================================================= */
+
+body.template-success-page {
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+}
+
+body.template-success-page .app-shell {
+    height: 100vh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 14px;
+}
+
+body.template-success-page .topbar {
+    flex: 0 0 auto;
+}
+
+body.template-success-page .page-content--success {
+    width: 100%;
+    max-width: 1360px;
+    flex: 1 1 auto;
+    min-height: 0;
+    margin: 12px auto 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.design-workspace-page {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    gap: 0;
+}
+
+/* Two-column layout */
+.workspace-layout {
+    display: grid;
+    width: 100%;
+    max-width: none;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+
+    grid-template-columns:
+        minmax(0, 2fr)
+        minmax(270px, .9fr);
+
+    align-items: stretch;
+    gap: 22px;
+    margin: 0;
+}
+
+/* Left workspace */
+.certificate-workspace {
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #f5f7fb;
+    box-shadow: 0 5px 18px rgba(24, 39, 75, .05);
+}
+
+.canvas-toolbar {
+    display: flex;
+    min-height: 52px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--line);
+    background: #fff;
+}
+
+.canvas-zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.canvas-zoom-controls button {
+    display: grid;
+    width: 31px;
+    height: 31px;
+    place-items: center;
+    border: 1px solid #e1e5ed;
+    border-radius: 8px;
+    background: #fff;
+    color: #526078;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.canvas-zoom-controls button:hover {
+    border-color: #b8c7ff;
+    background: #f4f6ff;
+    color: var(--blue);
+}
+
+.canvas-zoom-controls button svg {
+    width: 16px;
+    height: 16px;
+}
+
+.canvas-zoom-controls output {
+    min-width: 48px;
+    color: #34445d;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.canvas-toolbar-divider {
+    width: 1px;
+    height: 22px;
+    margin: 0 4px;
+    background: var(--line);
+}
+
+/* Canvas viewport: only this area scrolls */
+.canvas-viewport {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    padding: 30px;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #aab4c5 transparent;
+    background-color: #eef1f6;
+    background-image:
+        linear-gradient(rgba(150, 160, 180, .08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(150, 160, 180, .08) 1px, transparent 1px);
+    background-size: 22px 22px;
+}
+ 
+.canvas-viewport::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+
+.canvas-viewport::-webkit-scrollbar-thumb {
+    border-radius: 99px;
+    background: #aab4c5;
+}
+
+.canvas-stage {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    min-width: 1px;
+    min-height: 1px;
+    margin: auto;
+}
+
+.canvas-template-image,
+.canvas-template-pdf {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    flex: none;
+    max-width: none;
+    max-height: none;
+    border: 0;
+    background: #fff;
+    box-shadow: 0 8px 28px rgba(22, 32, 50, .16);
+    transform-origin: center center;
+}
+
+.canvas-template-image {
+    object-fit: contain;
+    user-select: none;
+}
+
+.canvas-template-pdf {
+    width: 1100px;
+    height: 780px;
+}
+
+/* Workspace footer */
+.canvas-footer {
+    display: flex;
+    min-height: 32px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 14px;
+    border-top: 1px solid var(--line);
+    background: #fff;
+    color: #8b95a7;
+    font-size: 10px;
+}
+
+/* Right file column */
+.workspace-file-column {
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.workspace-file-panel {
+    border-radius: 13px;
+}
+
+.workspace-file-header {
+    min-height: 70px;
+    padding: 12px 14px;
+}
+
+.workspace-file-header .file-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+}
+
+.workspace-file-header .file-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.workspace-file-header .file-panel-copy strong {
+    font-size: 12px;
+}
+
+.workspace-file-header .file-panel-copy span {
+    font-size: 10px;
+}
+
+.workspace-file-details {
+    display: grid;
+    gap: 14px;
+    padding: 15px;
+}
+
+.workspace-file-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.workspace-file-meta > div {
+    display: grid;
+    min-width: 0;
+    gap: 4px;
+}
+
+.workspace-file-meta > div:last-child {
+    grid-column: 1 / -1;
+}
+
+.workspace-file-meta span {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.workspace-file-meta strong {
+    overflow-wrap: anywhere;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.workspace-file-actions {
+    padding: 0 15px 15px;
+}
+
+.workspace-file-actions .replace-picker {
+    min-height: 46px;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+/* Save to Gallery */
+.workspace-save-form {
+    margin: 0;
+}
+
+.workspace-save-button {
+    display: flex;
+    width: 100%;
+    min-height: 58px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 10px 15px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fff;
+    color: var(--ink);
+    text-align: left;
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+.workspace-save-button:hover {
+    border-color: #aebfff;
+    background: #f7f8ff;
+}
+
+.workspace-save-button > svg {
+    width: 21px;
+    height: 21px;
+    flex: 0 0 21px;
+    color: var(--blue);
+}
+
+.workspace-save-button span {
+    display: grid;
+    gap: 3px;
+}
+
+.workspace-save-button strong {
+    font-size: 12px;
+}
+
+.workspace-save-button small {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+/* Continue */
+.workspace-continue-area {
+    margin-top: auto;
+    padding-top: 2px;
+}
+
+.workspace-continue-area .primary-button {
+    min-height: 54px;
+    border-radius: 11px;
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   PROCERT CHAT NOTIFICATION — HEADER INLINE
+   ========================================================= */
+
+body.template-success-page .topbar {
+    justify-content: flex-start;
+    gap: 20px;
+}
+
+body.template-success-page .procert-notification {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    flex: 0 1 390px;
+    width: 390px;
+    min-width: 0;
+
+    margin-left: 2px;
+
+    animation: procertChatEnter 300ms ease both;
+}
+
+body.template-success-page .topbar-actions {
+    margin-left: auto;
+}
+
+.procert-notification-bubble {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+
+    padding: 11px 16px;
+
+    border: 1px solid #ccebdc;
+    border-radius: 5px 15px 15px 15px;
+
+    background: #f0fbf5;
+    color: #176b45;
+
+    box-shadow: 0 5px 16px rgba(24, 39, 75, .08);
+}
+
+/* Bubble tail pointing toward the logo */
+.procert-notification-bubble::before {
+    position: absolute;
+    top: 15px;
+    left: -7px;
+
+    width: 13px;
+    height: 13px;
+
+    border-left: 1px solid #ccebdc;
+    border-bottom: 1px solid #ccebdc;
+
+    background: #f0fbf5;
+    content: "";
+    transform: rotate(45deg);
+}
+
+.procert-notification-name {
+    display: block;
+    margin-bottom: 4px;
+
+    color: #168052;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.procert-notification-bubble p {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.procert-notification-time {
+    display: block;
+    margin-top: 4px;
+
+    color: #6b9c82;
+    font-size: 9px;
+    text-align: right;
+}
+
+.procert-notification-close {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+
+    display: grid;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+
+    border: 1px solid #dce7e1;
+    border-radius: 50%;
+
+    background: #fff;
+    color: #77818d;
+    font-size: 15px;
+    cursor: pointer;
+
+    box-shadow: 0 2px 7px rgba(24, 39, 75, .10);
+}
+
+.procert-notification-close:hover {
+    color: #dc5555;
+}
+
+@keyframes procertChatEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-7px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.procert-notification.is-hiding {
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: opacity 250ms ease, transform 250ms ease;
+    pointer-events: none;
+}
+
+/* Dark mode */
+html[data-theme="dark"] .procert-notification-bubble {
+    border-color: #286447;
+    background: #142d25;
+    color: #c2f2d5;
+}
+
+html[data-theme="dark"] .procert-notification-bubble::before {
+    border-color: #286447;
+    background: #142d25;
+}
+
+html[data-theme="dark"] .procert-notification-name {
+    color: #9ee0ba;
+}
+
+html[data-theme="dark"] .procert-notification-time {
+    color: #85b99b;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    body.template-success-page .topbar {
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+
+    body.template-success-page .procert-notification {
+        order: 3;
+        flex: 1 1 100%;
+        width: 100%;
+        margin: 0;
+    }
+
+    body.template-success-page .topbar-actions {
+        margin-left: auto;
+    }
+}
+
+/* Sidebar Gallery */
+.sidebar-section-divider {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 18px 0 10px;
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.sidebar-section-divider::after {
+    height: 1px;
+    flex: 1;
+    background: var(--line);
+    content: "";
+}
+
+.template-pdf-thumbnail {
+    display: grid;
+    min-width: 100%;
+    min-height: 90px;
+    place-items: center;
+    background: #f1f4fa;
+    color: #d94a4a;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+/* =========================================================
+   STEP 1 — WORKSPACE DARK MODE
+========================================================= */
+
+html[data-theme="dark"] body.template-success-page {
+    background: #0c1220;
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] body.template-success-page .workspace-file-meta span {
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] body.template-success-page .certificate-workspace,
+html[data-theme="dark"] body.template-success-page .workspace-file-panel {
+    border-color: #30394b;
+    background: #141d2c;
+}
+
+html[data-theme="dark"] body.template-success-page .canvas-toolbar,
+html[data-theme="dark"] body.template-success-page .canvas-footer {
+    border-color: #30394b;
+    background: #182235;
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] body.template-success-page .canvas-zoom-controls output {
+    color: #dce5f8;
+}
+
+html[data-theme="dark"] body.template-success-page .canvas-zoom-controls button {
+    border-color: #39445a;
+    background: #101827;
+    color: #dce5f8;
+}
+
+html[data-theme="dark"] body.template-success-page .canvas-zoom-controls button:hover {
+    border-color: #7189c4;
+    background: #263550;
+    color: #a9bdff;
+}
+
+html[data-theme="dark"] body.template-success-page .canvas-viewport {
+    background-color: #101827;
+    background-image:
+        linear-gradient(rgba(120, 140, 175, .08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120, 140, 175, .08) 1px, transparent 1px);
+}
+
+html[data-theme="dark"] body.template-success-page .workspace-file-meta strong {
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] body.template-success-page .workspace-save-button {
+    border-color: #354158;
+    background: #182235;
+    color: #edf1fa;
+}
+
+html[data-theme="dark"] body.template-success-page .workspace-save-button:hover {
+    border-color: #7189c4;
+    background: #202d43;
+}
+
+html[data-theme="dark"] body.template-success-page .workspace-save-button small {
+    color: #aab3c5;
+}
+
+html[data-theme="dark"] body.template-success-page .workspace-toast {
+    border-color: #286447;
+    background: #142d25;
+    color: #9ee0ba;
+}
+
+html[data-theme="dark"] body.template-success-page .workspace-toast-icon {
+    background: #1d4936;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    body.template-success-page {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+    }
+
+    body.template-success-page .app-shell {
+        height: auto;
+        min-height: 100vh;
+        padding-bottom: 20px;
+    }
+
+    body.template-success-page .page-content--success {
+        min-height: auto;
+        overflow: visible;
+    }
+
+    .workspace-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .certificate-workspace {
+        min-height: 520px;
+    }
+
+    .workspace-file-column {
+        min-height: auto;
+    }
+
+    .workspace-continue-area {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 520px) {
+    .certificate-workspace {
+        min-height: 420px;
+    }
+
+    .canvas-viewport {
+        padding: 18px;
+    }
+
+    .canvas-toolbar {
+        padding-inline: 9px;
+    }
+
+    .canvas-zoom-controls {
+        gap: 3px;
+    }
+
+    .canvas-zoom-controls button {
+        width: 28px;
+        height: 28px;
+    }
+
+    .workspace-toast {
+        top: 90px !important;
+        left: 16px !important;
+        right: 16px !important;
+        width: auto;
+        max-width: none;
+    }
 }
