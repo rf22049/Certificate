@@ -1283,6 +1283,13 @@ a:focus-visible {
     width: auto;
 }
 
+/* Manual input validation — Dark Mode */
+html[data-theme="dark"] .recipient-error {
+    border-color: #68404a;
+    background: #2b1d25;
+    color: #ffb4ae;
+}
+
 /* =========================================
    14. RECIPIENT ACTION COMPONENTS
 ========================================= */
@@ -4421,6 +4428,14 @@ html[data-theme="dark"] #certificate-editor .editor-advanced-settings {
 /* =========================================================
    STEP 2 — RECIPIENT PAGE DARK MODE
    ========================================================= */
+
+/* Manual table wrapper — remove white background in dark mode */
+html[data-theme="dark"] .recipient-table-wrap {
+    border-color: #30394b;
+    background: #141d2c;
+    box-shadow: none;
+}
+
 
 /* Recipient tables */
 html[data-theme="dark"] .recipient-table th,
