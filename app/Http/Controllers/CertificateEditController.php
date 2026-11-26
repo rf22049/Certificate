@@ -242,6 +242,7 @@ class CertificateEditController extends Controller
         $validationRules = [
             'recipients' => ['required', 'array', 'min:1', 'max:1000'],
             'recipients.*.name' => ['required', 'string', 'max:255'],
+            'recipients.*.email' => ['nullable', 'string', 'email:rfc', 'max:254'],
             'recipients.*.note' => ['nullable', 'string', 'max:255'],
 
             'settings' => [
@@ -455,12 +456,13 @@ class CertificateEditController extends Controller
 
         // BERSIHKAN DATA PENERIMA
         $recipients = collect($validated['recipients'])
-            ->map(fn (array $recipient): array => [
-                'name' => trim($recipient['name']),
-                'note' => trim($recipient['note'] ?? ''),
-            ])
-            ->values()
-            ->all();
+        ->map(fn (array $recipient): array => [
+            'name' => trim($recipient['name']),
+            'email' => trim($recipient['email'] ?? ''),
+            'note' => trim($recipient['note'] ?? ''),
+        ])
+        ->values()
+        ->all();
 
         if (collect($recipients)->contains(
             fn ($recipient) => $recipient['name'] === ''

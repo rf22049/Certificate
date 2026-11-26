@@ -223,6 +223,7 @@
         'uploadingFile' => __('Uploading :name...'),
 
         'recipientName' => __('Recipient name, row :number'),
+        'recipientEmail' => __('Recipient email, row :number'),
         'note' => __('Note, row :number'),
 
         'deleteRow' => __('Delete row'),
