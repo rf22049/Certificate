@@ -37,6 +37,7 @@ const translations = {
     deleteRowNumber: 'Delete row :number',
     showAll: 'Show All',
     showLess: 'Show Less',
+    recipientEmail: 'Recipient email, row :number',
     ...window.procertTranslations,
 };
 
@@ -89,6 +90,35 @@ if (uploadForm && templateInput && dropzone) {
     });
 }
 
+// =========================================================
+// RECIPIENT UPLOAD TOAST
+// =========================================================
+
+const recipientToast = document.querySelector('[data-recipient-toast]');
+const closeRecipientToast = document.querySelector(
+    '[data-close-recipient-toast]'
+);
+
+if (recipientToast) {
+    const dismissRecipientToast = () => {
+        recipientToast.classList.add('is-hiding');
+
+        window.setTimeout(() => {
+            recipientToast.remove();
+        }, 350);
+    };
+
+    const toastTimer = window.setTimeout(
+        dismissRecipientToast,
+        5000
+    );
+
+    closeRecipientToast?.addEventListener('click', () => {
+        window.clearTimeout(toastTimer);
+        dismissRecipientToast();
+    });
+}
+
 const replaceInput = document.querySelector('[data-replace-input]');
 
 replaceInput?.addEventListener('change', () => {
@@ -98,14 +128,62 @@ replaceInput?.addEventListener('change', () => {
 });
 
 const manualForm = document.querySelector('[data-manual-form]');
+// =========================================================
+// RECIPIENT MODE SWITCH — SAVE SHARED DATA
+// =========================================================
+
+const recipientModeLinks = document.querySelectorAll(
+    '[data-recipient-mode-link]'
+);
+
+const recipientTargetMode = document.querySelector(
+    '[data-recipient-target-mode]'
+);
+
+recipientModeLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+        const targetMode = link.dataset.recipientModeLink;
+
+        // No save needed when the current mode is Excel.
+        // Imported data already lives in the session.
+        if (!manualForm || !manualRows || !recipientTargetMode) {
+            return;
+        }
+
+        const currentMode = document.querySelector(
+            '[data-recipient-panel="manual"]:not([hidden])'
+        );
+
+        // Only intercept when leaving the manual mode.
+        if (!currentMode || targetMode !== 'import') {
+            return;
+        }
+
+        event.preventDefault();
+        /*
+        * Mode switching is not a final submission.
+        * Allow empty manual rows to be skipped while saving
+        * the current draft to the shared recipient session.
+        */
+        manualForm.noValidate = true;
+
+        recipientTargetMode.value = targetMode;
+
+        manualForm.action = manualForm.dataset.draftAction;
+
+        manualForm.requestSubmit();
+    });
+});
+
 const manualRows = document.querySelector('[data-manual-rows]');
 const addRecipientButton = document.querySelector('[data-add-recipient]');
+
 
 const createRecipientRow = (index) => {
     const row = document.createElement('tr');
     row.dataset.recipientRow = '';
 
-    // Nomor baris
+    // Row number
     const numberCell = document.createElement('td');
     numberCell.className = 'recipient-number';
 
@@ -115,34 +193,63 @@ const createRecipientRow = (index) => {
 
     row.append(numberCell);
 
-    // Nama penerima
+    // Recipient name
     const nameCell = document.createElement('td');
     const nameInput = document.createElement('input');
 
     nameInput.name = `recipients[${index}][name]`;
     nameInput.maxLength = 255;
+    nameInput.required = true;
     nameInput.dataset.recipientName = '';
-    nameInput.setAttribute('aria-label', translations.recipientName.replace(':number', index + 1));
+    nameInput.setAttribute(
+        'aria-label',
+        translations.recipientName.replace(':number', index + 1)
+    );
 
     nameCell.append(nameInput);
     row.append(nameCell);
 
-    // Keterangan dan tombol hapus
+    // Optional email
+    const emailCell = document.createElement('td');
+    const emailInput = document.createElement('input');
+
+    emailInput.type = 'email';
+    emailInput.name = `recipients[${index}][email]`;
+    emailInput.maxLength = 254;
+    emailInput.dataset.recipientEmail = '';
+    emailInput.setAttribute(
+        'aria-label',
+        translations.recipientEmail.replace(':number', index + 1)
+    );
+
+    emailCell.append(emailInput);
+    row.append(emailCell);
+
+    // Note and delete button
     const noteCell = document.createElement('td');
     const noteWrapper = document.createElement('div');
+
     noteWrapper.className = 'recipient-note-cell';
 
     const noteInput = document.createElement('input');
+
     noteInput.name = `recipients[${index}][note]`;
     noteInput.maxLength = 255;
     noteInput.dataset.recipientNote = '';
-    noteInput.setAttribute('aria-label', translations.note.replace(':number', index + 1));
+    noteInput.setAttribute(
+        'aria-label',
+        translations.note.replace(':number', index + 1)
+    );
 
     const deleteButton = document.createElement('button');
+
     deleteButton.type = 'button';
     deleteButton.className = 'delete-row-button';
     deleteButton.dataset.deleteRow = '';
-    deleteButton.setAttribute('aria-label', translations.deleteRowNumber.replace(':number', index + 1));
+    deleteButton.setAttribute(
+        'aria-label',
+        translations.deleteRowNumber.replace(':number', index + 1)
+    );
     deleteButton.title = translations.deleteRow;
 
     deleteButton.innerHTML = `
@@ -162,31 +269,48 @@ const createRecipientRow = (index) => {
 };
 
 
-// Mengatur ulang nomor dan name input
 const renumberRecipientRows = () => {
     const rows = manualRows?.querySelectorAll('[data-recipient-row]');
+
     rows?.forEach((row, index) => {
         const number = index + 1;
+
         const rowNumber = row.querySelector('[data-row-number]');
         const nameInput = row.querySelector('[data-recipient-name]');
+        const emailInput = row.querySelector('[data-recipient-email]');
         const noteInput = row.querySelector('[data-recipient-note]');
         const deleteButton = row.querySelector('[data-delete-row]');
 
-        if (!rowNumber || !nameInput || !noteInput) {
+        if (!rowNumber || !nameInput || !emailInput || !noteInput) {
             return;
         }
 
         rowNumber.textContent = number;
+
         nameInput.name = `recipients[${index}][name]`;
-        nameInput.setAttribute('aria-label', translations.recipientName.replace(':number', number));
+        nameInput.setAttribute(
+            'aria-label',
+            translations.recipientName.replace(':number', number)
+        );
+
+        emailInput.name = `recipients[${index}][email]`;
+        emailInput.setAttribute(
+            'aria-label',
+            translations.recipientEmail.replace(':number', number)
+        );
 
         noteInput.name = `recipients[${index}][note]`;
-        noteInput.setAttribute('aria-label', translations.note.replace(':number', number));
+        noteInput.setAttribute(
+            'aria-label',
+            translations.note.replace(':number', number)
+        );
 
-        deleteButton?.setAttribute('aria-label', translations.deleteRowNumber.replace(':number', number));
+        deleteButton?.setAttribute(
+            'aria-label',
+            translations.deleteRowNumber.replace(':number', number)
+        );
     });
 };
-
 
 // Tambah satu baris kosong
 addRecipientButton?.addEventListener('click', () => {
@@ -229,54 +353,127 @@ manualRows?.addEventListener('click', (event) => {
     renumberRecipientRows();
 });
 
+
+// =========================================================
+// STEP 2 — RECIPIENT EXCEL / CSV UPLOAD
+// =========================================================
+
 const importForm = document.querySelector('[data-recipient-import-form]');
 const recipientFileInput = document.querySelector('[data-recipient-file]');
 const recipientDropzone = document.querySelector('[data-recipient-dropzone]');
 const recipientPicker = document.querySelector('[data-recipient-picker]');
-const uploadStatus = document.querySelector('[data-recipient-uploading]');
 
-const submitRecipientFile = (file) => {
-    if (!file || !importForm) {
+const recipientUploadContent = document.querySelector(
+    '[data-recipient-upload-content]'
+);
+
+const recipientUploadLoading = document.querySelector(
+    '[data-recipient-upload-loading]'
+);
+
+const recipientUploadName = document.querySelector(
+    '[data-recipient-uploading-name]'
+);
+
+let recipientUploadStarted = false;
+
+const showRecipientUploadLoading = (file) => {
+    if (
+        !file ||
+        !importForm ||
+        !recipientUploadContent ||
+        !recipientUploadLoading
+    ) {
         return;
     }
 
-    if (uploadStatus) {
-        uploadStatus.hidden = false;
-
-        uploadStatus.textContent = translations.uploadingFile.replace(
-            ':name',
-            file.name
-        );
+    // Mencegah satu file terkirim berkali-kali.
+    if (recipientUploadStarted) {
+        return;
     }
 
+    recipientUploadStarted = true;
+
+    // Sembunyikan tampilan awal upload.
+    recipientUploadContent.hidden = true;
+
+    // Tampilkan animasi loading.
+    recipientUploadLoading.hidden = false;
+
+    // Tampilkan nama file yang sedang diproses.
+    if (recipientUploadName) {
+        recipientUploadName.textContent =
+            translations.uploadingFile.replace(':name', file.name);
+    }
+
+    // Ubah tampilan dropzone.
+    recipientDropzone?.classList.remove('is-dragging');
+    recipientDropzone?.classList.add('is-uploading');
+
+    // Tandai form sedang mengirim data.
+    importForm.setAttribute('aria-busy', 'true');
+
+    // Kirim file ke server.
     importForm.requestSubmit();
 };
 
-recipientPicker?.addEventListener('click', () => recipientFileInput.click());
-recipientFileInput?.addEventListener('change', () => submitRecipientFile(recipientFileInput.files[0]));
 
+// Tombol Pilih File.
+recipientPicker?.addEventListener('click', () => {
+    if (!recipientFileInput) {
+        return;
+    }
+
+    recipientFileInput.click();
+});
+
+
+// Upload melalui file picker.
+recipientFileInput?.addEventListener('change', () => {
+    const file = recipientFileInput.files?.[0];
+
+    if (file) {
+        showRecipientUploadLoading(file);
+    }
+});
+
+
+// Drag and drop: ketika file berada di atas dropzone.
 recipientDropzone?.addEventListener('dragover', (event) => {
-	event.preventDefault();
-	recipientDropzone.classList.add('is-dragging');
+    event.preventDefault();
+
+    recipientDropzone.classList.add('is-dragging');
 });
 
+
+// Drag and drop: ketika file meninggalkan dropzone.
 recipientDropzone?.addEventListener('dragleave', (event) => {
-	if (!recipientDropzone.contains(event.relatedTarget)) {
-		recipientDropzone.classList.remove('is-dragging');
-	}
+    if (!recipientDropzone.contains(event.relatedTarget)) {
+        recipientDropzone.classList.remove('is-dragging');
+    }
 });
 
-recipientDropzone?.addEventListener('drop', (event) => {
-	event.preventDefault();
-	recipientDropzone.classList.remove('is-dragging');
-	const [file] = event.dataTransfer.files;
 
-	if (file) {
-		const transfer = new DataTransfer();
-		transfer.items.add(file);
-		recipientFileInput.files = transfer.files;
-		submitRecipientFile(file);
-	}
+// Drag and drop: ketika file dilepaskan.
+recipientDropzone?.addEventListener('drop', (event) => {
+    event.preventDefault();
+
+    recipientDropzone.classList.remove('is-dragging');
+
+    const file = event.dataTransfer?.files?.[0];
+
+    if (!file || !recipientFileInput) {
+        return;
+    }
+
+    // Masukkan file hasil drag-and-drop ke input file.
+    const transfer = new DataTransfer();
+
+    transfer.items.add(file);
+
+    recipientFileInput.files = transfer.files;
+
+    showRecipientUploadLoading(file);
 });
 
 const previewToggle = document.querySelector('[data-preview-toggle]');

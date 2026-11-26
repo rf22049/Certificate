@@ -12,10 +12,144 @@
     @include('partials.theme-init')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="app-shell">
-        @include('partials.wizard-header', ['currentStep' => 2])
 
+<body class="recipient-data-page">
+    <div class="app-shell">  
+        @if ($errors->has('recipients_file') || session('recipient_toast'))
+            @php
+                $recipientUploadFailed = $errors->has('recipients_file');
+            @endphp
+
+            <div
+                class="recipient-toast {{ $recipientUploadFailed ? 'recipient-toast--error' : 'recipient-toast--success' }}"
+                role="{{ $recipientUploadFailed ? 'alert' : 'status' }}"
+                aria-live="{{ $recipientUploadFailed ? 'assertive' : 'polite' }}"
+                data-recipient-toast
+            >
+                <span class="recipient-toast-icon" aria-hidden="true">
+                    @if ($recipientUploadFailed)
+                        !
+                    @else
+                        ✓
+                    @endif
+                </span>
+
+                <div class="recipient-toast-content">
+                    <strong>
+                        {{ $recipientUploadFailed
+                            ? __('Upload failed')
+                            : __('Upload successful') }}
+                    </strong>
+
+                    <p>
+                        {{ $recipientUploadFailed
+                            ? $errors->first('recipients_file')
+                            : session('recipient_toast') }}
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    class="recipient-toast-close"
+                    aria-label="{{ __('Close notification') }}"
+                    data-close-recipient-toast
+                >
+                    &times;
+                </button>
+            </div>
+        @endif
+
+        @if (count($pendingRecipients) > 0)
+            <div
+                class="recipient-replacement-overlay is-active"
+                data-replacement-modal
+                role="presentation"
+            >
+                <section
+                    class="recipient-replacement-modal"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="recipient-replacement-title"
+                    aria-describedby="recipient-replacement-description"
+                >
+                    <div class="recipient-replacement-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.8"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 9v4" />
+                            <path d="M12 17h.01" />
+                            <path d="M10.3 3.9 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3l-7.5-13.1a2 2 0 0 0-3.4 0Z" />
+                        </svg>
+                    </div>
+
+                    <h2 id="recipient-replacement-title">
+                        {{ __('Replace recipient list?') }}
+                    </h2>
+
+                    <p
+                        id="recipient-replacement-description"
+                        class="recipient-replacement-description"
+                    >
+                        {{ __('A recipient list already exists. The new Excel file will replace all current recipient data.') }}
+                    </p>
+
+                    <div class="recipient-replacement-file">
+                        <span>{{ __('New file') }}</span>
+                        <strong>
+                            {{ $pendingRecipientFilename ?? __('Uploaded Excel file') }}
+                        </strong>
+                    </div>
+
+                    <div class="recipient-replacement-summary">
+                        <div>
+                            <span>{{ __('Current recipients') }}</span>
+                            <strong>{{ count($recipients) }}</strong>
+                        </div>
+
+                        <div>
+                            <span>{{ __('Recipients in new file') }}</span>
+                            <strong>{{ count($pendingRecipients) }}</strong>
+                        </div>
+                    </div>
+
+                    <p class="recipient-replacement-warning">
+                        {{ __('The current recipient list will be replaced, not combined with the new list.') }}
+                    </p>
+
+                    <div class="recipient-replacement-actions">
+                        <form
+                            method="POST"
+                            action="{{ route('recipients.import.cancel') }}"
+                        >
+                            @csrf
+
+                            <button
+                                type="submit"
+                                class="recipient-replacement-cancel"
+                            >
+                                {{ __('Cancel') }}
+                            </button>
+                        </form>
+
+                        <form
+                            method="POST"
+                            action="{{ route('recipients.import.confirm') }}"
+                        >
+                            @csrf
+
+                            <button
+                                type="submit"
+                                class="recipient-replacement-confirm"
+                            >
+                                {{ __('Replace Data') }}
+                            </button>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        @endif
+
+        @include('partials.wizard-header', ['currentStep' => 2])
         <main class="recipient-page">
             <div class="recipient-heading">
                 <div>
@@ -24,7 +158,12 @@
                 </div>
 
                 <nav class="recipient-mode" aria-label="{{ __('Recipient input method') }}">
-                    <a class="recipient-mode-button {{ $mode === 'import' ? 'is-selected' : '' }}" href="{{ route('recipients.index', ['mode' => 'import']) }}" @if ($mode === 'import') aria-current="page" @endif>
+                    <a
+                        class="recipient-mode-button {{ $mode === 'import' ? 'is-selected' : '' }}"
+                        href="{{ route('recipients.index', ['mode' => 'import']) }}"
+                        data-recipient-mode-link="import"
+                        @if ($mode === 'import') aria-current="page" @endif
+                    >
                         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect x="3" y="3.5" width="14" height="13" rx="1" />
                             <path d="M3 8h14M8 3.5v13" />
@@ -32,7 +171,12 @@
                         {{ __('Upload Excel / CSV') }}
                     </a>
 
-                    <a class="recipient-mode-button {{ $mode === 'manual' ? 'is-selected' : '' }}" href="{{ route('recipients.index', ['mode' => 'manual']) }}" @if ($mode === 'manual') aria-current="page" @endif>
+                    <a
+                        class="recipient-mode-button {{ $mode === 'manual' ? 'is-selected' : '' }}"
+                        href="{{ route('recipients.index', ['mode' => 'manual']) }}"
+                        data-recipient-mode-link="manual"
+                        @if ($mode === 'manual') aria-current="page" @endif
+                    >
                         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M11.5 4H4.25A1.25 1.25 0 0 0 3 5.25v10.5A1.25 1.25 0 0 0 4.25 17h10.5A1.25 1.25 0 0 0 16 15.75V9" />
                             <path d="m9 11 1-.2 6.3-6.3a1.4 1.4 0 0 0-2-2L8 9l-1 3 2-.4Z" />
@@ -47,10 +191,21 @@
             @endif
 
             <section class="recipient-workspace recipient-workspace--manual" data-recipient-panel="manual" @if ($mode !== 'manual') hidden @endif>
-                <form class="recipient-manual-form" method="POST"
-                    action="{{ route('recipients.store') }}" data-manual-form>
+                <form
+                    class="recipient-manual-form"
+                    method="POST"
+                    action="{{ route('recipients.store') }}"
+                    data-manual-form
+                    data-draft-action="{{ route('recipients.draft') }}"
+                >
                    
                     @csrf
+                    <input
+                        type="hidden"
+                        name="mode"
+                        value="import"
+                        data-recipient-target-mode
+                    >
                     @php($manualRecipients = old('recipients', $recipients))
 
                     <div class="recipient-table-toolbar">
@@ -75,6 +230,7 @@
                                 <tr>
                                     <th scope="col">{{ __('No.') }}</th>
                                     <th scope="col">{{ __('Recipient Name') }}</th>
+                                    <th scope="col">{{ __('Email (optional)') }}</th>
                                     <th scope="col">{{ __('Note') }}</th>
                                 </tr>
                             </thead>
@@ -93,6 +249,18 @@
                                                 maxlength="255"
                                                 aria-label="{{ __('Recipient name, row :number', ['number' => $index + 1]) }}"
                                                 data-recipient-name
+                                                required
+                                            >
+                                        </td>
+
+                                        <td>
+                                            <input
+                                                type="email"
+                                                name="recipients[{{ $index }}][email]"
+                                                value="{{ $recipient['email'] ?? '' }}"
+                                                maxlength="254"
+                                                aria-label="{{ __('Recipient email, row :number', ['number' => $index + 1]) }}"
+                                                data-recipient-email
                                             >
                                         </td>
 
@@ -106,15 +274,16 @@
                                                     data-recipient-note
                                                 >
 
-                                                <button class="delete-row-button"
+                                                <button
+                                                    class="delete-row-button"
                                                     type="button"
                                                     data-delete-row
                                                     aria-label="{{ __('Delete row :number', ['number' => $index + 1]) }}"
-                                                    title="{{ __('Delete row') }}">
+                                                    title="{{ __('Delete row') }}"
+                                                >
                                                     <svg viewBox="0 0 20 20" fill="none"
                                                         stroke="currentColor" stroke-width="1.8"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
+                                                        stroke-linecap="round" stroke-linejoin="round"
                                                         aria-hidden="true">
                                                         <path d="M3 5h14M7 5V3h6v2m-8 0 1 12h8l1-12M8 8v6m4-6v6"/>
                                                     </svg>
@@ -129,28 +298,44 @@
                                         </td>
 
                                         <td>
-                                            <input name="recipients[0][name]"
+                                            <input
+                                                name="recipients[0][name]"
                                                 maxlength="255"
                                                 aria-label="{{ __('Recipient name, row :number', ['number' => 1]) }}"
-                                                data-recipient-name>
+                                                data-recipient-name
+                                                required
+                                            >
+                                        </td>
+
+                                        <td>
+                                            <input
+                                                type="email"
+                                                name="recipients[0][email]"
+                                                maxlength="254"
+                                                aria-label="{{ __('Recipient email, row :number', ['number' => 1]) }}"
+                                                data-recipient-email
+                                            >
                                         </td>
 
                                         <td>
                                             <div class="recipient-note-cell">
-                                                <input name="recipients[0][note]"
+                                                <input
+                                                    name="recipients[0][note]"
                                                     maxlength="255"
                                                     aria-label="{{ __('Note, row :number', ['number' => 1]) }}"
-                                                    data-recipient-note>
+                                                    data-recipient-note
+                                                >
 
-                                                <button class="delete-row-button"
+                                                <button
+                                                    class="delete-row-button"
                                                     type="button"
                                                     data-delete-row
                                                     aria-label="{{ __('Delete row :number', ['number' => 1]) }}"
-                                                    title="{{ __('Delete row') }}">
+                                                    title="{{ __('Delete row') }}"
+                                                >
                                                     <svg viewBox="0 0 20 20" fill="none"
                                                         stroke="currentColor" stroke-width="1.8"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
+                                                        stroke-linecap="round" stroke-linejoin="round"
                                                         aria-hidden="true">
                                                         <path d="M3 5h14M7 5V3h6v2m-8 0 1 12h8l1-12M8 8v6m4-6v6"/>
                                                     </svg>
@@ -192,49 +377,74 @@
                     
                 @csrf
                     <div class="recipient-dropzone" data-recipient-dropzone>
-                        <span class="spreadsheet-symbol" aria-hidden="true">
-                            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M27 5H12a3 3 0 0 0-3 3v32a3 3 0 0 0 3 3h24a3 3 0 0 0 3-3V17L27 5Z" />
-                                <path d="M27 5v12h12M16 25h16M16 32h16M16 39h16" />
-                            </svg>
-                        </span>
-                        
-                        <h2>{{ __('Drag & Drop File Here') }}</h2>
-                        <p>{{ __('or') }}</p>
-                        
-                        <input class="visually-hidden" id="recipients-file" name="recipients_file" type="file" accept=".xlsx,.xls,.csv" aria-hidden="true" tabindex="-1" data-recipient-file>
-                        <button class="file-picker" type="button" data-recipient-picker>{{ __('Choose File') }}</button>
-                        <p class="format-copy">{{ __('Formats: XLSX, XLS, or CSV') }}<br>{{ __('Maximum size: 10 MB') }}</p>
-                        <span class="selected-file-copy recipient-uploading" data-recipient-uploading hidden></span>
+                        <div class="upload-content" data-recipient-upload-content>
+                            <span class="spreadsheet-symbol" aria-hidden="true">
+                                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M27 5H12a3 3 0 0 0-3 3v32a3 3 0 0 0 3 3h24a3 3 0 0 0 3-3V17L27 5Z" />
+                                    <path d="M27 5v12h12M16 25h16M16 32h16M16 39h16" />
+                                </svg>
+                            </span>
+                            
+                            <h2>{{ __('Drag & Drop File Here') }}</h2>
+                            <p>{{ __('or') }}</p>
+                            
+                            <input class="visually-hidden" id="recipients-file" name="recipients_file" type="file" accept=".xlsx,.xls,.csv" aria-hidden="true" tabindex="-1" data-recipient-file>
+                            <button class="file-picker" type="button" data-recipient-picker>{{ __('Choose File') }}</button>
+                            <p class="format-copy">{{ __('Formats: XLSX, XLS, or CSV') }}<br>{{ __('Maximum size: 10 MB') }}</p>
+                            <span class="selected-file-copy recipient-uploading" data-recipient-uploading hidden></span>
+                        </div>
+
+                        <div class="upload-loading" data-recipient-upload-loading hidden>
+                            <span class="upload-spinner" aria-hidden="true"></span>
+
+                            <h2>{{ __('Uploading recipient data...') }}</h2>
+
+                            <p data-recipient-uploading-name>
+                                {{ __('Please wait while your file is being uploaded.') }}
+                            </p>
+
+                            <div class="upload-progress-track">
+                                <span></span>
+                            </div>
+
+                            <span class="upload-loading-caption">
+                                {{ __('Do not close this page.') }}
+                            </span>
+                        </div>
                     </div>
                 </form>
 
                 <aside class="recipient-import-preview">
-                    @error('recipients_file')
-                        <p class="form-error recipient-error" role="alert">{{ $message }}</p>
-                    @enderror
-                    
                     <h2>{{ __('Data preview') }} <span>({{ count($recipients) }})</span></h2>
                     
-                    <div class="recipient-preview-scroll" data-preview-scroll>
+                    <div
+                        class="recipient-preview-scroll {{ count($recipients) > 0 ? 'has-data' : 'is-empty' }}"
+                        data-preview-scroll
+                    >                    
                         <table class="recipient-table recipient-table--preview">
-                            
                             <thead>
-                                <tr><th scope="col">{{ __('No.') }}</th><th scope="col">{{ __('Recipient Name') }}</th><th scope="col">{{ __('Note') }}</th></tr>
+                                <tr>
+                                    <th scope="col">{{ __('No.') }}</th>
+                                    <th scope="col">{{ __('Recipient Name') }}</th>
+                                    <th scope="col">{{ __('Email (optional)') }}</th>
+                                    <th scope="col">{{ __('Note') }}</th>
+                                </tr>
                             </thead>
-                            
+
                             <tbody id="recipient-preview-rows">
                                 @forelse ($recipients as $index => $recipient)
                                     <tr data-preview-row @if ($index >= 10) hidden @endif>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $recipient['name'] }}</td>
-                                        <td>{{ $recipient['note'] }}</td>
+                                        <td>{{ $recipient['email'] ?? '' }}</td>
+                                        <td>{{ $recipient['note'] ?? '' }}</td>
                                     </tr>
                                 @empty
-                                    <tr class="preview-empty"><td colspan="3">{{ __('No data yet') }}</td></tr>
+                                    <tr class="preview-empty">
+                                        <td colspan="4">{{ __('No data yet') }}</td>
+                                    </tr>
                                 @endforelse
                             </tbody>
-
                         </table>
                     </div>
 
@@ -268,9 +478,6 @@
                             </svg>
                         </button>
                     </form>
-                    @if (session('recipient_data_source') !== 'import')
-                        <p class="form-error" role="status">{{ __('Upload an Excel or CSV file before continuing.') }}</p>
-                    @endif
                 </aside>
             </section>
         </main>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace tests\Feature;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -26,30 +26,48 @@ class RecipientDataTest extends TestCase
             ->assertOk()
             ->assertSee('Masukkan Data Penerima')
             ->assertSee('Tambah Baris')
+            ->assertSee('Email', false)
             ->assertDontSee('Template Excel')
             ->assertSee('Kembali');
 
         $this->get(route('recipients.index', ['mode' => 'import']))
             ->assertOk()
             ->assertSee('Drag &amp; Drop File Here', false)
+            ->assertSee('Email', false)
             ->assertSee('disabled', false)
             ->assertSee('Pratinjau data');
     }
 
-    public function test_downloadable_excel_template_has_no_sample_recipients(): void
+    public function test_downloadable_excel_template_has_email_column(): void
     {
-        $spreadsheet = IOFactory::load(public_path('images/templates/template_sertif.xlsx'));
+        $spreadsheet = IOFactory::load(
+            public_path('images/templates/template_sertif.xlsx')
+        );
+
         $worksheet = $spreadsheet->getActiveSheet();
 
-        $this->assertSame(['No', 'Nama', 'Ket'], [
+        $this->assertSame(['No', 'Nama', 'Email', 'Ket'], [
             $worksheet->getCell('A1')->getValue(),
             $worksheet->getCell('B1')->getValue(),
             $worksheet->getCell('C1')->getValue(),
+            $worksheet->getCell('D1')->getValue(),
         ]);
 
         foreach (range(2, 5) as $row) {
-            $this->assertSame(null, $worksheet->getCell('B'.$row)->getValue());
-            $this->assertSame(null, $worksheet->getCell('C'.$row)->getValue());
+            $this->assertSame(
+                null,
+                $worksheet->getCell('B'.$row)->getValue()
+            );
+
+            $this->assertSame(
+                null,
+                $worksheet->getCell('C'.$row)->getValue()
+            );
+
+            $this->assertSame(
+                null,
+                $worksheet->getCell('D'.$row)->getValue()
+            );
         }
 
         $spreadsheet->disconnectWorksheets();
@@ -59,23 +77,29 @@ class RecipientDataTest extends TestCase
     {
         $this->withTemplate();
 
-        $response = $this->get(route('recipients.index', ['back' => 1]));
+        $response = $this->get(
+            route('recipients.index', ['back' => 1])
+        );
 
         $response->assertOk();
         $response->assertSee('animate-regression', false);
-        $response->assertSee('just-regressed', false);
+        $response->assertSee('just-reversed', false);
     }
 
-    public function test_xlsx_import_reads_recipients_into_the_session(): void
+    public function test_xlsx_import_reads_recipients_and_optional_emails_into_the_session(): void
     {
         $this->withTemplate();
+
         $path = tempnam(sys_get_temp_dir(), 'procert-xlsx-');
+
         $spreadsheet = new Spreadsheet;
+
         $spreadsheet->getActiveSheet()->fromArray([
-            ['Nama Penerima', 'Ket'],
-            ['Ayu Lestari', 'Peserta'],
-            ['Bima Putra', 'Panitia'],
+            ['Nama Penerima', 'Email', 'Ket'],
+            ['Ayu Lestari', 'ayu@gmail.com', 'Peserta'],
+            ['Bima Putra', null, 'Panitia'],
         ]);
+
         (new Xlsx($spreadsheet))->save($path);
         $spreadsheet->disconnectWorksheets();
 
@@ -87,29 +111,49 @@ class RecipientDataTest extends TestCase
                 null,
                 true,
             );
-            $response = $this->post(route('recipients.import'), ['recipients_file' => $upload]);
+
+            $response = $this->post(
+                route('recipients.import'),
+                ['recipients_file' => $upload]
+            );
         } finally {
             @unlink($path);
         }
 
-        $response->assertRedirect(route('recipients.index', ['mode' => 'import']));
+        $response->assertRedirect(
+            route('recipients.index', ['mode' => 'import'])
+        );
+
         $response->assertSessionHas('recipients', [
-            ['name' => 'Ayu Lestari', 'note' => 'Peserta'],
-            ['name' => 'Bima Putra', 'note' => 'Panitia'],
+            [
+                'name' => 'Ayu Lestari',
+                'email' => 'ayu@gmail.com',
+                'note' => 'Peserta',
+            ],
+            [
+                'name' => 'Bima Putra',
+                'email' => '',
+                'note' => 'Panitia',
+            ],
         ]);
+
         $response->assertSessionHas('recipient_data_source', 'import');
     }
 
     public function test_xlsx_import_uses_the_recipient_column_after_a_row_number_column(): void
     {
         $this->withTemplate();
+
         $path = tempnam(sys_get_temp_dir(), 'procert-xlsx-');
+
         $spreadsheet = new Spreadsheet;
+
         $spreadsheet->getActiveSheet()->fromArray([
-            ['No', 'Nama', 'Ket'],
-            [1, 'Ayu Lestari', 'Peserta'],
-            [2, 'Bima Putra', 'Panitia'],
+            ['No', 'Nama', 'Email', 'Ket'],
+            [1, 'Ayu Lestari', 'ayu@gmail.com', 'Peserta'],
+            [2, 'Bima Putra', 'bima@outlook.com', 'Panitia'],
         ]);
+
         (new Xlsx($spreadsheet))->save($path);
         $spreadsheet->disconnectWorksheets();
 
@@ -121,31 +165,154 @@ class RecipientDataTest extends TestCase
                 null,
                 true,
             );
-            $response = $this->post(route('recipients.import'), ['recipients_file' => $upload]);
+
+            $response = $this->post(
+                route('recipients.import'),
+                ['recipients_file' => $upload]
+            );
         } finally {
             @unlink($path);
         }
 
-        $response->assertRedirect(route('recipients.index', ['mode' => 'import']));
+        $response->assertRedirect(
+            route('recipients.index', ['mode' => 'import'])
+        );
+
         $response->assertSessionHas('recipients', [
-            ['name' => 'Ayu Lestari', 'note' => 'Peserta'],
-            ['name' => 'Bima Putra', 'note' => 'Panitia'],
+            [
+                'name' => 'Ayu Lestari',
+                'email' => 'ayu@gmail.com',
+                'note' => 'Peserta',
+            ],
+            [
+                'name' => 'Bima Putra',
+                'email' => 'bima@outlook.com',
+                'note' => 'Panitia',
+            ],
+        ]);
+    }
+
+    public function test_xlsx_import_detects_custom_name_and_email_headers(): void
+    {
+        $this->withTemplate();
+
+        $path = tempnam(sys_get_temp_dir(), 'procert-xlsx-');
+
+        $spreadsheet = new Spreadsheet;
+
+        $spreadsheet->getActiveSheet()->fromArray([
+            ['No', 'Nama Lengkap Peserta', 'Email Address', 'Keterangan'],
+            [1, 'Sofia', 'sofia@gmail.com', 'Peserta'],
+            [2, 'Ayu Lestari', 'ayu@outlook.com', 'Panitia'],
+        ]);
+
+        (new Xlsx($spreadsheet))->save($path);
+        $spreadsheet->disconnectWorksheets();
+
+        try {
+            $upload = new UploadedFile(
+                $path,
+                'penerima.xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                null,
+                true,
+            );
+
+            $response = $this->post(
+                route('recipients.import'),
+                ['recipients_file' => $upload]
+            );
+        } finally {
+            @unlink($path);
+        }
+
+        $response->assertRedirect(
+            route('recipients.index', ['mode' => 'import'])
+        );
+
+        $response->assertSessionHas('recipients', [
+            [
+                'name' => 'Sofia',
+                'email' => 'sofia@gmail.com',
+                'note' => 'Peserta',
+            ],
+            [
+                'name' => 'Ayu Lestari',
+                'email' => 'ayu@outlook.com',
+                'note' => 'Panitia',
+            ],
+        ]);
+    }
+
+    public function test_xlsx_import_can_read_email_from_a_different_column_position(): void
+    {
+        $this->withTemplate();
+
+        $path = tempnam(sys_get_temp_dir(), 'procert-xlsx-');
+
+        $spreadsheet = new Spreadsheet;
+
+        $spreadsheet->getActiveSheet()->fromArray([
+            ['Email Address', 'Keterangan', 'Nama Lengkap'],
+            ['sofia@gmail.com', 'Peserta', 'Sofia'],
+            ['ayu@outlook.com', 'Panitia', 'Ayu Lestari'],
+        ]);
+
+        (new Xlsx($spreadsheet))->save($path);
+        $spreadsheet->disconnectWorksheets();
+
+        try {
+            $upload = new UploadedFile(
+                $path,
+                'penerima.xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                null,
+                true,
+            );
+
+            $response = $this->post(
+                route('recipients.import'),
+                ['recipients_file' => $upload]
+            );
+        } finally {
+            @unlink($path);
+        }
+
+        $response->assertRedirect(
+            route('recipients.index', ['mode' => 'import'])
+        );
+
+        $response->assertSessionHas('recipients', [
+            [
+                'name' => 'Sofia',
+                'email' => 'sofia@gmail.com',
+                'note' => 'Peserta',
+            ],
+            [
+                'name' => 'Ayu Lestari',
+                'email' => 'ayu@outlook.com',
+                'note' => 'Panitia',
+            ],
         ]);
     }
 
     public function test_xlsx_import_skips_ellipsis_placeholders_without_counting_them_as_recipients(): void
     {
         $this->withTemplate();
+
         $path = tempnam(sys_get_temp_dir(), 'procert-xlsx-');
+
         $spreadsheet = new Spreadsheet;
+
         $spreadsheet->getActiveSheet()->fromArray([
-            ['No', 'Nama', 'Ket'],
-            [1, 'Ayu Lestari', 'Peserta'],
-            [2, 'Bima Putra', 'Panitia'],
-            [3, 'Citra Dewi', 'Peserta'],
-            [4, 'Dimas Pratama', 'Panitia'],
-            [5, '…', ''],
+            ['No', 'Nama', 'Email', 'Ket'],
+            [1, 'Ayu Lestari', 'ayu@gmail.com', 'Peserta'],
+            [2, 'Bima Putra', 'bima@gmail.com', 'Panitia'],
+            [3, 'Citra Dewi', null, 'Peserta'],
+            [4, 'Dimas Pratama', null, 'Panitia'],
+            [5, '…', null, null],
         ]);
+
         (new Xlsx($spreadsheet))->save($path);
         $spreadsheet->disconnectWorksheets();
 
@@ -157,41 +324,157 @@ class RecipientDataTest extends TestCase
                 null,
                 true,
             );
-            $response = $this->post(route('recipients.import'), ['recipients_file' => $upload]);
+
+            $response = $this->post(
+                route('recipients.import'),
+                ['recipients_file' => $upload]
+            );
         } finally {
             @unlink($path);
         }
 
-        $response->assertRedirect(route('recipients.index', ['mode' => 'import']));
+        $response->assertRedirect(
+            route('recipients.index', ['mode' => 'import'])
+        );
+
         $response->assertSessionHas('recipients', [
-            ['name' => 'Ayu Lestari', 'note' => 'Peserta'],
-            ['name' => 'Bima Putra', 'note' => 'Panitia'],
-            ['name' => 'Citra Dewi', 'note' => 'Peserta'],
-            ['name' => 'Dimas Pratama', 'note' => 'Panitia'],
+            [
+                'name' => 'Ayu Lestari',
+                'email' => 'ayu@gmail.com',
+                'note' => 'Peserta',
+            ],
+            [
+                'name' => 'Bima Putra',
+                'email' => 'bima@gmail.com',
+                'note' => 'Panitia',
+            ],
+            [
+                'name' => 'Citra Dewi',
+                'email' => '',
+                'note' => 'Peserta',
+            ],
+            [
+                'name' => 'Dimas Pratama',
+                'email' => '',
+                'note' => 'Panitia',
+            ],
         ]);
-        $response = $this->get(route('recipients.index', ['mode' => 'import']));
+
+        $response = $this->get(
+            route('recipients.index', ['mode' => 'import'])
+        );
+
         $response->assertOk();
         $response->assertSee('Pratinjau data <span>(4)</span>', false);
         $response->assertDontSee('disabled', false);
     }
 
-    public function test_manual_recipients_are_trimmed_and_saved(): void
+    public function test_manual_recipients_are_trimmed_and_saved_with_optional_emails(): void
     {
         $this->withTemplate();
 
         $response = $this->post(route('recipients.store'), [
             'recipients' => [
-                ['name' => '  Ayu Lestari  ', 'note' => '  Peserta  '],
-                ['name' => '', 'note' => ''],
-                ['name' => 'Bima Putra', 'note' => 'Panitia'],
+                [
+                    'name' => '  Ayu Lestari  ',
+                    'email' => '  ayu@gmail.com  ',
+                    'note' => '  Peserta  ',
+                ],
+                [
+                    'name' => '',
+                    'email' => '',
+                    'note' => '',
+                ],
+                [
+                    'name' => 'Bima Putra',
+                    'email' => '',
+                    'note' => 'Panitia',
+                ],
             ],
         ]);
 
-        $response->assertRedirect(route('certificate-number.index'));
+        $response->assertRedirect(
+            route('certificate-number.index')
+        );
+
         $response->assertSessionHas('recipients', [
-            ['name' => 'Ayu Lestari', 'note' => 'Peserta'],
-            ['name' => 'Bima Putra', 'note' => 'Panitia'],
+            [
+                'name' => 'Ayu Lestari',
+                'email' => 'ayu@gmail.com',
+                'note' => 'Peserta',
+            ],
+            [
+                'name' => 'Bima Putra',
+                'email' => '',
+                'note' => 'Panitia',
+            ],
         ]);
+    }
+
+    public function test_manual_submission_rejects_invalid_email_addresses(): void
+    {
+        $this->withTemplate();
+
+        $response = $this->from(
+            route('recipients.index', ['mode' => 'manual'])
+        )->post(route('recipients.store'), [
+            'recipients' => [
+                [
+                    'name' => 'Ayu Lestari',
+                    'email' => 'not-an-email',
+                    'note' => 'Peserta',
+                ],
+            ],
+        ]);
+
+        $response->assertRedirect(
+            route('recipients.index', ['mode' => 'manual'])
+        );
+
+        $response->assertSessionHasErrors('recipients.0.email');
+    }
+
+    public function test_xlsx_import_rejects_invalid_email_addresses(): void
+    {
+        $this->withTemplate();
+
+        $path = tempnam(sys_get_temp_dir(), 'procert-xlsx-');
+
+        $spreadsheet = new Spreadsheet;
+
+        $spreadsheet->getActiveSheet()->fromArray([
+            ['Nama', 'Email'],
+            ['Ayu Lestari', 'invalid-email'],
+        ]);
+
+        (new Xlsx($spreadsheet))->save($path);
+        $spreadsheet->disconnectWorksheets();
+
+        try {
+            $upload = new UploadedFile(
+                $path,
+                'penerima.xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                null,
+                true,
+            );
+
+            $response = $this->from(
+                route('recipients.index', ['mode' => 'import'])
+            )->post(
+                route('recipients.import'),
+                ['recipients_file' => $upload]
+            );
+        } finally {
+            @unlink($path);
+        }
+
+        $response->assertRedirect(
+            route('recipients.index', ['mode' => 'import'])
+        );
+
+        $response->assertSessionHasErrors('recipients_file');
+        $response->assertSessionMissing('recipients');
     }
 
     public function test_xlsx_import_rejects_more_than_one_thousand_recipients_without_a_header(): void
@@ -199,6 +482,7 @@ class RecipientDataTest extends TestCase
         $this->withTemplate();
 
         $path = tempnam(sys_get_temp_dir(), 'procert-xlsx-');
+
         $spreadsheet = new Spreadsheet;
         $rows = [];
 
@@ -207,6 +491,7 @@ class RecipientDataTest extends TestCase
         }
 
         $spreadsheet->getActiveSheet()->fromArray($rows);
+
         (new Xlsx($spreadsheet))->save($path);
         $spreadsheet->disconnectWorksheets();
 
@@ -218,16 +503,25 @@ class RecipientDataTest extends TestCase
                 null,
                 true,
             );
-            $response = $this->from(route('recipients.index', ['mode' => 'import']))
-                ->post(route('recipients.import'), ['recipients_file' => $upload]);
+
+            $response = $this->from(
+                route('recipients.index', ['mode' => 'import'])
+            )->post(
+                route('recipients.import'),
+                ['recipients_file' => $upload]
+            );
         } finally {
             @unlink($path);
         }
 
-        $response->assertRedirect(route('recipients.index', ['mode' => 'import']));
+        $response->assertRedirect(
+            route('recipients.index', ['mode' => 'import'])
+        );
+
         $response->assertSessionHasErrors([
             'recipients_file' => 'File hanya boleh berisi maksimal 1.000 penerima.',
         ]);
+
         $response->assertSessionMissing('recipients');
     }
 
@@ -235,19 +529,32 @@ class RecipientDataTest extends TestCase
     {
         $this->withTemplate();
 
-        $response = $this->from(route('recipients.index', ['mode' => 'manual']))
-            ->post(route('recipients.store'), [
-                'recipients' => [['name' => '', 'note' => '']],
-            ]);
+        $response = $this->from(
+            route('recipients.index', ['mode' => 'manual'])
+        )->post(
+            route('recipients.store'),
+            [
+                'recipients' => [
+                    [
+                        'name' => '',
+                        'email' => '',
+                        'note' => '',
+                    ],
+                ],
+            ]
+        );
 
-        $response->assertRedirect(route('recipients.index', ['mode' => 'manual']));
+        $response->assertRedirect(
+            route('recipients.index', ['mode' => 'manual'])
+        );
+
         $response->assertSessionHasErrors('recipients');
     }
 
-    public function test_import_mode_cannot_advance_without_a_successful_file_upload(): void
+    public function test_import_mode_can_advance_with_existing_manual_recipients(): void
     {
-        Storage::fake('local');
-        Storage::disk('local')->put('certificate-templates/template.png', 'template');
+        $this->withTemplate();
+
         $this->withSession([
             'template' => [
                 'path' => 'certificate-templates/template.png',
@@ -255,22 +562,42 @@ class RecipientDataTest extends TestCase
             ],
             'recipient_mode' => 'import',
             'recipient_data_source' => 'manual',
-            'recipients' => [['name' => 'Ayu Lestari', 'note' => '']],
+            'recipients' => [
+                [
+                    'name' => 'Ayu Lestari',
+                    'email' => '',
+                    'note' => '',
+                ],
+            ],
         ]);
 
-        $response = $this->from(route('recipients.index', ['mode' => 'import']))
-            ->post(route('recipients.next'));
+        $response = $this->from(
+            route('recipients.index', ['mode' => 'import'])
+        )->post(route('recipients.next'));
 
-        $response->assertRedirect(route('recipients.index', ['mode' => 'import']));
-        $response->assertSessionHasErrors([
-            'recipients_file' => 'Unggah file Excel atau CSV terlebih dahulu.',
+        $response->assertRedirect(
+            route('certificate-number.index')
+        );
+
+        $response->assertSessionHasNoErrors();
+
+        $response->assertSessionHas('recipients', [
+            [
+                'name' => 'Ayu Lestari',
+                'email' => '',
+                'note' => '',
+            ],
         ]);
     }
 
     private function withTemplate(): void
     {
         Storage::fake('local');
-        Storage::disk('local')->put('certificate-templates/template.png', 'template');
+
+        Storage::disk('local')->put(
+            'certificate-templates/template.png',
+            'template'
+        );
 
         $this->withSession([
             'template' => [

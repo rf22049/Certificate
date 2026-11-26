@@ -102,6 +102,21 @@
                                     {{ $recipient['name'] }}
                                 </span>
 
+                                @if (!empty($recipient['email']))
+                                    <span
+                                        class="recipient-email-indicator"
+                                        title="{{ $recipient['email'] }}"
+                                        aria-label="{{ __('Email available') }}"
+                                    >
+                                        <svg viewBox="0 0 20 20" fill="none"
+                                            stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            aria-hidden="true">
+                                            <rect x="2.5" y="4" width="15" height="12" rx="2"/>
+                                            <path d="m3 5 7 5 7-5"/>
+                                        </svg>
+                                    </span>
+                                @endif
                                 <span class="recipient-arrow">›</span>
                             </button>
                         @endforeach

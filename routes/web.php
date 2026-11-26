@@ -41,9 +41,22 @@ Route::post('/templates/select/{id}', [TemplateUploadController::class, 'select'
 Route::delete('/templates', [TemplateUploadController::class, 'destroy'])->name('templates.destroy');
 
 Route::get('/recipients', [RecipientController::class, 'index'])->name('recipients.index');
+Route::post('/recipients/draft', [RecipientController::class, 'saveDraft'])
+    ->name('recipients.draft');
+
 Route::post('/recipients/import', [RecipientController::class, 'import'])
     ->middleware('throttle:10,1')
     ->name('recipients.import');
+
+Route::post('/recipients/import/confirm', [
+    RecipientController::class,
+    'confirmImportReplacement',
+])->name('recipients.import.confirm');
+
+Route::post('/recipients/import/cancel', [
+    RecipientController::class,
+    'cancelImportReplacement',
+])->name('recipients.import.cancel');
 
 Route::post('/recipients/manual', [RecipientController::class, 'store'])->name('recipients.store');
 Route::post('/recipients/continue', [RecipientController::class, 'next'])->name('recipients.next');

@@ -441,6 +441,27 @@
     "MY TEMPLATES": "MY TEMPLATES",
     "You can switch to another template from the template library.": "Kamu bisa memilih template lain dari Template Library.",
     "Make sure your certificate design is clear and readable.": "Pastikan desain sertifikat jelas dan mudah dibaca.",
-    "Change template": "Ganti template"
+    "Change template": "Ganti template",
+    "Email (optional)": "Email (opsional)",
+    "Recipient email, row :number": "Email penerima, baris :number",
+    "Email available": "Email tersedia",
+    "Uploading recipient data...": "Mengunggah data penerima...",
+    "The file extension must be XLSX, XLS, or CSV.": "File harus berformat XLSX, XLS, atau CSV.",
+    "A valid recipient name is required in row :row.": "Nama penerima yang valid wajib diisi pada baris :row.",
+    "Enter a valid email address in row :row.": "Masukkan alamat email yang valid pada baris :row.",
+    "The note in row :row exceeds 255 characters.": "Keterangan pada baris :row melebihi 255 karakter.",
+    "Replace recipient list?": "Ganti daftar penerima?",
+    "A recipient list already exists. The new Excel file will replace all current recipient data.": "Daftar penerima sudah tersedia. File Excel baru akan menggantikan seluruh data penerima saat ini.",
+    "New file": "File baru",
+    "Uploaded Excel file": "File Excel yang diunggah",
+    "Current recipients": "Penerima saat ini",
+    "Recipients in new file": "Penerima dalam file baru",
+    "The current recipient list will be replaced, not combined with the new list.": "Daftar penerima saat ini akan digantikan, bukan digabung dengan daftar baru.",
+    "Cancel": "Batal",
+    "Replace Data": "Ganti Data",
+    "Recipient data replaced successfully.": "Data penerima berhasil diganti.",
+    "No pending recipient data was found. Please upload the file again.": "Tidak ditemukan data penerima yang menunggu konfirmasi. Silakan unggah file kembali.",
+    "Upload successful": "Upload berhasil!",
+    "Recipient data uploaded successfully.": "Data penerima berhasil di-upload."
 }
 
